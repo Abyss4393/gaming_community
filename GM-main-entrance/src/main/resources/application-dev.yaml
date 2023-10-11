@@ -1,0 +1,23 @@
+server:
+  port: 2766
+  servlet:
+      encoding:
+        force: true
+        charset: UTF-8
+        enabled: true
+  tomcat:
+      uri-encoding: UTF-8
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.109.22.92:3306/game_community?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+    username: game_community
+    password: 6KDLnpsTj5NmDKaB
+
+
+  data:
+    redis:
+      host: 47.109.22.92
+      port: 6379
+      password: AbyssRedis

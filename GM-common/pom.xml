@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>cn.abyss4393</groupId>
+        <artifactId>Game-Community</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>GM-common</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>GM-common-utils</module>
+        <module>GM-common-generator</module>
+        <module>GM-common-annotation</module>
+        <module>GM-common-interceptor</module>
+        <module>GM-common-config</module>
+        <module>GM-common-po</module>
+        <module>GM-common-entity</module>
+        <module>GM-common-vo</module>
+        <module>GM-common-mapper</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+    </properties>
+
+
+    <dependencies>
+        <!--mybatis-plus-boot-starter-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-core</artifactId>
+            <version>3.5.3.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <version>3.5.3.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+
+
+    </dependencies>
+</project>

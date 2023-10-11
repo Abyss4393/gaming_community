@@ -1,0 +1,21 @@
+server:
+  port: 2766
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.109.22.92:3306/game_community?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
+    username: game_community
+    password: 6KDLnpsTj5NmDKaB
+
+
+
+ucode:
+  code:
+    package-name: "cn.abyss4393.generator.pack"
+    domain:
+      add-construction-method: true
+    join-query: false
+    use-swagger: false
+    xml:
+      add-xml: false
+    filter-sys-table: true

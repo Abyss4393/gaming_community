@@ -1,0 +1,13 @@
+
+spring:
+  jackson:
+    date-format: 'yyyy-MM-dd HH:mm:ss'
+    time-zone: 'GMT+8'
+    mapper:
+      sort-properties-alphabetically: true
+  config:
+    use-legacy-processing: true
+  main:
+    allow-circular-references: true
+  profiles:
+    active: dev

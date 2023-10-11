@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>Game-Community</artifactId>
+        <groupId>cn.abyss4393</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>GM-main-entrance</artifactId>
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--业务控制类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-service-dto</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--响应类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-common-entity</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--服务类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-service-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--配置类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-common-config</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--映射类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-common-mapper</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--注解类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-common-annotation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--websocket服务类-->
+        <dependency>
+            <groupId>cn.abyss4393</groupId>
+            <artifactId>GM-websocket-service</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+    </properties>
+
+</project>
