@@ -126,8 +126,10 @@ public class WebSocketPersonalServer {
 
     @OnMessage
     public void onMessage(Session session, String message) throws IOException, EncodeException {
-        if (WebSocketStates.WAITING.states.equalsIgnoreCase(message))
+        if (WebSocketStates.WAITING.states.equalsIgnoreCase(message)) {
             session.getBasicRemote().sendText(WebSocketStates.WAITING.states);
+            return;
+        }
         JSONObject cmmData = JSONUtil.parseObj(message);
         String tempTimeStamp = TimeStampUtil.getIntactTimestamp();
         cmmData.set("timestamp", tempTimeStamp);

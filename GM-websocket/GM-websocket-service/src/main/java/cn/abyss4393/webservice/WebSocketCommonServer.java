@@ -8,6 +8,7 @@ import cn.abyss4393.utils.redis.RedisUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.abyss4393.vo.SimpleUserInfo;
 import cn.abyss4393.webservice.encoder.WebSocketCustomEncoding;
+import cn.abyss4393.webservice.states.WebSocketStates;
 import cn.abyss4393.webservice.utils.WebSocketMessageConverters;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,7 +107,7 @@ public class WebSocketCommonServer {
     private String sysCurrentTime;
 
     @OnOpen
-    public void OnOpen(Session session, @NonNull @PathParam("sender_id") Integer id, @NonNull @PathParam("group_id") Integer gid) {
+    public void OnOpen(Session session, @NonNull @PathParam("sender_id") Integer id, @NonNull @PathParam("group_id") Integer gid) throws IOException {
         senderId = id;
         groupId = gid;
         sysCurrentTime = TimeStampUtil.getTimestamp();
@@ -113,11 +115,16 @@ public class WebSocketCommonServer {
         User user = userMapper.getSimpleUserInfo(id);
         log.info("有新用户加入,nickname：{},当前在线人数：{}", user.getNickname(), sessionMaps.size());
         userMaps.put(id, new SimpleUserInfo(id, user.getNickname(), user.getAvatar()));
+        session.getBasicRemote().sendText(WebSocketStates.WAITING.states);
     }
 
 
     @OnMessage
-    public void OnMessage(@NonNull String message) {
+    public void OnMessage(Session session, @NonNull String message) throws IOException {
+        if (WebSocketStates.WAITING.states.equalsIgnoreCase(message)) {
+            session.getBasicRemote().sendText(WebSocketStates.WAITING.states);
+            return;
+        }
         log.info("服务端接成功接收到用户nickname={}的消息", userMaps.get(senderId));
         JSONObject result = JSONUtil.parseObj(message);
         result.set("timestamp", TimeStampUtil.getIntactTimestamp());
@@ -138,9 +145,9 @@ public class WebSocketCommonServer {
 
     @OnClose
     public void OnClose() {
+        sessionMaps.remove(senderId);
         log.info("当前有一个连接关闭，移除nickname={}的用户，当前人数：{}",
                 userMaps.get(senderId).getNickname(), sessionMaps.size());
-        sessionMaps.remove(senderId);
         historyMaps.putIfAbsent(sysCurrentTime, historyArray);
         historyMaps.replace(sysCurrentTime, historyArray);
         String key = String.valueOf(groupId);
@@ -206,10 +213,14 @@ public class WebSocketCommonServer {
 
     }
 
-    private void broadcastMessage(Object message, Session toSession) {
+    private <T> void broadcastMessage(T message, Session toSession) {
         try {
             log.info("服务端发送给客户端[{}]发送消息", toSession.getId());
-            toSession.getBasicRemote().sendObject(message);
+            if (message instanceof String) {
+                toSession.getBasicRemote().sendText((String) message);
+            } else {
+                toSession.getBasicRemote().sendObject(message);
+            }
         } catch (Exception e) {
             log.error("发送信息失败！", e);
         }
