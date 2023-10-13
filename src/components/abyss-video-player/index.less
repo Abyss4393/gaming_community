@@ -1,0 +1,63 @@
+@player_background: rgba(0, 0, 0, 0.8);
+@player_MAXWIDTH: 37.5rem;
+@player_MAXHIGHT: 25rem;
+@player_icon_url: url('@/assets/static/icons/play.png');
+
+.content-video {
+    display: block;
+    cursor: pointer;
+    position: relative;
+    height: 100%;
+
+    img {
+        height: 100%;
+    }
+
+    .icon {
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        background: @player_icon_url no-repeat center;
+        background-size: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+    }
+}
+
+
+.video-player {
+    max-width: @player_MAXWIDTH;
+    max-height: @player_MAXHIGHT;
+    overflow: hidden;
+    background: @player_background;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+
+    video {
+        max-width: @player_MAXWIDTH;
+        max-height: @player_MAXHIGHT;
+    }
+
+    .close-player {
+        padding: 0 .04rem;
+        background: #f6f2f2;
+        border: 1px solid #eeeeee;
+        font-size: .75rem;
+        cursor: pointer;
+        color: #333333;
+        position: absolute;
+        top: .02rem;
+        right: .2rem;
+    }
+}

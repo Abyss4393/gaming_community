@@ -1,0 +1,65 @@
+#friend-list {
+    width: 100%;
+    height: 100%;
+
+    .topbar {
+        height: 3rem;
+        background-color: red;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-height: 40rem;
+        margin-top: 2rem;
+        padding: .4rem;
+        box-sizing: border-box;
+
+        ul {
+            li {
+                display: block;
+                width: 100%;
+                height: 5rem;
+                padding: 1rem 1rem;
+                box-sizing: border-box;
+                white-space: nowrap;
+                box-sizing: border-box;
+
+                &:hover {
+                    outline: .1rem solid #333;
+                    transition: 2s cubic-bezier(0.075, 0.82, 0.165, 1);
+                }
+
+                img {
+                    position: relative;
+                    width: 3rem;
+                    height: 3rem;
+                    border-radius: 50%;
+                    
+                    &:hover {
+                        transform: scale(1.1);
+                        outline: .1rem solid lightskyblue;
+                        transition: 1s cubic-bezier(0.075, 0.82, 0.165, 1);  
+                    }
+
+                   
+                }
+
+                span{
+                    display: inline-block;
+                    width: 3rem;
+                    max-height: 2rem;
+                    vertical-align: middle;
+                    margin-left: 1.2rem;
+                    margin-top: -2.5rem;
+                    text-align: center;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-weight: 1000;
+                    word-spacing: 0;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,123 @@
+@header-theme-color: #272d51;
+@font-color: #fffffe;
+@image-size: 2.4rem;
+@icons-size: 1.2rem;
+@layout_search_top: 1.7rem;
+@layout_search_left: 88rem;
+@layout_avator_top : 1.5rem;
+@layout_avator_left : 99rem;
+@layout_tooltip_top : 1rem;
+
+#abyss-header {
+    height: 5rem;
+    line-height: 3.1rem;
+    background-color: @header-theme-color;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 9;
+
+    .navbar {
+        display: flex;
+        position: absolute;
+        left: 48rem;
+        flex-wrap: nowrap;
+        max-width: 40rem;
+        height: 100%;
+        white-space: nowrap;
+
+        ul {
+            li {
+                display: inline-block;
+                width: 6rem;
+                height: 100%;
+                padding: .3rem;
+                box-sizing: border-box;
+
+
+                p {
+                    display: block;
+                    margin-top: .8rem;
+                    width: 100%;
+                    text-align: center;
+                    color: @font-color;
+                    font-size: 1.4rem;
+                }
+
+
+                &:first-child,
+                &:hover {
+                    background-color: rgba(255, 255, 255, .18);
+                }
+
+
+
+            }
+        }
+
+    }
+
+    .search {
+        width: 30rem;
+        position: absolute;
+        top: @layout_search_top;
+        left: @layout_search_left;
+
+    }
+
+    .avator {
+        position: absolute;
+        top: @layout_avator_top;
+        left: @layout_avator_left;
+        display: flex;
+        overflow: hidden;
+        border-radius: 50%;
+
+        img {
+            width: @image-size;
+            height: @image-size;
+
+        }
+
+        &:hover {
+            transform: scale(1.2);
+            transition: 150ms ease;
+            cursor: pointer;
+        }
+
+
+
+    }
+
+
+}
+
+.popper {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    box-sizing: border-box;
+
+    ul {
+        li {
+
+            margin-top: @layout_tooltip_top;
+            border-bottom: 1px solid lightskyblue;
+
+            img {
+                width: @icons-size;
+                height: @icons-size;
+            }
+
+            span {
+                display: inline-block;
+                vertical-align: top;
+                margin-left: .8rem;
+                margin-top: .21rem;
+                font-size: 1rem;
+                font-weight: 2000;
+                cursor: pointer;
+            }
+        }
+    }
+}
