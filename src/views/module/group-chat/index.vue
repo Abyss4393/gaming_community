@@ -97,7 +97,7 @@
                         <!-- 图片 -->
                         <div class="action-item">
                             <label for="img-input">
-                                <i class="iconfont icon-picture" title="图片"></i>
+                                <img class="iconfont" :src="require('@/assets/static/icons/pic.png')" alt="pic">
                             </label>
                             <input v-show="false" id="img-input" accept="image/*" multiple type="file"
                                 @change="sendImageMessage" />
@@ -171,7 +171,7 @@ var data = reactive({
         name: '薄昼交流群',
         avatar: require('@/assets/static/resource/default.png')
     },
-    socket: new AbyssWS(data.group.id),
+
     currentUser: null,
 
     to: {},//用于创建消息时传入
@@ -213,25 +213,8 @@ var data = reactive({
 })
 
 
+const socket = new AbyssWS(data.group.id);
 
-
-const sendmesg = async () => {
-    const data = await data.socket.createTextMessage({
-        type: 'text',
-        content: {
-            text: '打得我区分开'
-        },
-        success: (e) => {
-            console.log(e);
-        },
-        fail: (e) => {
-            console.log(e);
-        }
-    })
-    console.log("data", data);
-}
-
-sendmesg()
 onMounted(() => {
     let user = store.getters["user/getUserInfo"];
 
@@ -311,24 +294,38 @@ const getImageHeight = function (width, height) {
 // const onAudioPlayEnd = function () {
 //     data.audioPlayer.playingMessage = null;
 // };
-// const sendTextMessage = function () {
-//     if (!data.text.trim()) {
-//         console.log('输入为空');
-//         return
-//     }
-//     // 发送消息api
-//     // data.goEasy.im.createTextMessage({
-//     //     text: data.text,
-//     //     to: data.to,
-//     //     onSuccess: (message) => {
-//     //         data.sendMessage(message);
-//     //         data.text = '';
-//     //     },
-//     //     onFailed: (err) => {
-//     //         console.log("创建消息err:", err);
-//     //     }
-//     // });
-// };
+const sendTextMessage = async function () {
+    if (!data.text.trim()) {
+        console.log('输入为空');
+        return
+    }
+    console.log(data.text);
+    const data = await socket.createTextMessage({
+        type: 'text',
+        content: {
+            text: '打得我区分开'
+        },
+        success: (e) => {
+            console.log(e);
+        },
+        fail: (e) => {
+            console.log(e);
+        }
+    })
+    console.log("data", data);
+    // 发送消息api
+    // data.goEasy.im.createTextMessage({
+    //     text: data.text,
+    //     to: data.to,
+    //     onSuccess: (message) => {
+    //         data.sendMessage(message);
+    //         data.text = '';
+    //     },
+    //     onFailed: (err) => {
+    //         console.log("创建消息err:", err);
+    //     }
+    // });
+};
 // const onInputFocus = function () {
 //     data.emoji.visible = false;
 // };
@@ -339,12 +336,25 @@ const getImageHeight = function (width, height) {
 //     data.text += emojiKey;
 //     data.emoji.visible = false;
 // };
-// const sendImageMessage = function (e) {
-//     let fileList = [...e.target.files];
-//     fileList.forEach((file) => {
-//         //发送图片api
-//     })
-// };
+const sendImageMessage = function (e) {
+    const imageList = [...e.target.files];
+    let imr = new FileReader();
+    imr.readAsBinaryString(imageList[0]);
+    imr.onload = function (e) {
+        const base64Code = e.target.result
+        socket.createTextMessage({
+            type: 'image',
+            content: {
+                image:  base64Code
+            },
+            success: () => {
+            },
+            fail: () => {
+            }
+        })
+    }
+
+};
 // const sendVideoMessage = function (e) {
 //     const file = e.target.files[0];
 //     // 发送音频api
