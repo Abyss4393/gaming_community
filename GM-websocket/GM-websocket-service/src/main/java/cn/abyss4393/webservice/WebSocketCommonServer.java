@@ -156,6 +156,8 @@ public class WebSocketCommonServer {
         temp.set("size", historyArray.toString().getBytes().length);
         redisUtils.lSet(key, temp);
         redisUtils.expire(key, 60 * 24 * 24 * 3);
+
+        //
         this.store();
         log.info("websocket已关闭");
     }
