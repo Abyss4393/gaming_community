@@ -15,9 +15,13 @@ spring:
     username: game_community
     password: 6KDLnpsTj5NmDKaB
 
-
   data:
     redis:
       host: 47.109.22.92
       port: 6379
       password: AbyssRedis
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait:  -1
+          min-idle: 0
