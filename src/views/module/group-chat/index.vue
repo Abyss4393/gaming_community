@@ -165,12 +165,14 @@ const IMAGE_MAX_HEIGHT = 150;
 const IN_STANCE_GROUP = 'group';
 
 var data = reactive({
-    currentUser: null,
+
     group: {
         id: 29901,
         name: '薄昼交流群',
         avatar: require('@/assets/static/resource/default.png')
     },
+    socket: new AbyssWS(data.group.id),
+    currentUser: null,
 
     to: {},//用于创建消息时传入
 
@@ -210,12 +212,11 @@ var data = reactive({
     },
 })
 
-const socket = new AbyssWS(data.group.id);
 
 
 
 const sendmesg = async () => {
-    const data = await socket.createTextMessage({
+    const data = await data.socket.createTextMessage({
         type: 'text',
         content: {
             text: '打得我区分开'
@@ -227,7 +228,7 @@ const sendmesg = async () => {
             console.log(e);
         }
     })
-    console.log("data",data);
+    console.log("data", data);
 }
 
 sendmesg()
