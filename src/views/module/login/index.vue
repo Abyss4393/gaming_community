@@ -120,26 +120,25 @@ const login = function () {
         unref(loginForm).validate(async vaild => {
             if (vaild) {
                 const res = await LoginAPI(loginInfo);
-                console.log(res);
                 if (res.meta.code === 222) {
                     setUserInfo(res.data);
                     setToken(res.data.token);
                     console.log(store.state.user.userInfo);
                     ElMessage.success(res.meta.msg);
-                    asyncChangeHasMask(800);
+                    asyncChangeHasMask(100);
                     intance.proxy.$router.push('/register')
                 } else {
-                    ElMessage.error("请求失败");
-                    syncChangeHasMask(800);
+                    ElMessage.error(res.meta.msg);
+                    asyncChangeHasMask(100);
                 }
             } else {
+                asyncChangeHasMask(100);
                 ElMessage({
                     type: "error",
                     message: '请检查你的账户和密码，稍后重试~',
                     iconClass: 'el-icon-error',
                     offset: 42
                 })
-                asyncChangeHasMask(800);
             }
 
         })
