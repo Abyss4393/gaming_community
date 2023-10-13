@@ -10,12 +10,10 @@ export class AbyssWS {
         this._pool = {};
     }
 
-    _onopen = onOpen => (e) => {
-        onOpen(e)
-    }
+    _onopen = (onOpen) => (e) => { onOpen(e) }
 
     _onmessage = onMessage => (e) => {
-        console.log("heart...");
+        this._onReceiveMessage()
         if ((e instanceof Object && null != e.data)) {
             this._heartCheck.reset();
             if (null == this._pool['sys']) {
@@ -29,13 +27,14 @@ export class AbyssWS {
             }
 
         }
-
         this._heartCheck.start(this._socket)
     }
 
     _onclose = onClose => (e) => { onClose(e) }
 
     _onerror = onError => (e) => { onError(e) }
+
+    _onReceiveMessage = onReceive => e => { onReceive(e) }
 
     _init = async (onMessage, onClose, onError) => {
         return new Promise((resovle, reject) => {
@@ -54,28 +53,21 @@ export class AbyssWS {
         })
     }
 
-    destory = function () {
-        Object.keys(this._pool).forEach(item => {
-            delete this._pool[item];
-        })
-    }
 
-    createTextMessage = async (res) => {
+
+    _baseSendMessage = async (res, type) => {
         return new Promise((resolve, reject) => {
-            console.log(res);
             if (!res instanceof Object)
                 reject('请求体错误')
             let sfn, ffn;
             sfn = res['success'];
             ffn = res['fail'];
-            if (typeof (res.type) == 'string' && 'text' === res.type) {
+            if (typeof (res.type) == 'string' && type === res.type) {
                 this._init(() => {
-                    if (this._socket.readyState === this._socket.OPEN) {
-                        this._socket.send(JSON.stringify({
-                            type: res.type,
-                            content: res.content
-                        }))
-                    }
+                    this._socket.send(JSON.stringify({
+                        type: res.type,
+                        content: res.content
+                    }))
                 }, sfn, ffn);
                 resolve({
                     data: this._pool,
@@ -90,4 +82,21 @@ export class AbyssWS {
         })
     }
 
+
+    destory = function () {
+        Object.keys(this._pool).forEach(item => {
+            delete this._pool[item];
+        })
+    }
+
+    createTextMessage = async res => {
+        return this._baseSendMessage(res, 'text');
+    }
+
+    createImageMessage = async res => {
+        return this._baseSendMessage(res, 'image');
+    }
+
+
+    setOnReceiveMessage = (fn) => this._onReceiveMessage = fn();
 }
