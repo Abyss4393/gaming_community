@@ -1,6 +1,5 @@
 package cn.abyss4393.main;
 
-import org.apache.catalina.core.ApplicationContext;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,7 +21,7 @@ import java.util.Arrays;
 @MapperScan(basePackages = {"cn.abyss4393.mapper"})
 public class MainEntranceApplication {
     public static void main(String[] args) {
-         SpringApplication.run(MainEntranceApplication.class, args).getBeanDefinitionNames();
+         SpringApplication.run(MainEntranceApplication.class, args);
 
     }
 }
