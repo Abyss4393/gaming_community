@@ -123,7 +123,7 @@
 
                     <!-- GoEasyIM最大支持3k的文本消息，如需发送长文本，需调整输入框maxlength值 -->
                     <div class="input-box">
-                        <textarea ref="input" @focus="onInputFocus" @keyup.enter="sendTextMessage" v-model="text"
+                        <textarea ref="input" @focus="onInputFocus" @keyup.enter="sendTextMessage" v-model="data.text"
                             maxlength="700" autocomplete="off" class="input-content"></textarea>
                     </div>
                     <div class="send-box">
@@ -150,12 +150,12 @@
         </div>
     </div>
 </template>
-  
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
-import { AbyssWS } from '@/utils/abyss/index'
-import abyssVideoPlayer from '@/components/abyss-video-player/index'
+import { ElMessage } from 'element-plus';
+import { test, AbyssWS } from '@/utils/abyss/index'
+import abyssVideoPlayer from '@/components/abyss-video-player/index';
 
 const scrollView = ref(null);
 const store = useStore();
@@ -212,9 +212,6 @@ var data = reactive({
     },
 })
 
-
-const socket = new AbyssWS(data.group.id);
-
 onMounted(() => {
     let user = store.getters["user/getUserInfo"];
 
@@ -228,11 +225,28 @@ onMounted(() => {
 
 })
 
+const onReceivedGroupMessage = function (message) {
+    let groupId = message.groupId;
+    if (groupId === data.group.id) {
+        data.history.messages.push(message);
+        markGroupMessageAsRead();
+    }
+    scrollToBottom();
+};
+
+
+
+
+const abyssws = new AbyssWS({ type: IN_STANCE_GROUP, to: data.group.id });
+abyssws.open();
+
+abyssws.setOnReceiveMessage((e) => {
+    console.log("received", e);
+})
 
 
 
 onUnmounted(() => {
-    socket.close();
 })
 const compution = computed({
     renderMessageDate: function (message, index) {
@@ -246,14 +260,8 @@ const compution = computed({
         return '';
     }
 })
-const onReceivedGroupMessage = function (message) {
-    let groupId = message.groupId;
-    if (groupId === data.group.id) {
-        data.history.messages.push(message);
-        markGroupMessageAsRead();
-    }
-    scrollToBottom();
-};
+
+
 /**
  * 核心就是设置高度，产生明确占位
  *
@@ -296,35 +304,27 @@ const getImageHeight = function (width, height) {
 // };
 const sendTextMessage = async function () {
     if (!data.text.trim()) {
-        console.log('输入为空');
+        ElMessage({
+            type: "info",
+            message: '想好了再发送哦',
+            iconClass: 'el-icon-info',
+            offset: 777
+        })
         return
     }
-    console.log(data.text);
-    const data = await socket.createTextMessage({
+    const result = await abyssws.createTextMessage({
         type: 'text',
         content: {
-            text: '打得我区分开'
+            text: data.text
         },
-        success: (e) => {
-            console.log(e);
+        success: () => {
+            console.log("发送成功");
         },
         fail: (e) => {
             console.log(e);
         }
     })
-    console.log("data", data);
-    // 发送消息api
-    // data.goEasy.im.createTextMessage({
-    //     text: data.text,
-    //     to: data.to,
-    //     onSuccess: (message) => {
-    //         data.sendMessage(message);
-    //         data.text = '';
-    //     },
-    //     onFailed: (err) => {
-    //         console.log("创建消息err:", err);
-    //     }
-    // });
+    console.log("data", result);
 };
 // const onInputFocus = function () {
 //     data.emoji.visible = false;
@@ -340,18 +340,20 @@ const sendImageMessage = function (e) {
     const imageList = [...e.target.files];
     let imr = new FileReader();
     imr.readAsBinaryString(imageList[0]);
-    imr.onload = function (e) {
+    imr.onload = async function (e) {
         const base64Code = e.target.result
-        socket.createTextMessage({
+        const res = await socket.createImageMessage({
             type: 'image',
             content: {
-                image:  base64Code
+                image: base64Code
             },
             success: () => {
             },
             fail: () => {
             }
         })
+
+        console.log(res);
     }
 
 };
