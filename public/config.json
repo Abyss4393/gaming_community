@@ -1,3 +1,13 @@
 {
-    
+    "websocket": {
+        "config": {
+            "host": "localhost",
+            "port": 2766,
+            "url": {
+                "private": "/server/personal_chat/",
+                "group": "/server/common_chat/"
+            },
+            "hasSSL": false
+        }
+    }
 }
