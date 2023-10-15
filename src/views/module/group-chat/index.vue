@@ -15,8 +15,9 @@
                         {{ data.history.allLoaded ? '已经没有更多的历史消息' : '获取历史消息' }}
                     </div>
                     <div v-for="(message, index) in data.history.messages" :key="index">
-                        <div class="time-tips">{{ compution.renderMessageDate(message, index) }}</div>
-                        <div class="message-recalled" v-if="message.recalled">
+                        {{ index }}
+                        <div class="time-tips">{{ renderMessageDate(message.timestamp, index) }}</div>
+                        <!--   <div class="message-recalled" v-if="message.recalled">
                             <div v-if="message.recaller.id === data.currentUser.id" class="message-recalled-self">
                                 <div>你撤回了一条消息</div>
                                 <span v-if="message.type === 'text' && Date.now() - message.timestamp < 60 * 1000"
@@ -70,11 +71,11 @@
                                         </div>
                                         <abyss-video-player v-if="data.message.type === 'video'"
                                             :thumbnail="data.message.payload.thumbnail"
-                                            :src="data.message.payload.video.url" />
-                                    </div>
+                                            :src="data.message.payload.video.url" /> -->
+                        <!-- </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </div>
@@ -115,10 +116,6 @@
                             </label>
                             <input v-show="false" id="file-input" type="file" @change="sendFileMessage" />
                         </div>
-                        <!-- 自定义-订单消息 -->
-                        <div class="action-item">
-                            <i class="iconfont icon-liebiao" title="订单" @click="showOrderMessageList"></i>
-                        </div>
                     </div>
 
                     <!-- GoEasyIM最大支持3k的文本消息，如需发送长文本，需调整输入框maxlength值 -->
@@ -151,13 +148,15 @@
     </div>
 </template>
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, getCurrentInstance, ref, unref } from 'vue';
 import { useStore } from 'vuex';
 import { ElMessage } from 'element-plus';
 import { test, AbyssWS } from '@/utils/abyss/index'
 import abyssVideoPlayer from '@/components/abyss-video-player/index';
 
+const instanceRef = getCurrentInstance();
 const scrollView = ref(null);
+const messageList = ref(null)
 const store = useStore();
 
 const IMAGE_MAX_WIDTH = 200;
@@ -225,39 +224,34 @@ onMounted(() => {
 
 })
 
+
 const onReceivedGroupMessage = function (message) {
-    let groupId = message.groupId;
-    if (groupId === data.group.id) {
-        data.history.messages.push(message);
-        markGroupMessageAsRead();
-    }
-    scrollToBottom();
+
+    let receivedMessage = JSON.parse(message.data)
+    data.history.messages.push(receivedMessage);
+    console.log(data.history.allLoaded);
+    // console.log(data.history);
+    // markGroupMessageAsRead();
+    // scrollToBottom();
 };
 
 
 
 
 const abyssws = new AbyssWS({ type: IN_STANCE_GROUP, to: data.group.id });
-abyssws.open();
 
-abyssws.setOnReceiveMessage((e) => {
-    console.log("received", e);
-})
+abyssws.open(onReceivedGroupMessage);
 
-
-
-onUnmounted(() => {
-})
-const compution = computed({
-    renderMessageDate: function (message, index) {
-        if (index === 0) {
-            return '';
-        } else {
-            if (data.message.timestamp - data.history.messages[index - 1].timestamp > 5 * 60 * 1000) {
-                return '';
-            }
-        }
-        return '';
+const renderMessageDate = computed(() => {
+    return (timestamp, index) => {
+        if (index === 0)
+            return timestamp;
+        // } else {
+        //     if (data.message.timestamp - data.history.messages[index - 1].timestamp > 5 * 60 * 1000) {
+        //         return '';
+        //     }    
+        // }
+        return timestamp;
     }
 })
 
@@ -284,24 +278,24 @@ const getImageHeight = function (width, height) {
         return IMAGE_MAX_HEIGHT;
     }
 };
-// const playAudio = function (audioMessage) {
-//     let playingMessage = data.audioPlayer.playingMessage;
-//     if (playingMessage) {
-//         instance.proxy.$refs.audioPlayer.pause();
-//         // 如果点击的消息正在播放，就认为是停止播放操作
-//         if (playingMessage === audioMessage) {
-//             return;
-//         }
-//     }
-//     data.audioPlayer.playingMessage = audioMessage;
-//     instance.proxy.$refs.audioPlayer.src = audioMessage.payload.url;
-//     instance.proxy.$refs.audioPlayer.load();
-//     instance.proxy.$refs.audioPlayer.currentTime = 0;
-//     instance.proxy.$refs.audioPlayer.play();
-// };
-// const onAudioPlayEnd = function () {
-//     data.audioPlayer.playingMessage = null;
-// };
+const playAudio = function (audioMessage) {
+    let playingMessage = data.audioPlayer.playingMessage;
+    if (playingMessage) {
+        instance.proxy.$refs.audioPlayer.pause();
+        // 如果点击的消息正在播放，就认为是停止播放操作
+        if (playingMessage === audioMessage) {
+            return;
+        }
+    }
+    data.audioPlayer.playingMessage = audioMessage;
+    instance.proxy.$refs.audioPlayer.src = audioMessage.payload.url;
+    instance.proxy.$refs.audioPlayer.load();
+    instance.proxy.$refs.audioPlayer.currentTime = 0;
+    instance.proxy.$refs.audioPlayer.play();
+};
+const onAudioPlayEnd = function () {
+    data.audioPlayer.playingMessage = null;
+};
 const sendTextMessage = async function () {
     if (!data.text.trim()) {
         ElMessage({
@@ -326,30 +320,32 @@ const sendTextMessage = async function () {
     })
     console.log("data", result);
 };
-// const onInputFocus = function () {
-//     data.emoji.visible = false;
-// };
-// const showEmojiBox = function () {
-//     data.emoji.visible = !data.emoji.visible;
-// };
-// const chooseEmoji = function (emojiKey) {
-//     data.text += emojiKey;
-//     data.emoji.visible = false;
-// };
+const onInputFocus = function () {
+    data.emoji.visible = false;
+};
+const showEmojiBox = function () {
+    data.emoji.visible = !data.emoji.visible;
+};
+const chooseEmoji = function (emojiKey) {
+    data.text += emojiKey;
+    data.emoji.visible = false;
+};
 const sendImageMessage = function (e) {
     const imageList = [...e.target.files];
     let imr = new FileReader();
     imr.readAsBinaryString(imageList[0]);
     imr.onload = async function (e) {
         const base64Code = e.target.result
-        const res = await socket.createImageMessage({
+        const res = await abyssws.createImageMessage({
             type: 'image',
             content: {
                 image: base64Code
             },
             success: () => {
+                console.log("发送成功");
             },
             fail: () => {
+                console.log("发送失败");
             }
         })
 
@@ -357,125 +353,121 @@ const sendImageMessage = function (e) {
     }
 
 };
-// const sendVideoMessage = function (e) {
-//     const file = e.target.files[0];
-//     // 发送音频api
-// };
-// const sendFileMessage = function (e) {
-//     const file = e.target.files[0];
-//     // 发送文件api
-// };
-// const showOrderMessageList = function () {
-//     data.orderList.orders = null;
-//     data.orderList.visible = true;
-// };
-// const sendOrderMessage = function (order) {
-//     data.orderList.visible = false;
-//     //
-// };
-// const sendMessage = function (message) {
-//     data.history.messages.push(message);
-//     data.scrollToBottom();
-//     //
-// };
-// const showActionPopup = function (message) {
-//     const MAX_RECALLABLE_TIME = 3 * 60 * 1000; //3分钟以内的消息才可以撤回
-//     data.messageSelector.ids = [message.messageId];
-//     if ((Date.now() - message.timestamp) < MAX_RECALLABLE_TIME && message.senderId === data.currentUser.id && message.status === 'success') {
-//         data.actionPopup.recallable = true;
-//     } else {
-//         data.actionPopup.recallable = false;
-//     }
-//     data.actionPopup.visible = true;
-// };
-// const deleteSingleMessage = function () {
-//     data.actionPopup.visible = false;
-//     data.deleteMessage();
-// };
-// const deleteMultipleMessages = function () {
-//     if (data.messageSelector.ids.length > 0) {
-//         data.messageSelector.visible = false;
-//         data.deleteMessage();
-//     }
-// };
-// const deleteMessage = function () {
-//     let conf = confirm("确认删除？");
-//     if (conf === true) {
-//         let selectedMessages = [];
-//         data.history.messages.forEach((message) => {
-//             if (data.messageSelector.ids.includes(message.messageId)) {
-//                 selectedMessages.push(message);
-//             }
-//         });
-//         // api
-//     } else {
-//         data.messageSelector.ids = [];
-//     }
-// };
+const sendVideoMessage = function (e) {
+    const file = e.target.files[0];
+    // 发送音频api
+};
+const sendFileMessage = function (e) {
+    const file = e.target.files[0];
+    // 发送文件api
+};
+
+const sendOrderMessage = function (order) {
+    data.orderList.visible = false;
+    //
+};
+const sendMessage = function (message) {
+    data.history.messages.push(message);
+    data.scrollToBottom();
+    //
+};
+const showActionPopup = function (message) {
+    const MAX_RECALLABLE_TIME = 3 * 60 * 1000; //3分钟以内的消息才可以撤回
+    data.messageSelector.ids = [message.messageId];
+    if ((Date.now() - message.timestamp) < MAX_RECALLABLE_TIME && message.senderId === data.currentUser.id && message.status === 'success') {
+        data.actionPopup.recallable = true;
+    } else {
+        data.actionPopup.recallable = false;
+    }
+    data.actionPopup.visible = true;
+};
+const deleteSingleMessage = function () {
+    data.actionPopup.visible = false;
+    data.deleteMessage();
+};
+const deleteMultipleMessages = function () {
+    if (data.messageSelector.ids.length > 0) {
+        data.messageSelector.visible = false;
+        data.deleteMessage();
+    }
+};
+const deleteMessage = function () {
+    let conf = confirm("确认删除？");
+    if (conf === true) {
+        let selectedMessages = [];
+        data.history.messages.forEach((message) => {
+            if (data.messageSelector.ids.includes(message.messageId)) {
+                selectedMessages.push(message);
+            }
+        });
+        // api
+    } else {
+        data.messageSelector.ids = [];
+    }
+};
 
 
-// const recallMessage = function () {
-//     let selectedMessages = [];
-//     data.history.messages.forEach((message) => {
-//         if (data.messageSelector.ids.includes(message.messageId)) {
-//             selectedMessages.push(message);
-//         }
-//     });
-//     data.actionPopup.visible = false;
-//     //
-// };
+const recallMessage = function () {
+    let selectedMessages = [];
+    data.history.messages.forEach((message) => {
+        if (data.messageSelector.ids.includes(message.messageId)) {
+            selectedMessages.push(message);
+        }
+    });
+    data.actionPopup.visible = false;
+    //
+};
 
-// const editRecalledMessage = function (text) {
-//     data.text = text;
-// };
-// const showImagePreviewPopup = function (url) {
-//     data.imagePreview.visible = true;
-//     data.imagePreview.url = url;
-// };
-// const hideImagePreviewPopup = function () {
-//     data.imagePreview.visible = false;
-// };
-// const showCheckBox = function () {
-//     data.messageSelector.ids = [];
-//     data.messageSelector.visible = true;
-//     data.actionPopup.visible = false;
-// };
-// const selectMessages = function (e) {
-//     if (e.target.checked) {
-//         data.messageSelector.ids.push(e.target.value)
-//     } else {
-//         let index = data.messageSelector.ids.indexOf(e.target.value);
-//         if (index > -1) {
-//             data.messageSelector.ids.splice(index, 1);
-//         }
-//     }
-// };
+const editRecalledMessage = function (text) {
+    data.text = text;
+};
+const showImagePreviewPopup = function (url) {
+    data.imagePreview.visible = true;
+    data.imagePreview.url = url;
+};
+const hideImagePreviewPopup = function () {
+    data.imagePreview.visible = false;
+};
+const showCheckBox = function () {
+    data.messageSelector.ids = [];
+    data.messageSelector.visible = true;
+    data.actionPopup.visible = false;
+};
+const selectMessages = function (e) {
+    if (e.target.checked) {
+        data.messageSelector.ids.push(e.target.value)
+    } else {
+        let index = data.messageSelector.ids.indexOf(e.target.value);
+        if (index > -1) {
+            data.messageSelector.ids.splice(index, 1);
+        }
+    }
+};
 const loadHistoryMessage = function (scrollToBottom) {
     data.history.loading = true;
     //历史消息
-    let lastMessageTimeStamp = null;
+    let lastMessageTimeStamp = Date.now();
     let lastMessage = data.history.messages[0];
     if (lastMessage) {
         lastMessageTimeStamp = lastMessage.timestamp;
     }
-    //
 };
-// //标记群聊已读成功
-// const markGroupMessageAsRead = function () {
-//     // data.goEasy.im.markMessageAsRead({
-//     //     id: data.to.id,
-//     //     type: data.to.type,
-//     //     onSuccess: function () {
-//     //         console.log('标记群聊已读成功');
-//     //     },
-//     //     onFailed: function (error) {
-//     //         console.log('标记群聊已读失败', error);
-//     //     },
-//     // });
-// };
+//标记群聊已读成功
+const markGroupMessageAsRead = function () {
+    // data.goEasy.im.markMessageAsRead({
+    //     id: data.to.id,
+    //     type: data.to.type,
+    //     onSuccess: function () {
+    //         console.log('标记群聊已读成功');
+    //     },
+    //     onFailed: function (error) {
+    //         console.log('标记群聊已读失败', error);
+    //     },
+    // });
+};
 const scrollToBottom = function () {
-    scrollView.proxy.$nextTick(() => {
-        scrollView.value.scrollTop = scrollView.value.messageList.scrollHeight;
+    instanceRef.proxy.$nextTick(() => {
+        unref(scrollView).value.scrollTop = unref(messageList).value.scrollHeight;
     });
 };
 
