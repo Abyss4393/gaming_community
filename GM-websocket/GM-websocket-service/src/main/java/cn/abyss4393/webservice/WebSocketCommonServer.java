@@ -8,6 +8,8 @@ import cn.abyss4393.utils.redis.RedisUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.abyss4393.vo.SimpleUserInfo;
 import cn.abyss4393.webservice.encoder.WebSocketCustomEncoding;
+import cn.abyss4393.webservice.handler.WebSocketHandler;
+import cn.abyss4393.webservice.handler.WebSocketHandlerBehavior;
 import cn.abyss4393.webservice.states.WebSocketStates;
 import cn.abyss4393.webservice.utils.WebSocketMessageConverters;
 import cn.hutool.json.JSONArray;
@@ -39,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint(value = "/server/common_chat/{sender_id}/{group_id}",
         encoders = WebSocketCustomEncoding.class)
 @Component
-public class WebSocketCommonServer {
+public class WebSocketCommonServer extends WebSocketHandler {
     private static final Logger log = LoggerFactory.getLogger(WebSocketCommonServer.class);
 
     private static final String IN_SHORT = "富强、民主、文明、和谐，倡导自由、平等、公正、法治，倡导爱国、敬业、诚信、友善";
@@ -129,10 +131,11 @@ public class WebSocketCommonServer {
             session.getBasicRemote().sendText(WebSocketStates.WAITING.states);
             return;
         }
-        log.info("服务端接成功接收到用户nickname={}的消息", userMaps.get(senderId));
+        log.info("服务端接成功接收到用户nickname={}的消息", userMaps.get(senderId).getNickname());
         JSONObject result = JSONUtil.parseObj(message);
-        System.out.println(result);
+
         result.set("timestamp", TimeStampUtil.getIntactTimestamp());
+        this.daemonHandler((String) result.get("type"),result);
         historyArray.add(result);
         Map<String, Object> messageMaps = getMessageMaps(
                 senderId,
@@ -248,4 +251,59 @@ public class WebSocketCommonServer {
             redisUtils.expire(key, 60 * 24 * 24 * 3);
         }
     }
+
+    private void daemonHandler(@NonNull String type,@NonNull Object data) {
+        switch (type) {
+            case "TEXT":
+                this.handlerText(() -> {
+
+                });
+                break;
+            case "image":
+                this.handlerImage(() -> {
+
+                });
+                break;
+            case "audio":
+                this.handlerAudio(() -> {
+
+                });
+                break;
+            case "video":
+                this.handlerVideo(()->{
+
+                });
+            case "file":
+                this.handlerFile(()->{
+
+                });
+            default:break;
+        }
+    }
+
+    @Override
+    protected void handlerText(WebSocketHandlerBehavior handlerBehavior) {
+        handlerBehavior.handler();
+    }
+
+    @Override
+    protected void handlerImage(WebSocketHandlerBehavior handlerBehavior) {
+        handlerBehavior.handler();
+    }
+
+    @Override
+    protected void handlerAudio(WebSocketHandlerBehavior handlerBehavior) {
+        handlerBehavior.handler();
+    }
+
+    @Override
+    protected void handlerVideo(WebSocketHandlerBehavior handlerBehavior) {
+        handlerBehavior.handler();
+    }
+
+    @Override
+    protected void handlerFile(WebSocketHandlerBehavior handlerBehavior) {
+        handlerBehavior.handler();
+    }
+
 }
