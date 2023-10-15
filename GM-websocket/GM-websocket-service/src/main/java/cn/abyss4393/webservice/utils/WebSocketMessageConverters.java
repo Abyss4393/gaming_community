@@ -19,7 +19,7 @@ public class WebSocketMessageConverters {
     public static Map<String, Object> getMessageMap(Integer senderId, Object senderData, Integer receiveId, Object receiverData, String type, String important, Object payloadData, String title, Object body) {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put("proVersion", VERSION);
-        messageMap.put("timestamp", TimeStampUtil.getIntactTimestamp());
+        messageMap.put("timeMillis", System.currentTimeMillis());
         messageMap.put("senderId", senderId);
         messageMap.put("senderData", senderData);
         messageMap.put("receiverId", receiveId);
