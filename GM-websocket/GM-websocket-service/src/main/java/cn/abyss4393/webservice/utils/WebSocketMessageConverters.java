@@ -29,6 +29,7 @@ public class WebSocketMessageConverters {
         }});
         messageMap.put("important", important);
         messageMap.put("payload", payloadData);
+        messageMap.put("recalled",false);
         messageMap.put("notification", new HashMap<>() {{
             this.put("title", title);
             this.put("body", body);
