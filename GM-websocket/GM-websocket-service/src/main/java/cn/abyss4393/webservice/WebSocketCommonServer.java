@@ -106,11 +106,15 @@ public class WebSocketCommonServer {
     private Integer senderId;
     private String sysCurrentTime;
 
+    private long sysCurrentTimeMillis;
+
     @OnOpen
     public void OnOpen(Session session, @NonNull @PathParam("sender_id") Integer id, @NonNull @PathParam("group_id") Integer gid) throws IOException {
         senderId = id;
         groupId = gid;
         sysCurrentTime = TimeStampUtil.getTimestamp();
+        sysCurrentTimeMillis = System.currentTimeMillis();
+        System.currentTimeMillis();
         sessionMaps.put(id, session);
         User user = userMapper.getSimpleUserInfo(id);
         log.info("有新用户加入,nickname：{},当前在线人数：{}", user.getNickname(), sessionMaps.size());
@@ -119,7 +123,7 @@ public class WebSocketCommonServer {
     }
 
 
-    @OnMessage
+    @OnMessage(maxMessageSize = 22428800)
     public void OnMessage(Session session, @NonNull String message) throws IOException {
         if (WebSocketStates.WAITING.states.equalsIgnoreCase(message)) {
             session.getBasicRemote().sendText(WebSocketStates.WAITING.states);
@@ -127,6 +131,7 @@ public class WebSocketCommonServer {
         }
         log.info("服务端接成功接收到用户nickname={}的消息", userMaps.get(senderId));
         JSONObject result = JSONUtil.parseObj(message);
+        System.out.println(result);
         result.set("timestamp", TimeStampUtil.getIntactTimestamp());
         historyArray.add(result);
         Map<String, Object> messageMaps = getMessageMaps(
@@ -148,18 +153,15 @@ public class WebSocketCommonServer {
         sessionMaps.remove(senderId);
         log.info("当前有一个连接关闭，移除nickname={}的用户，当前人数：{}",
                 userMaps.get(senderId).getNickname(), sessionMaps.size());
-        historyMaps.putIfAbsent(sysCurrentTime, historyArray);
-        historyMaps.replace(sysCurrentTime, historyArray);
-        String key = String.valueOf(groupId);
-        JSONObject temp = new JSONObject();
-        temp.set("content", historyMaps);
-        temp.set("size", historyArray.toString().getBytes().length);
-        redisUtils.lSet(key, temp);
-        redisUtils.expire(key, 60 * 24 * 24 * 3);
-
-        //
-        this.store();
-        log.info("websocket已关闭");
+//        historyMaps.putIfAbsent(sysCurrentTime, historyArray);
+//        historyMaps.replace(sysCurrentTime, historyArray);
+//        String key = String.valueOf(groupId);
+//        JSONObject temp = new JSONObject();
+//        temp.set("content", historyMaps);
+//        temp.set("size", historyArray.toString().getBytes().length);
+//        this.putCacheForRedis(key, temp);
+//        this.store();
+//        log.info("websocket已关闭");
     }
 
     @OnError
@@ -237,5 +239,13 @@ public class WebSocketCommonServer {
                 log.error("服务端发送消息失败！", e);
             }
         });
+    }
+
+    private void putCacheForRedis(String key, JSONObject data) {
+        long interval = (System.currentTimeMillis() - sysCurrentTimeMillis) / 1000;
+        if (interval > 60 * 5L) {
+            redisUtils.lSet(key, data);
+            redisUtils.expire(key, 60 * 24 * 24 * 3);
+        }
     }
 }
