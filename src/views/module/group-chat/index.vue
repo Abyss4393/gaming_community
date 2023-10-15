@@ -15,39 +15,46 @@
                         {{ data.history.allLoaded ? '已经没有更多的历史消息' : '获取历史消息' }}
                     </div>
                     <div v-for="(message, index) in data.history.messages" :key="index">
-                        {{ index }}
-                        <div class="time-tips">{{ renderMessageDate(message.timestamp, index) }}</div>
-                        <!--   <div class="message-recalled" v-if="message.recalled">
+                        <div class="time-tips">{{ renderMessageDate({
+                            timeMillis: message.timeMillis, timestamp:
+                                message.payload.timestamp
+                        }, index) }}</div>
+                        <div class="message-recalled" v-if="message.recalled">
                             <div v-if="message.recaller.id === data.currentUser.id" class="message-recalled-self">
                                 <div>你撤回了一条消息</div>
-                                <span v-if="message.type === 'text' && Date.now() - message.timestamp < 60 * 1000"
+                                <span v-if="message.payload.type === 'text' && Date.now() - message.timeMillis < 60 * 1000"
                                     @click="editRecalledMessage(message.payload.text)">重新编辑</span>
                             </div>
                             <div v-else>{{ message.recaller.data.name }}撤回了一条消息</div>
                         </div>
+
+
+
                         <div class="message-item" v-else>
-                            <div class="message-item-checkbox"
+
+                            <!-- <div class="message-item-checkbox"
                                 v-if="messageSelector.visible && message.status !== 'sending'">
                                 <input class="input-checkbox" type="checkbox" :value="message.messageId"
                                     v-model="messageSelector.ids" @click="selectMessages">
-                            </div>
+                            </div> -->
+
                             <div class="message-item-content" :class="{ self: message.senderId === data.currentUser.id }">
                                 <div class="sender-info">
-                                    <img v-if="data.currentUser.id === message.senderId"
-                                        :src="require(data.currentUser.avatar)" class="sender-avatar" />
+                                    <img v-if="data.currentUser.id === message.senderId" :src="data.currentUser.avatar"
+                                        class="sender-avatar" />
                                     <img v-else :src="message.senderData.avatar" class="sender-avatar" />
                                 </div>
-                                <div class="message-content" @click.right="showActionPopup(data.message)">
+                                <div class="message-content" @click.right="showActionPopup(message)">
                                     <div class="message-payload">
-                                        <div class="pending" v-if="message.status === 'sending'"></div>
-                                        <div class="send-fail" v-if="message.status === 'fail'"></div>
-                                        <div v-if="message.type === 'text'" class="content-text"
-                                            v-html="data.emoji.decoder.decode(message.payload.text)"></div>
-                                        <div v-if="message.type === 'image'" class="content-image"
+                                        <!-- <div class="pending" v-if="message.status === 'sending'"></div> -->
+                                        <!-- <div class="send-fail" v-if="message.status === 'fail'"></div> -->
+                                        <div v-if="message.payload.type === 'text'" class="content-text"
+                                            v-html="message.payload.content.text"></div>
+                                        <div v-if="message.payload.type === 'image'" class="content-image"
                                             @click="showImagePreviewPopup(message.payload.url)">
-                                            <img :src="require(data.message.payload.thumbnail)" />
+                                            <img :src="require(message.payload.image)" />
                                         </div>
-                                        <a v-if="data.message.type === 'file'" :href="data.message.payload.url"
+                                        <a v-if="message.payload.type === 'file'" :href="message.payload.url"
                                             target="_blank" download="download">
                                             <div class="content-file" title="点击下载">
                                                 <div class="file-info">
@@ -59,23 +66,29 @@
                                                     :src="require('@/assets/static/icons/file-icon.png')" />
                                             </div>
                                         </a>
-                                        <div v-if="data.message.type === 'audio'" class="content-audio"
-                                            @click="playAudio(data.message)">
+
+
+                                        <div v-if="message.payload.type === 'audio'" class="content-audio"
+                                            @click="playAudio(message)">
                                             <div class="audio-facade"
-                                                :style="{ width: Math.ceil(data.message.payload.duration) * 7 + 50 + 'px' }">
+                                                :style="{ width: Math.ceil(message.payload.duration) * 7 + 50 + 'px' }">
                                                 <div class="audio-facade-bg"
                                                     :class="{ 'play-icon': data.audioPlayer.playingMessage === data.message }">
                                                 </div>
                                                 <div>{{ Math.ceil(message.payload.duration) || 1 }}<span>"</span></div>
                                             </div>
                                         </div>
-                                        <abyss-video-player v-if="data.message.type === 'video'"
+                                        <!-- <abyss-video-player v-if="data.message.type === 'video'"
                                             :thumbnail="data.message.payload.thumbnail"
                                             :src="data.message.payload.video.url" /> -->
-                        <!-- </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>-->
+                        </div>
+
+
+
+
                     </div>
                 </div>
             </div>
@@ -242,16 +255,18 @@ const abyssws = new AbyssWS({ type: IN_STANCE_GROUP, to: data.group.id });
 
 abyssws.open(onReceivedGroupMessage);
 
+
 const renderMessageDate = computed(() => {
-    return (timestamp, index) => {
+    return (time, index) => {
+        console.log(time);
         if (index === 0)
-            return timestamp;
-        // } else {
-        //     if (data.message.timestamp - data.history.messages[index - 1].timestamp > 5 * 60 * 1000) {
-        //         return '';
-        //     }    
-        // }
-        return timestamp;
+            return time.timestamp;
+        else {
+            if (time.timestamp - data.history.messages[index - 1].timeMillis > 5 * 60 * 1000) {
+                return time.timestamp;
+            }
+        }
+        return '';
     }
 })
 
@@ -296,6 +311,18 @@ const playAudio = function (audioMessage) {
 const onAudioPlayEnd = function () {
     data.audioPlayer.playingMessage = null;
 };
+
+const onInputFocus = function () {
+    data.emoji.visible = false;
+};
+const showEmojiBox = function () {
+    data.emoji.visible = !data.emoji.visible;
+};
+const chooseEmoji = function (emojiKey) {
+    data.text += emojiKey;
+    data.emoji.visible = false;
+};
+
 const sendTextMessage = async function () {
     if (!data.text.trim()) {
         ElMessage({
@@ -312,24 +339,15 @@ const sendTextMessage = async function () {
             text: data.text
         },
         success: () => {
-            console.log("发送成功");
+            data.text = '';
         },
         fail: (e) => {
             console.log(e);
         }
     })
-    console.log("data", result);
 };
-const onInputFocus = function () {
-    data.emoji.visible = false;
-};
-const showEmojiBox = function () {
-    data.emoji.visible = !data.emoji.visible;
-};
-const chooseEmoji = function (emojiKey) {
-    data.text += emojiKey;
-    data.emoji.visible = false;
-};
+
+
 const sendImageMessage = function (e) {
     const imageList = [...e.target.files];
     let imr = new FileReader();
