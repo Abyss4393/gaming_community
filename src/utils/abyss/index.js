@@ -39,8 +39,7 @@ export class AbyssWS {
             this._heartCheck.reset().start(this[root].websocket);
         if ((e instanceof Object && 7 < e.data.length)) {
             let receiveResult = JSON.parse(e.data)
-            let senderId = receiveResult.senderId;
-            if (this[root].from !== senderId) {
+            if ('waiting' !== e.data) {
                 this.handlerReceived(e);
             }
         };
