@@ -23,49 +23,48 @@ export class AbyssWS {
             websocket: null
         }
         this._heartCheck = ws_heartCheck;
-        this._pool = [];
+        this.pool = {};
     }
 
 
-    _onopen = (fn, e) => {
+    _onopen = e => {
         console.log("websocket已连接");
         this._heartCheck.reset().start(this[root.websocket])
-        fn(e)
+
     }
 
 
-    _onmessage = (fn, e) => {
+    _onmessage = e => {
         if (e.data != null)
             this._heartCheck.reset().start(this[root].websocket);
         if ((e instanceof Object && 7 < e.data.length)) {
             let receiveResult = JSON.parse(e.data)
             let senderId = receiveResult.senderId;
             if (this[root].from !== senderId) {
-                this._onReceiveMessage(receiveResult);
+                this.handlerReceived(e);
             }
         };
     }
 
-    _onclose = (fn, e) => {
+    _onclose = e => {
         console.log("websocket重新连接");
-        this.open();
     }
 
-    _onerror = (fn, e) => fn(e)
+    _onerror = e => { }
     /**
      * 收到服务端数据的事件
      * @param {Object} msg 
      */
-    _onReceiveMessage = (msg) => { }
 
+    handlerReceived = () => { }
 
     /**
      * 
      * 开启websocket服务
-     * @param {*} onClose 
+     * @param {*} onReceived  传递一个处理函数
      * @returns 
      */
-    open = () => {
+    open = (onReceived) => {
         return new Promise((resovle, reject) => {
             if (typeof (WebSocket) == 'undefined')
                 reject("浏览器不兼容websocket!")
@@ -80,13 +79,21 @@ export class AbyssWS {
             _server += _this.to;
             try {
                 _this.websocket = new WebSocket(_server);
+                this.handlerReceived = onReceived;
             } catch (err) {
                 reject(err);
             }
-            _this.websocket.onopen = (e) => this._onopen(resovle, e);
-            _this.websocket.onmessage = (e) => this._onmessage(() => { }, e)
-            _this.websocket.onclose = (e) => this._onclose(() => { }, e);
-            _this.websocket.onerror = (e) => this._onerror(reject, e);
+            _this.websocket.onopen = (e) => {
+                this._onopen(e);
+                resovle(e);
+            };
+            _this.websocket.onmessage = (e) => this._onmessage(e);
+            _this.websocket.onclose = (e) => this._onclose(e);
+            _this.websocket.onerror = (e) => {
+                this._onerror(e);
+                reject(e);
+            }
+
         })
     }
 
@@ -109,7 +116,7 @@ export class AbyssWS {
                     type: res.type,
                     content: res.content
                 })
-                if (_this.websocket.readyState === 1)
+                if (_this.websocket.readyState === WebSocket.OPEN)
                     _this.websocket.send(sendData);
                 resolve(sfn());
             } else {
@@ -134,11 +141,7 @@ export class AbyssWS {
     createAudioMessage = res => {
         return this._createBaseMessageBody(res, 'audio');
     }
-
-
-    setOnReceiveMessage = fn => this._onReceiveMessage = fn;
-
-    close = () => {
+    close = function () {
         if (this[root].websocket) {
             this[root].websocket.close();
             this[root].websocket = null;
