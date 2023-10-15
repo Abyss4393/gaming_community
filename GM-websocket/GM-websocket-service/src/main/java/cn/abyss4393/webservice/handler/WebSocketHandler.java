@@ -9,14 +9,14 @@ package cn.abyss4393.webservice.handler;
  */
 public abstract class WebSocketHandler {
 
-    abstract void handlerText(WebSocketHandlerBehavior handlerBehavior);
+    protected abstract void handlerText(WebSocketHandlerBehavior handlerBehavior);
 
-    abstract void handlerImage(WebSocketHandlerBehavior handlerBehavior);
+    protected abstract void handlerImage(WebSocketHandlerBehavior handlerBehavior);
 
-    abstract void handlerAudio(WebSocketHandlerBehavior handlerBehavior);
+    protected abstract void handlerAudio(WebSocketHandlerBehavior handlerBehavior);
 
-    abstract void handlerVideo(WebSocketHandlerBehavior handlerBehavior);
+    protected abstract void handlerVideo(WebSocketHandlerBehavior handlerBehavior);
 
-    abstract void handlerFile(WebSocketHandlerBehavior handlerBehavior);
+    protected abstract void handlerFile(WebSocketHandlerBehavior handlerBehavior);
 
 }
