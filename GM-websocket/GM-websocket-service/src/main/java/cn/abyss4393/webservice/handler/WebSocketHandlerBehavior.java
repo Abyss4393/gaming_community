@@ -14,5 +14,5 @@ import java.io.File;
 @FunctionalInterface
 public interface WebSocketHandlerBehavior {
 
-   <T> void handler(T t);
+     void handler();
 }
