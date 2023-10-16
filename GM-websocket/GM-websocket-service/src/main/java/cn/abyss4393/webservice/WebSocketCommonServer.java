@@ -4,6 +4,7 @@ import cn.abyss4393.mapper.MessageMapper;
 import cn.abyss4393.mapper.UserMapper;
 import cn.abyss4393.po.Message;
 import cn.abyss4393.po.User;
+import cn.abyss4393.utils.imgbed.ImageBedUtils;
 import cn.abyss4393.utils.redis.RedisUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.abyss4393.vo.SimpleUserInfo;
@@ -12,6 +13,7 @@ import cn.abyss4393.webservice.handler.WebSocketHandler;
 import cn.abyss4393.webservice.handler.WebSocketHandlerBehavior;
 import cn.abyss4393.webservice.states.WebSocketStates;
 import cn.abyss4393.webservice.utils.WebSocketMessageConverters;
+import cn.abyss4393.webservice.utils.WebSocketMessageDecoder;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -24,10 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -98,6 +103,8 @@ public class WebSocketCommonServer extends WebSocketHandler {
      */
     private static final Map<String, Object> historyMaps = new HashMap<>();
 
+    private static final Map<String,String> imageMaps = new HashMap<>();
+
     private static final JSONArray historyArray = new JSONArray();
 
     private static final int MAX_MESSAGE_SIZE = 100;
@@ -114,7 +121,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
     public void OnOpen(Session session, @NonNull @PathParam("sender_id") Integer id, @NonNull @PathParam("group_id") Integer gid) throws IOException {
         senderId = id;
         groupId = gid;
-        sysCurrentTime = TimeStampUtil.getTimestamp();
+        sysCurrentTime = TimeStampUtil.getIntactTimestamp();
         sysCurrentTimeMillis = System.currentTimeMillis();
         System.currentTimeMillis();
         sessionMaps.put(id, session);
@@ -133,20 +140,8 @@ public class WebSocketCommonServer extends WebSocketHandler {
         }
         log.info("服务端接成功接收到用户nickname={}的消息", userMaps.get(senderId).getNickname());
         JSONObject result = JSONUtil.parseObj(message);
-
-        result.set("timestamp", TimeStampUtil.getIntactTimestamp());
+        result.set("timestamp", sysCurrentTime);
         this.daemonHandler((String) result.get("type"),result);
-        historyArray.add(result);
-        Map<String, Object> messageMaps = getMessageMaps(
-                senderId,
-                userMaps.get(senderId),
-                groupId,
-                "null",
-                result,
-                "温馨提示",
-                "这只是一个测试"
-        );
-        this.broadcastAllMessage(messageMaps);
         log.info("服务端正在广播消息~~~~");
     }
 
@@ -173,18 +168,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
         error.printStackTrace();
     }
 
-    private static Map<String, Object> getMessageMaps(Integer senderId, Object senderData, Integer groupId, Object groupData, Object payload, String title, Object body) {
-        return WebSocketMessageConverters.getMessageMap(
-                senderId,
-                senderData,
-                groupId,
-                groupData,
-                TYPE,
-                IN_SHORT,
-                payload,
-                title,
-                body);
-    }
+
 
     private void store() {
         boolean exist = messageMapper.exists(new LambdaQueryWrapper<>() {{
@@ -252,16 +236,49 @@ public class WebSocketCommonServer extends WebSocketHandler {
         }
     }
 
-    private void daemonHandler(@NonNull String type,@NonNull Object data) {
+    private void daemonHandler(@NonNull String type,@NonNull JSONObject json) {
         switch (type) {
-            case "TEXT":
+            case "text":
                 this.handlerText(() -> {
-
+                    Map<String, Object> messageMaps = getMessageMaps(
+                            senderId,
+                            userMaps.get(senderId),
+                            groupId,
+                            "null",
+                            json,
+                            "text",
+                            "消息类型为文本消息"
+                    );
+                    this.broadcastAllMessage(messageMaps);
+                    historyArray.add(messageMaps);
                 });
                 break;
             case "image":
                 this.handlerImage(() -> {
-
+                    String originName = json.getJSONObject("content").getStr("name");
+                    if (!imageMaps.containsKey(originName)){
+                        String image = json.getJSONObject("content").getStr("image");
+                        String header = "data:image/";
+                        int pos = image.indexOf(";");
+                        String pure = image.substring(image.indexOf(",")+1);
+                        byte[] imageBytes = WebSocketMessageDecoder.decoder(Objects.requireNonNull(pure));
+                        JSONObject uploadResult = JSONUtil.parseObj(ImageBedUtils.uploadFile(ImageBedUtils.IMAGE_PATH, originName, imageBytes));
+                        String downloadURL = uploadResult.getJSONObject("content").getStr("download_url");
+                        json.getJSONObject("content").replace("image",downloadURL);
+                        imageMaps.put(originName,downloadURL);
+                    }
+                    json.getJSONObject("content").replace("image",imageMaps.get(originName));
+                    Map<String, Object> messageMaps = getMessageMaps(
+                            senderId,
+                            userMaps.get(senderId),
+                            groupId,
+                            "null",
+                            json,
+                            "image",
+                            "消息类型为图片消息"
+                    );
+                    this.broadcastAllMessage(messageMaps);
+                    historyArray.add(messageMaps);
                 });
                 break;
             case "audio":
@@ -281,6 +298,18 @@ public class WebSocketCommonServer extends WebSocketHandler {
         }
     }
 
+    private static Map<String, Object> getMessageMaps(Integer senderId, Object senderData, Integer groupId, Object groupData, Object payload, String title, Object body) {
+        return WebSocketMessageConverters.getMessageMap(
+                senderId,
+                senderData,
+                groupId,
+                groupData,
+                TYPE,
+                IN_SHORT,
+                payload,
+                title,
+                body);
+    }
     @Override
     protected void handlerText(WebSocketHandlerBehavior handlerBehavior) {
         handlerBehavior.handler();
