@@ -27,6 +27,9 @@ public class ImageBedUtils {
 
     private static final String PATH = "test/";
 
+    public static final String IMAGE_PATH = "image/";
+
+
     private static final int TIME_OUT = 10000;
 
     public static class CONSTANT {
