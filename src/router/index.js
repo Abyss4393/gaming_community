@@ -4,7 +4,7 @@ import { getToken } from '@/utils/auth'
 const routes = [
   {
     path: "/",
-    redirect: "/abyss"
+    redirect: "/abyss/"
   },
   {
     path: '/test',
@@ -13,10 +13,11 @@ const routes = [
   {
     path: '/abyss',
     name: "Abyss",
-    component: () => import("@/views/common/home/index.vue"),
+    component: () => import("@/views/module/root/index"),
     children: [{
-      path: '/da',
-      component: () => import("@/views/module/dialogue/index.vue")
+      path: '/abyss/',
+      name: 'Home',
+      component: () => import("@/views/common/home/index")
     }]
   },
   {
