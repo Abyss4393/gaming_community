@@ -389,7 +389,7 @@
             padding: 10px 0;
             position: relative;
 
-            img{
+            img {
                 width: @icon_size;
                 width: @icon_size;
             }
@@ -439,20 +439,33 @@
     .input-box {
         padding: 0 10px;
         flex: 1;
+
+        .input-content {
+            border: none;
+            resize: none;
+            display: block;
+            padding: 5px 15px;
+            box-sizing: border-box;
+            width: 100%;
+            color: #606266;
+            outline: none;
+            background: #FFFFFF;
+            word-break: break-all;
+        }
+
+        .image-content {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            color: #D02129;
+            img {
+                width: calc(@avatar_size * 2);
+                height: calc(@avatar_size * 2);
+            }
+        }
     }
 
-    .input-content {
-        border: none;
-        resize: none;
-        display: block;
-        padding: 5px 15px;
-        box-sizing: border-box;
-        width: 100%;
-        color: #606266;
-        outline: none;
-        background: #FFFFFF;
-        word-break: break-all;
-    }
+
 
     .send-box {
 
