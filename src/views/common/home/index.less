@@ -1,36 +1,109 @@
-#abyss {
-    width: 100%;
-    background-size: 333% 333%;
-    padding: 5rem 0 0 0;
+@avatar_size: 2.4rem;
+@icon_size: 2.4rem;
+@font_size: .75rem;
+
+.container {
+    display: flex;
+    margin: 0 auto;
+    width: 70%;
+    padding: .6rem;
     box-sizing: border-box;
-    background-image: radial-gradient(at 20px 20px, white 2%, #f0ccd5 25%, #5a93cb 70%, lightcyan 100%);
-    box-shadow: 0rem 0rem .4rem 0rem lightcyan;
-    animation: mask 15s infinite both ease-in;
+    background-color: inherit;
 
-    .abyss-top {
-        position: fixed;
-        top: 40rem;
-        left: 104rem;
-        cursor: pointer;
+    .container-main {
+        display: flex;
+        flex-direction: column;
+        width: 70%;
+        height: 100%;
+        padding: .8rem 1.2rem;
+        box-sizing: border-box;
+        background-color: inherit;
+
+        .article-list-container {
+            margin-top: 16rem;
+            display: flex;
+            flex-direction: column;
+
+            .article-list-body {
+
+                display: flex;
+                flex-direction: column;
+
+                .aticle-item-card {
+                    width: inherit;
+                    height: 10rem;
+                    border-bottom: 1px solid #EBEEF5;
+                    opacity: 1;
+
+                    &:nth-child(1) {
+                        border-top-left-radius: 1rem;
+                        border-top-right-radius: 1rem;
+                    }
+
+
+                    .article-item-card-header {
+                        display: flex;
+                        flex-direction: row;
+                        justify-self: start;
+                        width: inherit;
+                        height: 4rem;
+                        padding: 0 .5rem;
+                        vertical-align: middle;
+
+
+                        .article-item-header-avatar {
+                            margin-top: .3rem;
+                            width: @avatar_size;
+                            height: @avatar_size;
+                            border-radius: calc(@avatar_size /2);
+                            overflow: hidden;
+                            cursor: pointer;
+
+                            img {
+                                width: inherit;
+                                height: inherit;
+
+                            }
+
+                        }
+
+                        .article-item-header-nickname {
+                            display: flex;
+                            flex-direction: row;
+                            margin-left: 1.5rem;
+                            margin-top: .8rem;
+                            line-height: inherit;
+                            white-space: nowrap;
+                            text-align: center;
+
+                        }
+
+                        .article-item-header-time {
+                            display: flex;
+                            flex-direction: row;
+                            margin-left: 1.5rem;
+                            margin-top: 1rem;
+                            line-height: inherit;
+                            white-space: nowrap;
+                            text-align: center;
+
+                        }
+                    }
+
+                    .article-item-card-content {
+                        margin-top: .3rem;
+                    }
+                }
+            }
+        }
     }
-}
 
-
-@keyframes mask {
-    0% {
-        background-position: 100% 100%;
+    .container-sub {
+        display: flex;
+        flex-flow: column;
+        width: 28%;
+        height: 100%;
+        background-color: blue;
+        margin-left: 1.2rem;
     }
-
-    33% {
-        background-position: 0 100%;
-    }
-
-    66% {
-        background-position: 100% 0;
-    }
-
-    100% {
-        background-position: 100% 100%;
-    }
-
 }
