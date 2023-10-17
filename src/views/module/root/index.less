@@ -1,0 +1,36 @@
+#abyss {
+    width: 100%;
+    background-size: 333% 333%;
+    padding: 5rem 0 0 0;
+    box-sizing: border-box;
+    background-image: radial-gradient(at 20px 20px, white 2%, #f0ccd5 25%, #5a93cb 70%, lightcyan 100%);
+    box-shadow: 0rem 0rem .4rem 0rem lightcyan;
+    animation: mask 15s infinite both ease-in;
+    perspective: 1vmin;
+   
+    .abyss-top {
+        position: fixed;
+        top: 55rem;
+        left: 104rem;
+        cursor: pointer;
+    }
+}
+
+
+@keyframes mask {
+    0% {
+        background-position: 100% 100%;
+    }
+
+    33% {
+        background-position: 0 100%;
+    }
+
+    66% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: 100% 100%;
+    }
+}
