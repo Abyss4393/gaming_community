@@ -29,6 +29,8 @@ public class ImageBedUtils {
 
     public static final String IMAGE_PATH = "image/";
 
+    public static final String AUDIO_PATH = "audio/";
+
 
     private static final int TIME_OUT = 10000;
 

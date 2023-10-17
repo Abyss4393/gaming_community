@@ -4,6 +4,7 @@ import cn.abyss4393.mapper.MessageMapper;
 import cn.abyss4393.mapper.UserMapper;
 import cn.abyss4393.po.Message;
 import cn.abyss4393.po.User;
+import cn.abyss4393.utils.audioUtils.AudioUtils;
 import cn.abyss4393.utils.imgbed.ImageBedUtils;
 import cn.abyss4393.utils.redis.RedisUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
@@ -28,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -103,7 +106,12 @@ public class WebSocketCommonServer extends WebSocketHandler {
      */
     private static final Map<String, Object> historyMaps = new HashMap<>();
 
-    private static final Map<String,String> imageMaps = new HashMap<>();
+    private static final Map<String, HashMap<String, String>> fileMaps = new HashMap<>() {{
+        this.put("image", new HashMap<>());
+        this.put("audio", new HashMap<>());
+        this.put("video", new HashMap<>());
+        this.put("file", new HashMap<>());
+    }};
 
     private static final JSONArray historyArray = new JSONArray();
 
@@ -141,7 +149,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
         log.info("服务端接成功接收到用户nickname={}的消息", userMaps.get(senderId).getNickname());
         JSONObject result = JSONUtil.parseObj(message);
         result.set("timestamp", sysCurrentTime);
-        this.daemonHandler((String) result.get("type"),result);
+        this.daemonHandler((String) result.get("type"), result);
         log.info("服务端正在广播消息~~~~");
     }
 
@@ -167,7 +175,6 @@ public class WebSocketCommonServer extends WebSocketHandler {
         log.error("服务端发生错误！");
         error.printStackTrace();
     }
-
 
 
     private void store() {
@@ -236,7 +243,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
         }
     }
 
-    private void daemonHandler(@NonNull String type,@NonNull JSONObject json) {
+    private void daemonHandler(@NonNull String type, @NonNull JSONObject json) {
         switch (type) {
             case "text":
                 this.handlerText(() -> {
@@ -256,18 +263,18 @@ public class WebSocketCommonServer extends WebSocketHandler {
             case "image":
                 this.handlerImage(() -> {
                     String originName = json.getJSONObject("content").getStr("name");
-                    if (!imageMaps.containsKey(originName)){
+                    if (!fileMaps.get("image").containsKey(originName)) {
                         String image = json.getJSONObject("content").getStr("image");
                         String header = "data:image/";
                         int pos = image.indexOf(";");
-                        String pure = image.substring(image.indexOf(",")+1);
+                        String pure = image.substring(image.indexOf(",") + 1);
                         byte[] imageBytes = WebSocketMessageDecoder.decoder(Objects.requireNonNull(pure));
                         JSONObject uploadResult = JSONUtil.parseObj(ImageBedUtils.uploadFile(ImageBedUtils.IMAGE_PATH, originName, imageBytes));
                         String downloadURL = uploadResult.getJSONObject("content").getStr("download_url");
-                        json.getJSONObject("content").replace("image",downloadURL);
-                        imageMaps.put(originName,downloadURL);
+                        json.getJSONObject("content").replace("image", downloadURL);
+                        fileMaps.get("image").put(originName, downloadURL);
                     }
-                    json.getJSONObject("content").replace("image",imageMaps.get(originName));
+                    json.getJSONObject("content").replace("image", fileMaps.get("image").get(originName));
                     Map<String, Object> messageMaps = getMessageMaps(
                             senderId,
                             userMaps.get(senderId),
@@ -283,18 +290,41 @@ public class WebSocketCommonServer extends WebSocketHandler {
                 break;
             case "audio":
                 this.handlerAudio(() -> {
-
+//                    String originName = json.getJSONObject("content").getStr("name");
+//                    if (!fileMaps.get("audio").containsKey(originName)) {
+//                        String audio = json.getJSONObject("content").getStr("audio");
+//                        byte[] audioBytes = WebSocketMessageDecoder.decoder(Objects.requireNonNull(audio));
+//                        JSONObject uploadResult = JSONUtil.parseObj(ImageBedUtils.uploadFile(ImageBedUtils.AUDIO_PATH, originName, audioBytes));
+//                        String downloadURL = uploadResult.getJSONObject("content").getStr("download_url");
+//                        json.getJSONObject("content").replace("audio", downloadURL);
+//                        fileMaps.get("audio").put(originName, downloadURL);
+//                    }
+//                    int audioDuration = AudioUtils.getAudioDuration("https://abyss4393.cn/audio/v1/hjzf.mp3");
+//                    System.out.println(audioDuration + "s");
+//                    json.getJSONObject("content").set("duration", audioDuration);
+                    json.getJSONObject("content").replace("audio", "https://abyss4393.cn/audio/v1/hjzf.mp3");
+                    Map<String, Object> messageMaps = getMessageMaps(
+                            senderId,
+                            userMaps.get(senderId),
+                            groupId,
+                            "null",
+                            json,
+                            "audio",
+                            "消息类型为音频"
+                    );
+                    this.broadcastAllMessage(messageMaps);
                 });
                 break;
             case "video":
-                this.handlerVideo(()->{
+                this.handlerVideo(() -> {
 
                 });
             case "file":
-                this.handlerFile(()->{
+                this.handlerFile(() -> {
 
                 });
-            default:break;
+            default:
+                break;
         }
     }
 
@@ -310,6 +340,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
                 title,
                 body);
     }
+
     @Override
     protected void handlerText(WebSocketHandlerBehavior handlerBehavior) {
         handlerBehavior.handler();
