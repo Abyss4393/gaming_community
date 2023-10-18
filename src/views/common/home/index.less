@@ -14,7 +14,7 @@
         display: flex;
         flex-direction: column;
         width: 70%;
-        height: 100%;
+        height: auto;
         padding: .8rem 1.2rem;
         box-sizing: border-box;
         background-color: inherit;
@@ -25,13 +25,14 @@
             flex-direction: column;
 
             .article-list-body {
-
                 display: flex;
                 flex-direction: column;
 
                 .aticle-item-card {
+                    display: flex;
+                    flex-direction: column;
                     width: inherit;
-                    height: 10rem;
+                    height: auto;
                     border-bottom: 1px solid #EBEEF5;
                     opacity: 1;
 
@@ -92,6 +93,13 @@
 
                     .article-item-card-content {
                         margin-top: .3rem;
+                    }
+
+                    .article-item-card-preview{
+                        img{
+                            width: 10rem;
+                            height: 10rem;
+                        }
                     }
                 }
             }
