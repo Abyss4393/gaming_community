@@ -15,16 +15,16 @@
                                 <span> {{ item.postTime.slice(0, 10) }}</span>
                             </div>
                         </div>
-                        <a href="/group" target="_blank">
+                        <a :href="'/abyss/article/'+item.id" target="_blank">
                             <div class="article-item-card-title">
                                 <h5>{{ item.type }}</h5>
                                 <h3 :title="item.title">{{ item.title }}</h3>
                             </div>
                             <div class="article-item-card-content">
-                                {{ item.content }}
+                                {{ item.content.text }}
                             </div>
                             <div class="article-item-card-preview">
-                                preview
+                                <img :src="i.url" alt="" v-for="i in item.content.imageList">
                             </div>
                         </a>
                         <div class="article-item-card-footer">
@@ -58,6 +58,7 @@ onMounted(async () => {
         if (data.articleList.length > 2)
             data.articleList.splice(2, data.articleList.length - 1);
     }
+    console.log(data.articleList);
 })
 
 const loadingMore = async () => {
