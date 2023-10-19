@@ -10,6 +10,7 @@ const AbatinFriendListAPI = (params) => instance.get(`user/friends/${params}`)
 
 // article
 export const AsyncArticleList = () => instance.get('/common/article/list');
+export const AsyncArticleById = (aid) => instance.get(`common/article/${aid}`);
 
 //file
 const UploadAPI = (url) => instance.post(`file/upload`, url);

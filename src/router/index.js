@@ -18,6 +18,10 @@ const routes = [
       path: '/abyss/',
       name: 'Home',
       component: () => import("@/views/common/home/index")
+    },{
+      path: '/abyss/article/:id',
+      name: 'Article',
+      component: () => import("@/views/common/article/index")
     }]
   },
   {

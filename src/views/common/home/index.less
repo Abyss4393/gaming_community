@@ -49,6 +49,7 @@
                         width: inherit;
                         height: 4rem;
                         padding: 0 .5rem;
+                        box-sizing: border-box;
                         vertical-align: middle;
 
 
@@ -91,14 +92,60 @@
                         }
                     }
 
+                    .article-item-card-title {
+                        display: flex;
+                        flex-wrap: nowrap;
+                        width: 100%;
+                        justify-self: start;
+                        line-height: 2.4rem;
+                        padding: 0 .5rem;
+                        box-sizing: border-box;
+
+                        h3,
+                        h1 {
+                            display: block;
+                            flex-wrap: nowrap;
+                            width: auto;
+                            height: auto;
+                            height: 2.4rem;
+                            padding: 0 .4rem;
+                            box-sizing: border-box;
+
+
+
+                        }
+
+                        h1 {
+
+                            margin-left: 1.5rem;
+
+                            &:hover {
+                                color: orange;
+                                text-decoration: underline;
+                            }
+                        }
+
+                        h3 {
+                            font-weight: 500;
+                            font-size: .8rem;
+                            text-align: center;
+
+                            color: #fff;
+                            background-color: lightskyblue;
+                        }
+
+                    }
+
                     .article-item-card-content {
+                        margin-top: 1rem;
                         margin-top: .3rem;
                     }
 
-                    .article-item-card-preview{
-                        img{
-                            width: 10rem;
-                            height: 10rem;
+                    .article-item-card-preview {
+                        margin-top: 1rem;
+                        .el-image {
+                            width: 6rem;
+                            height: 6rem;
                         }
                     }
                 }
