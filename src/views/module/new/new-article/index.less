@@ -1,0 +1,66 @@
+#abyss-new-article {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+
+    .container {
+        display: flex;
+        flex-direction: inherit;
+        margin: 0 auto;
+        width: 60%;
+        height: 60rem;
+        padding: 0 4rem;
+        box-sizing: border-box;
+        background-color: inherit;
+
+        .crumbs {
+            display: block;
+            width: 100%;
+            position: relative;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding-bottom: 1rem;
+            box-sizing: border-box;
+            border-bottom: 1px solid #cdcdcd;
+        }
+
+        .editor {
+            padding: 3rem 2rem 1rem;
+            box-sizing: border-box;
+
+            .el-row {
+                margin-top: 3rem;
+
+                &:nth-child(1) {
+                    margin-top: 0;
+                }
+            }
+
+            span {
+                display: inline-block;
+                font-weight: bold;
+                font-family: "华文行楷";
+                font-size: 1.5rem;
+                padding-top: .3rem;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            .confirm {
+                position: relative;
+                width: auto;
+                height: auto;
+                margin-top: 4rem;
+                left: 22rem;
+
+                .el-button {
+                    width: 10rem;
+                    height: auto;
+                    
+                }
+            }
+        }
+    }
+}
