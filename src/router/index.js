@@ -18,10 +18,24 @@ const routes = [
       path: '/abyss/',
       name: 'Home',
       component: () => import("@/views/common/home/index")
-    },{
+    }, {
       path: '/abyss/article/:id',
       name: 'Article',
       component: () => import("@/views/common/article/index")
+    },
+    {
+      path: '/abyss/new_article/0/1',
+      name: 'NewAticle',
+      component: () => import("@/views/module/new/new-article/index")
+    },
+    {
+      path: '/abyss/new_article/0/2',
+      name: 'NewImage',
+      component: () => import("@/views/module/new/new-image/index")
+    }, {
+      path: '/abyss/new_article/0/3',
+      name: 'NewVideo',
+      component: () => import("@/views/module/new/new-video/index")
     }]
   },
   {
