@@ -19,8 +19,26 @@
         box-sizing: border-box;
         background-color: inherit;
 
+
+        .article-banner {
+            display: inherit;
+            flex-direction: column;
+            height: auto;
+
+            :deep(.el-carousel__item) {
+                height: inherit;
+
+                img {
+
+                    width: 100%;
+                    height: auto;
+
+                }
+            }
+        }
+
         .article-list-container {
-            margin-top: 16rem;
+            margin-top: 1rem;
             display: flex;
             flex-direction: column;
 
@@ -143,6 +161,7 @@
 
                     .article-item-card-preview {
                         margin-top: 1rem;
+
                         .el-image {
                             width: 6rem;
                             height: 6rem;
@@ -158,7 +177,57 @@
         flex-flow: column;
         width: 28%;
         height: 100%;
-        background-color: blue;
+        background-color: inherit;
         margin-left: 1.2rem;
+
+        .article-post {
+            position: relative;
+            width: 100%;
+            height: 12rem;
+            padding: 0 0 1rem;
+            box-sizing: border-box;
+            background-color: inherit;
+
+            .post-inner {
+                position: relative;
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                margin: 0 auto;
+                width: inherit;
+                height: 10rem;
+                padding: 1rem;
+
+
+                .post-inner-item {
+                    display: flex;
+                    flex-direction: column;
+                    width: 3rem;
+                    height: inherit;
+                    background-color: inherit;
+                    align-items: center;
+                    cursor: pointer;
+
+                    &:hover {
+                        -webkit-transform: translate3d(0, -3px, 0);
+                        box-shadow: 0 3px 4px rgba(0, 0, 0, .32);
+                        transition: all .2s linear;
+                    }
+
+                    img {
+                        width: @icon_size;
+                        height: auto;
+                    }
+
+                    span {
+                        margin-top: 1rem;
+                        writing-mode: vertical-lr;
+                        text-orientation: upright;
+                        color: #fff;
+                    }
+                }
+
+            }
+        }
     }
 }
