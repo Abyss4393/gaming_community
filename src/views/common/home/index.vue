@@ -78,10 +78,10 @@ const banners = [
 const post_data = [{
     fnc: '发布帖子',
 }, {
-    fnc: '发布。。。',
+    fnc: '发布图片',
 },
 {
-    fnc: '视频'
+    fnc: '发布视频'
 }]
 
 function changeHasMask(params) {
