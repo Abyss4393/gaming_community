@@ -32,10 +32,45 @@
 
             .el-row {
                 margin-top: 3rem;
+                height: auto;
 
                 &:nth-child(1) {
                     margin-top: 0;
                 }
+
+                .descript {
+                    display: flex;
+                    flex-direction: column;
+                    height: auto;
+
+                    .recommand {
+                        width: 100%;
+                        height: 3rem;
+                        padding: 1rem .4rem;
+                        box-sizing: border-box;
+                        border: 1px solid #cdcdcd;
+                        border-bottom: none;
+
+                        p {
+                            display: inline-block;
+                            width: 2rem;
+                            height: auto;
+                            text-align: center;
+                            color: #cdcdcd;
+                            cursor: pointer;
+
+                            &:hover{
+                                color: lightskyblue;
+                            }
+                        }
+                    }
+                }
+
+                .upload{
+                    width: 100%;
+                    min-height: 8rem;
+                }
+
             }
 
             span {
@@ -46,7 +81,9 @@
                 padding-top: .3rem;
                 box-sizing: border-box;
                 text-align: center;
+                white-space: nowrap;
             }
+
 
             .confirm {
                 position: relative;
