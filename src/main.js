@@ -8,14 +8,8 @@ import 'element-plus/dist/index.css'
 import '@/assets/global/global.css'
 
 
-//jwchat 
-import JwChat from 'jwchat'
-
-
-
-
 const app = createApp(App)
-app.use(store).use(router).use(ElementPlus).use(JwChat).mount('#app')
+app.use(store).use(router).use(ElementPlus).mount('#app')
 axios.get('/config.json').then(res => {
     app.config.globalProperties.$config = res.data
 })
