@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
+
 /**
  * @author abyss
  * @version 1.0-SNAPSHOT
@@ -22,6 +24,22 @@ public class CommonController {
 
     @Resource
     private ArticleServiceImpl articleService;
+
+    @AuthAccess(desc = "获取article列表")
+    @GetMapping("/article/list")
+    @ResponseBody
+    public ResultFul<?> getArticleList() throws Exception {
+        return articleService.getArticleList();
+    }
+
+    @AuthAccess(desc = "获取article通过id")
+    @GetMapping("/article/{aid}")
+    @ResponseBody
+    public ResultFul<?> getArticleById(@PathVariable Serializable aid) throws Exception {
+        return articleService.getArticleById(aid);
+    }
+
+
 
     @AuthAccess(desc = "点赞")
     @GetMapping("/add_positive_count")
