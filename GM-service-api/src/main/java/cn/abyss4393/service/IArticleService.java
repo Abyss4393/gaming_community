@@ -3,7 +3,12 @@ package cn.abyss4393.service;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.po.Article;
 
+import java.io.Serializable;
+
 public interface IArticleService {
+
+    ResultFul<?> getArticleById(Serializable aid) throws Exception;
+    ResultFul<?> getArticleList() throws Exception;
 
     ResultFul<?> postArticle(Article article) throws Exception;
 
