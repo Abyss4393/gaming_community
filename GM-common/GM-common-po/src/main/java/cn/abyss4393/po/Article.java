@@ -29,6 +29,7 @@ public class Article implements Serializable {
     private Integer id;
     private String posterName;
     private Integer posterId;
+    private String title;
     private String content;
     private String type;
     private int positivenessCount;
