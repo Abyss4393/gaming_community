@@ -106,14 +106,16 @@ const filter = computed(() => {
     }
 })
 onMounted(async () => {
-    changeHasMask(true);
-    const res = await AsyncArticleList();
-    if (res.meta.code === 200) {
-        data.articleList = res.data
-        if (data.articleList.length > DATA_MAX_SIZE)
-            data.articleList.splice(DATA_MAX_SIZE, data.articleList.length - 1);
+    if (data.articleList != null) {
+        changeHasMask(true);
+        const res = await AsyncArticleList();
+        if (res.meta.code === 200) {
+            data.articleList = res.data
+            if (data.articleList.length > DATA_MAX_SIZE)
+                data.articleList.splice(DATA_MAX_SIZE, data.articleList.length - 1);
+        }
+        asyncChangeHasMask(400);
     }
-    asyncChangeHasMask(400);
 })
 
 

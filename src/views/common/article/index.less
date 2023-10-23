@@ -61,7 +61,110 @@
             height: 1000px;
             padding: .8rem 1.2rem;
             box-sizing: border-box;
-            background-color: inherit;
+
+            .title {
+                text-align: center;
+                font-size: 2rem;
+                font-family: "华文楷书";
+                word-spacing: 2lvh;
+                font-weight: 900;
+                margin-bottom: 2rem;
+            }
+
+            .page-info {
+                width: 100%;
+                height: 4rem;
+                padding: 1.2rem 1.2rem;
+                box-sizing: border-box;
+                background-color: #fffffd;
+
+                .passive,
+                .positive,
+                .collect {
+                    vertical-align: middle;
+                    width: 4rem;
+                    text-align: center;
+                    display: inline-block;
+
+                    img {
+                        width: 1.2rem;
+                        height: auto;
+                    }
+                }
+
+                .passive {
+                    margin-left: 12rem;
+                }
+
+                .positive {
+                    margin-left: 2rem;
+                }
+
+                .collect {
+                    margin-left: 2rem;
+                }
+            }
+
+            .post-timestamp {
+                line-height: 2rem;
+                text-align: center;
+                color: #b8b5b5;
+
+                span {
+                    display: block;
+                }
+            }
+
+            .footer {
+                margin-top: 2rem;
+                width: 100%;
+                height: 8rem;
+                display: flex;
+                flex-wrap: nowrap;
+
+                .left,
+                .right {
+                    width: 50%;
+                    height: inherit;
+                    padding: 2rem 4rem;
+                    justify-content: center;
+                    box-sizing: border-box;
+                    position: relative;
+                    cursor: pointer;
+
+
+                    img {
+                        margin: 0 auto;
+                        width: 4rem;
+                        height: auto;
+                    }
+
+                    span {
+                        display: inline;
+                        width: auto;
+                        position: relative;
+                        left: 1rem;
+                        top: -1rem;
+                        font-size: 2rem;
+                        font-weight: bolder;
+                    }
+                }
+
+                .left {
+                    border-right: 1px solid #cdcdcd;
+                }
+            }
+
+            .reply {
+                margin-top: 3.33rem;
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: inherit;
+                height: 12rem;
+                background-color: rgb(243, 246, 245);
+            }
         }
     }
 
@@ -72,7 +175,6 @@
         height: 100%;
         background-color: inherit;
         margin-left: 1.2rem;
-        background-color: azure;
 
 
         .article-page-author {

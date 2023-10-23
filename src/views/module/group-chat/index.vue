@@ -161,11 +161,10 @@
     </div>
 </template>
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, getCurrentInstance, ref, unref } from 'vue';
+import { computed, onMounted, reactive, getCurrentInstance, ref, unref } from 'vue';
 import { useStore } from 'vuex';
 import { ElMessage } from 'element-plus';
-import { test, AbyssWS } from '@/utils/abyss/index'
-import abyssVideoPlayer from '@/components/abyss-video-player/index';
+import { AbyssWS } from '@/utils/abyss/index'
 
 const instanceRef = getCurrentInstance();
 const scrollView = ref(null);
