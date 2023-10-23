@@ -28,15 +28,21 @@ public class FileServiceImpl implements IFileService {
     @Override
     public ResultFul<?> upload(MultipartFile multipartFile) throws IOException {
         String originalFileName = multipartFile.getOriginalFilename();
+        String uploadPath = null;
+        String contentType = multipartFile.getContentType();
+        assert contentType != null;
+        if (contentType.startsWith("image/"))
+            uploadPath = ImageBedUtils.IMAGE_PATH;
         if (StringUtils.checkValNull(originalFileName))
             return ResultFul.fail(BaseCode.IMAGE_URL_NULL);
-        String result = ImageBedUtils.uploadFile(null, originalFileName, multipartFile.getBytes());
+        String result = ImageBedUtils.uploadFile(uploadPath, originalFileName, multipartFile.getBytes());
         JSONObject jsonObject = JSONUtil.parseObj(result);
         if (StringUtils.checkValNull(jsonObject) || jsonObject.get(ImageBedUtils.CONSTANT.RESULT_BODY_COMMIT) == null)
             return ResultFul.fail(BaseCode.FILE_URL_ERROR);
         return ResultFul.success(BaseCode.SUCCESS, new HashMap<>() {{
             this.put("content", jsonObject.get("content"));
         }});
+
     }
 
     @Override
@@ -55,7 +61,7 @@ public class FileServiceImpl implements IFileService {
         if (jsonObject.getObj(ImageBedUtils.CONSTANT.RESULT_BODY_CONTENT) == null)
             return ResultFul.fail(BaseCode.FILE_RESOURCE_NOTFOUND);
         return ResultFul.success(BaseCode.DELETE, new HashMap<>(1) {{
-            this.put("file_name", pureUrl.substring(pureUrl.indexOf("/")+1));
+            this.put("file_name", pureUrl.substring(pureUrl.indexOf("/") + 1));
         }});
 
 
