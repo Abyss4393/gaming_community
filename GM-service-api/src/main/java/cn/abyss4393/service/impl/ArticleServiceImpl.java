@@ -4,16 +4,24 @@ import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.mapper.ArticleMapper;
 import cn.abyss4393.mapper.CollectionMapper;
+import cn.abyss4393.mapper.UserMapper;
 import cn.abyss4393.po.Article;
 import cn.abyss4393.po.Collection;
+import cn.abyss4393.po.User;
 import cn.abyss4393.service.IArticleService;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -31,8 +39,42 @@ public class ArticleServiceImpl implements IArticleService {
     private ArticleMapper articleMapper;
 
     @Resource
+    private UserMapper userMapper;
+
+    @Resource
     private CollectionMapper collectionMapper;
 
+
+    @Override
+    public ResultFul<?> getArticleById(Serializable aid) throws Exception {
+        Article article = articleMapper.selectById(aid);
+        if (StringUtils.checkValNull(article))
+            return ResultFul.fail(BaseCode.ARGS_ERROR);
+        JSONObject temp = JSONUtil.parseObj(article);
+        User tempUserInfo = userMapper.getSimpleUserInfo(Objects.requireNonNull((Integer) temp.get("posterId")));
+        JSONObject tempContent = JSONUtil.parseObj(temp.getStr("content"));
+        temp.set("posterData", tempUserInfo);
+        temp.replace("content", tempContent);
+        return ResultFul.success(BaseCode.SUCCESS, temp);
+    }
+
+    @Override
+    public ResultFul<?> getArticleList() throws Exception {
+        JSONArray ja = JSONUtil.parseArray(articleMapper.selectList(null));
+        JSONArray handlerArray = new JSONArray();
+        ja.forEach(item -> {
+            JSONObject temp = JSONUtil.parseObj(item);
+            User tempUser = userMapper.getSimpleUserInfo(Objects.requireNonNull((Integer) temp.get("posterId")));
+            JSONObject tempContent = JSONUtil.parseObj(temp.getStr("content"));
+            temp.replace("content", tempContent);
+            temp.set("posterData", tempUser);
+            handlerArray.add(temp);
+        });
+
+        return StringUtils.checkValNotNull(handlerArray) ?
+                ResultFul.success(BaseCode.SUCCESS, handlerArray) :
+                ResultFul.fail(BaseCode.ERROR, null);
+    }
 
     @Override
     public ResultFul<?> postArticle(Article article) {
