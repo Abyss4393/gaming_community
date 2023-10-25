@@ -29,6 +29,10 @@ export default {
         getAvatar(state) {
             return state.userInfo.data.avatar
         },
+        getNickname(state) {
+            return state.userInfo.data.nickname
+        }
+        ,
         getUserInfo(state) {
             return state.userInfo
         },
