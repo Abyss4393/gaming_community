@@ -7,12 +7,20 @@
     box-shadow: 0rem 0rem .4rem 0rem lightcyan;
     animation: mask 15s infinite both ease-in;
     perspective: 1vmin;
-   
+
     .abyss-top {
-        position: fixed;
-        top: 55rem;
-        left: 104rem;
         cursor: pointer;
+        height: 100%;
+        width: 100%;
+        box-shadow: var(--el-box-shadow-lighter);
+        text-align: center;
+        line-height: 40px;
+        color: #1989fa;
+
+        img {
+            width: inherit;
+            height: auto;
+        }
     }
 }
 
