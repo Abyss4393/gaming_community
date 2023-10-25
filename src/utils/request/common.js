@@ -5,7 +5,7 @@ import instance from "./index";
 export const LoginAPI = (params) => instance.post("user/login", params);
 export const UserInfo = (params) => instance.get(`user/info?uid=${params}`)
 export const AbatinFriendListAPI = (params) => instance.get(`user/friends/${params}`)
-
+export const PostArticle = (params) => instance.post("user/article/post", params);
 
 
 // article
