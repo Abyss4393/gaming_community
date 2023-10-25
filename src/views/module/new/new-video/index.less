@@ -1,0 +1,73 @@
+#abyss-new-video {
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+
+    .container {
+        display: flex;
+        flex-direction: inherit;
+        margin: 0 auto;
+        width: 70%;
+        height: auto;
+        padding: 0 4rem;
+        box-sizing: border-box;
+        background-color: inherit;
+
+        .crumbs {
+            display: block;
+            width: 100%;
+            position: relative;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding-bottom: 1rem;
+            box-sizing: border-box;
+            border-bottom: 1px solid #cdcdcd;
+        }
+
+        .editor {
+            padding: 3rem 2rem 1rem;
+            box-sizing: border-box;
+
+            .el-row {
+                margin-top: 3rem;
+                height: auto;
+
+                &:nth-child(1) {
+                    margin-top: 0;
+                }
+
+                .label{
+                    display: block;
+                    margin-top: .2rem;
+                    margin-left: 1.2rem;
+                    text-align: center;
+                }
+
+                .upload {
+                    width: 100%;
+                    min-height: 8rem;
+                }
+
+            }
+
+            .confirm {
+                position: relative;
+                width: auto;
+                height: auto;
+                margin-top: 4rem;
+                left: 26rem;
+
+                .el-button {
+                    width: 10rem;
+                    height: auto;
+
+                }
+            }
+        }
+
+
+    }
+}

@@ -35,7 +35,7 @@ const link = ["首页", "攻略", "官方", "观测区", "更多"];
 const router = [{
     url: require('@/assets/static/icons/center.png'),
     title: "个人中心",
-    path: '/center'
+    path: '/abyss/accountCenter'
 }, {
     url: require('@/assets/static/icons/more.png'),
     title: "更多",

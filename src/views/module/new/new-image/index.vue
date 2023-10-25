@@ -27,7 +27,7 @@
                             </el-col>
                         </el-row>
                         <el-row>
-                            <el-col :span="4" :push="2"><span>上传图片</span>:</el-col>
+                            <el-col :span="4" :push="2"><span>上传图片:</span>:</el-col>
                             <el-col :span="16" :push="2">
                                 <div class="upload">
                                     <el-upload :action="_actionURL" :before-upload="beforeUpload"

@@ -1,0 +1,149 @@
+@divider-color: #cdcdcd;
+
+
+#abyss-account-center {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    padding: 2rem;
+    box-sizing: border-box;
+
+    .account-container {
+        display: flex;
+        flex-direction: inherit;
+        margin: 0 auto;
+        width: 70%;
+        height: auto;
+        padding: 0 4rem;
+        box-sizing: border-box;
+        background-color: inherit;
+
+        .account-header {
+            display: inherit;
+            flex-wrap: wrap;
+            width: 100%;
+            height: auto;
+            padding: 1rem;
+            box-sizing: border-box;
+            background-color: #FFF;
+            box-shadow: 0px .1rem 0 0 rgba(0, 0, 0, .2);
+
+            .avatar {
+                width: 10rem;
+                height: 8rem;
+
+                img {
+                    width: 8rem;
+                    height: auto;
+                    border-radius: 50%;
+                }
+            }
+
+            .account-details {
+                width: calc(100% - 10rem);
+                height: 8rem;
+                border-bottom: .5px solid @divider-color;
+
+                .nickname {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    width: inherit;
+                    height: 2rem;
+                    text-align: left;
+                    white-space: nowrap;
+
+                    h2 {
+                        width: auto;
+                    }
+
+                    .el-button {
+                        margin-left: 100%;
+                    }
+                }
+            }
+        }
+
+        .account-body {
+            display: inherit;
+            flex: 1;
+            flex-wrap: nowrap;
+            margin-top: 1rem;
+            width: 100%;
+            height: inherit;
+
+            .account-side {
+                width: 30%;
+                max-height: 36rem;
+
+                .menu-header {
+                    font-size: 1.5rem;
+                    padding-bottom: .8rem;
+                    box-sizing: border-box;
+                    border-bottom: .1rem solid @divider-color;
+                }
+
+                .menu {
+                    display: flex;
+                    width: 100%;
+                    padding: .4rem 2rem;
+                    box-sizing: border-box;
+
+                    ul {
+                        width: 100%;
+
+                        li {
+                            display: block;
+                            width: 100%;
+                            height: 2rem;
+                            margin-top: 1.6rem;
+                            padding-left: 1.4rem;
+                            padding-top: .4rem;
+
+                            box-sizing: border-box;
+
+                            a {
+                                display: flex;
+                                flex: 1;
+                                color: #b38b38;
+                                font-weight: bolder;
+                                vertical-align: top;
+                                white-space: nowrap;
+                                cursor: pointer;
+
+                                img {
+                                    width: 1.5rem;
+                                }
+
+                                span {
+                                    display: block;
+                                    margin-left: .5rem;
+                                }
+                            }
+
+                            &:hover {
+                                a {
+                                    color: #1296db;
+                                }
+                            }
+
+                            &:nth-child(1) {
+                                margin-top: 0;
+                            }
+
+                            &:nth-last-child(1) {
+                                border-top: .1rem solid @divider-color;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .account-main {
+                width: 65%;
+                margin-left: 5%;
+                height: 43rem;
+            }
+        }
+    }
+}

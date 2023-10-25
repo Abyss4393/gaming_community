@@ -36,6 +36,11 @@ const routes = [
       path: '/abyss/new_article/0/3',
       name: 'NewVideo',
       component: () => import("@/views/module/new/new-video/index")
+    },
+    {
+      path: '/abyss/accountCenter',
+      name: 'AccountCenter',
+      component: ()=> import('@/views/module/account-center/root/index')
     }]
   },
   {
