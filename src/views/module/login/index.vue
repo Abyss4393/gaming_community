@@ -126,7 +126,7 @@ const login = function () {
                     console.log(store.state.user.userInfo);
                     ElMessage.success(res.meta.msg);
                     asyncChangeHasMask(100);
-                    intance.proxy.$router.push('/register')
+                    intance.proxy.$router.push('/abyss/')
                 } else {
                     ElMessage.error(res.meta.msg);
                     asyncChangeHasMask(100);
