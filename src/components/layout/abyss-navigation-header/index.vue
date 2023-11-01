@@ -3,8 +3,8 @@
         <div class="navbar">
             <ul>
                 <li v-for="item, index in link" :key="index">
-                    <a href="">
-                        <p>{{ item }}</p>
+                    <a :href="item.href">
+                        <p>{{ item.title }}</p>
                     </a>
                 </li>
             </ul>
@@ -31,7 +31,22 @@ import { useStore } from 'vuex';
 import abyssResearch from '../../func/abyss-research/index'
 const store = useStore();
 const instance = getCurrentInstance();
-const link = ["首页", "攻略", "官方", "观测区", "更多"];
+const link = [{
+    title: "首页",
+    href: '/abyss/'
+}, {
+    title: "攻略",
+    href: '/abyss/'
+}, {
+    title: "官方",
+    href: '/abyss/'
+}, {
+    title: "观测区",
+    href: '/abyss/'
+}, {
+    title: "更多",
+    href: '/abyss/'
+}];
 const router = [{
     url: require('@/assets/static/icons/center.png'),
     title: "个人中心",
@@ -46,4 +61,6 @@ const handler = (arg) => {
     console.log(arg);
 }
 </script>
-<style lang="less" scoped>@import url('./index.less');</style>
+<style lang="less" scoped>
+@import url('./index.less');
+</style>
