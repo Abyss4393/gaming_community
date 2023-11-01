@@ -28,9 +28,9 @@
                                 <h1 :title="item.title">{{ item.title }}</h1>
                             </div>
                             <div class="article-item-card-content">
-                                {{ item.content.text }}
+                                <div v-html="item.content.text"></div>
                             </div>
-                            <div class="article-item-card-preview">
+                            <div class="article-item-card-preview" v-if="item.content.imageList">
                                 <el-image :src="i.url" :preview-src-list="filter(item.content.imageList)" @click.stop="(e) => {
                                     if (e.preventDefault()) e.preventDefault();
                                     else e.returnValue = false;
