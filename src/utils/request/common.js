@@ -12,6 +12,9 @@ export const UpdateUser = (params) => instance.post('user/update', params)
 export const AsyncArticleList = () => instance.get('/common/article/list');
 export const AsyncArticleById = (aid) => instance.get(`common/article/${aid}`);
 
+
+//collection
+export const AsyncUserCollections = (uid) => instance.get(`user/collection/${uid}`)
 //file
 export const UploadAPI = (url) => instance.post(`file/upload`, url);
 export const DelFileAPI = (rootFileUrl) => instance.delete(`file/delete`, rootFileUrl)
