@@ -1,0 +1,70 @@
+#abyss-my-collection {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+
+    .header {
+        font-family: "华文行楷";
+        font-size: 1.6rem;
+        width: 100%;
+        height: auto;
+        padding-top: .4rem;
+        padding-bottom: 1rem;
+        box-sizing: border-box;
+        border-bottom: .1rem solid #cdcdcd;
+    }
+
+    .list-body {
+        width: 100%;
+        padding: 0 2rem;
+        box-sizing: border-box;
+
+        ul {
+            width: 100%;
+            height: auto;
+
+            li {
+                display: block;
+                width: 100%;
+                height: auto;
+                padding: .4rem 3rem;
+                box-sizing: border-box;
+
+                &:hover {
+                    background-color: lightskyblue;
+                    transition: .2s ease-in;
+                }
+
+                a {
+                    color: none;
+                    h2 {
+                        color: orange;
+                    }
+                }
+
+                ._inner {
+                    display: flex;
+                    flex: 1;
+                    width: 100%;
+                    height: auto;
+                    text-align: center;
+
+                    span {
+                        display: block;
+                        padding: .4rem;
+                        margin-left: .4rem;
+                        box-sizing: border-box;
+                    }
+
+
+                }
+
+                ._main {
+                    margin-top: 1rem;
+                }
+
+            }
+        }
+    }
+}
