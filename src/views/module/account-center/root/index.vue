@@ -53,8 +53,9 @@
 <script setup>
 import { useStore } from 'vuex';
 import { ElCard, ElButton } from 'element-plus';
-import { computed, reactive } from 'vue';
+import { computed, reactive,getCurrentInstance } from 'vue';
 
+const instance = getCurrentInstance();
 const userInfo = useStore().getters['user/getUserInfo'].data;
 
 const data = reactive({
@@ -62,34 +63,34 @@ const data = reactive({
         img: require('@/assets/static/icons/post.png'),
         active: require('@/assets/static/icons/post-active.png'),
         text: '我的帖子',
-        herf: `/abyss/accountCent/postList?author_id=${userInfo.id}`,
+        herf: `/abyss/accountCenter/postList?author_id=${userInfo.id}`,
         hover: false
     }, {
         img: require('@/assets/static/icons/reply.png'),
         active: require('@/assets/static/icons/reply-active.png'),
         text: '我的回复',
-        herf: `/abyss/accountCent/replyList?author_id=${userInfo.id}`,
+        herf: `/abyss/accountCenter/replyList?author_id=${userInfo.id}`,
         hover: false
     },
     {
         img: require('@/assets/static/icons/comment.png'),
         active: require('@/assets/static/icons/comment-active.png'),
         text: '我的评论',
-        herf: `/abyss/accountCent/comments?author_id=${userInfo.id}`,
+        herf: `/abyss/accountCenter/comments?author_id=${userInfo.id}`,
         hover: false
     },
     {
         img: require('@/assets/static/icons/center-collection.png'),
         active: require('@/assets/static/icons/center-collection-active.png'),
         text: '我的收藏',
-        herf: `/abyss/accountCent/collections?author_id=${userInfo.id}`,
+        herf: `/abyss/accountCenter/collections?author_id=${userInfo.id}`,
         hover: false
     },
     {
         img: require('@/assets/static/icons/user.png'),
         active: require('@/assets/static/icons/user-active.png'),
         text: '编辑资料',
-        herf: `/abyss/accountCent/edit?author_id=${userInfo.id}`,
+        herf: `/abyss/accountCenter/edit?author_id=${userInfo.id}`,
         hover: false
     },
     {
@@ -112,7 +113,8 @@ const choose = computed(() => {
 
 const loginout = (index) => {
     if (index === data.menuList.length - 1) {
-
+        window.localStorage.removeItem('erabbit-client-pc-store')
+        instance.proxy.$router.push('/abyss/')
     }
 }
 </script>
