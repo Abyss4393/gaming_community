@@ -40,7 +40,16 @@ const routes = [
     {
       path: '/abyss/accountCenter',
       name: 'AccountCenter',
-      component: ()=> import('@/views/module/account-center/root/index')
+      component: () => import('@/views/module/account-center/root/index'),
+      children: [{
+        path: '/abyss/accountCenter/postList',
+        name: 'PostList',
+        component: () => import('@/views/module/account-center/my-post/index')
+      }, {
+        path: '/abyss/accountCenter/edit',
+        name: 'Edit',
+        component: () => import('@/views/module/account-center/edit-myself/index')
+      }]
     }]
   },
   {
