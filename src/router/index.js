@@ -45,6 +45,22 @@ const routes = [
         path: '/abyss/accountCenter/postList',
         name: 'PostList',
         component: () => import('@/views/module/account-center/my-post/index')
+      },
+      {
+        path: '/abyss/accountCenter/replyList',
+        name: 'ReplyList',
+        component: () => import('@/views/module/account-center/my-reply/index')
+      },
+      {
+        path: '/abyss/accountCenter/comments',
+        name: 'Comments',
+        component: () => import('@/views/module/account-center/my-comment/index')
+      },
+
+      {
+        path: '/abyss/accountCenter/collections',
+        name: 'Collections',
+        component: () => import('@/views/module/account-center/my-collection/index')
       }, {
         path: '/abyss/accountCenter/edit',
         name: 'Edit',
