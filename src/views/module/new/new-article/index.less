@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: auto;
     padding: 2rem;
     box-sizing: border-box;
 
@@ -10,7 +11,7 @@
         flex-direction: inherit;
         margin: 0 auto;
         width: 70%;
-        height: 60rem;  
+        height: auto;
         padding: 0 4rem;
         box-sizing: border-box;
         background-color: inherit;
@@ -27,6 +28,10 @@
         }
 
         .editor {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: auto;
             padding: 3rem 2rem 1rem;
             box-sizing: border-box;
 
@@ -35,6 +40,15 @@
 
                 &:nth-child(1) {
                     margin-top: 0;
+                }
+
+                .el-col {
+                    :deep(.ql-editor) {
+                        img {
+                            width: 6rem;
+                            height: auto;
+                        }
+                    }
                 }
             }
 
@@ -46,6 +60,7 @@
                 padding-top: .3rem;
                 box-sizing: border-box;
                 text-align: center;
+                white-space: nowrap;
             }
 
             .confirm {
@@ -58,7 +73,7 @@
                 .el-button {
                     width: 10rem;
                     height: auto;
-                    
+
                 }
             }
         }

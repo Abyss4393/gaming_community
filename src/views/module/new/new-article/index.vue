@@ -14,7 +14,7 @@
                                 </el-form-item>
                             </el-col>
                         </el-row>
-                        <el-row style="height: 20rem;">
+                        <el-row style="height: auto;">
                             <el-col :span="2"><span>内容:</span></el-col>
                             <el-col :span="22">
                                 <quill-editor v-model:value="data.quillEditor.content"
@@ -52,7 +52,6 @@ import { quillEditor } from 'vue3-quill'
 
 const instance = getCurrentInstance();
 const ArticleForm = ref(null);
-
 const uid = instance.proxy.$route.query['author_id'];
 
 const data = reactive({
@@ -65,7 +64,7 @@ const data = reactive({
         disabled: false,
         content: '',
         editorOption: {
-            placeholder: '有时，jing',
+            placeholder: '输入帖子内容',
             modules: {
                 toolbar: [
                     ['bold', 'italic', 'underline', 'strike'],
@@ -78,8 +77,8 @@ const data = reactive({
                     [{ color: [] }, { background: [] }],
                     [{ font: [] }],
                     [{ align: [] }],
+                    ['link', 'image', 'video'],
                     ['clean'],
-                    ['link', 'image', 'video']
                 ]
             },
         },
@@ -115,7 +114,9 @@ const onEditorFocus = (quill) => {
 
 function onEditorReady({ quill, html, text }) {
     console.log('ready');
-    console.log(quill, html, text);
+    console.log(quill);
+    console.log(html);
+    console.log(text);
 
 }
 
