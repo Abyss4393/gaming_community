@@ -3,7 +3,7 @@
         <div class="header">
             我的帖子
         </div>
-        <div class="list-body">
+        <div class="list-body" v-if="data.list.length !== 0">
             <ul>
                 <li v-for="item, index in data.list" :key="index">
                     <div class="_inner">
@@ -19,12 +19,16 @@
                 </li>
             </ul>
         </div>
+        <div v-else>
+            <el-empty description="你还没有发布帖子" />
+        </div>
     </div>
 </template>
 <script setup>
+import { reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { GetArticleListByPid } from '@/utils/request/common.js'
-import { reactive } from 'vue';
+import { ElEmpty } from 'element-plus';
 
 const icon = require('@/assets/static/icons/time.png');
 const uid = useRoute().query['author_id'];
