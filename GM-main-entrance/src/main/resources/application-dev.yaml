@@ -9,6 +9,9 @@ server:
       uri-encoding: UTF-8
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 1GB
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
