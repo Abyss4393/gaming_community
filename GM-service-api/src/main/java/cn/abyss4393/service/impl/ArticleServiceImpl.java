@@ -59,8 +59,15 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
+    public ResultFul<?> getArticleListByPid(Serializable pid) throws Exception {
+        return ResultFul.success(BaseCode.SUCCESS,articleMapper.selectList(new LambdaQueryWrapper<>(){{
+            this.eq(Article::getPosterId,pid);
+        }}));
+    }
+
+    @Override
     public ResultFul<?> getArticleList() throws Exception {
-        JSONArray ja = JSONUtil.parseArray(articleMapper.selectList(null));
+        JSONArray ja = JSONUtil.parseArray(Objects.requireNonNull(articleMapper.selectList(null)));
         JSONArray handlerArray = new JSONArray();
         ja.forEach(item -> {
             JSONObject temp = JSONUtil.parseObj(item);
@@ -74,6 +81,8 @@ public class ArticleServiceImpl implements IArticleService {
         return StringUtils.checkValNotNull(handlerArray) ?
                 ResultFul.success(BaseCode.SUCCESS, handlerArray) :
                 ResultFul.fail(BaseCode.ERROR, null);
+
+
     }
 
     @Override
@@ -82,6 +91,7 @@ public class ArticleServiceImpl implements IArticleService {
             return ResultFul.fail(BaseCode.ARGS_ERROR);
         LambdaQueryWrapper<Article> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(Article::getId, article.getId());
+        lambdaQueryWrapper.eq(Article::getTitle, article.getTitle());
         boolean exists = articleMapper.exists(lambdaQueryWrapper);
         if (!exists) {
             article.setId(Math.toIntExact(articleMapper.selectCount(null)) + 1);

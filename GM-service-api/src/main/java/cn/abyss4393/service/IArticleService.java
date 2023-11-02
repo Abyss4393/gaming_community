@@ -8,6 +8,8 @@ import java.io.Serializable;
 public interface IArticleService {
 
     ResultFul<?> getArticleById(Serializable aid) throws Exception;
+
+    ResultFul<?> getArticleListByPid(Serializable pid) throws Exception;
     ResultFul<?> getArticleList() throws Exception;
 
     ResultFul<?> postArticle(Article article) throws Exception;

@@ -41,6 +41,21 @@ public class UserServiceImpl implements AbstractService {
     @Autowired
     private RedisUtils redisUtils;
 
+
+    public ResultFul<?> update(User user){
+        Integer id = user.getId();
+        if (StringUtils.checkValNull(id))
+            return ResultFul.fail(BaseCode.ERROR);
+        int update = userMapper.update(user, new LambdaQueryWrapper<>() {{
+            this.eq(User::getId, id);
+        }});
+        return update != 0 ? ResultFul.success(BaseCode.SUCCESS) :
+                ResultFul.fail(BaseCode.ERROR_REQUEST);
+    }
+
+
+
+
     @Override
     public <T extends BaseObj> ResultFul<?> login(T t) {
         return null;
