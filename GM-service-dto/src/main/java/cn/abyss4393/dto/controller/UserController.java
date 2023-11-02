@@ -4,12 +4,15 @@ import cn.abyss4393.annotation.AuthAccess;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.po.Article;
 import cn.abyss4393.po.User;
-import cn.abyss4393.service.impl.ArticleServiceImpl;
-import cn.abyss4393.service.impl.FriendServiceImpl;
-import cn.abyss4393.service.impl.UserServiceImpl;
+import cn.abyss4393.service.impl.*;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author abyss
@@ -30,6 +33,12 @@ public class UserController {
 
     @Resource
     private ArticleServiceImpl articleService;
+
+    @Resource
+    private CollectionServiceImpl collectionService;
+
+    @Resource
+    private FileServiceImpl fileService;
 
     @AuthAccess(desc = "用户注册")
     @PostMapping("/register")
@@ -72,5 +81,35 @@ public class UserController {
     @ResponseBody
     public ResultFul<?> postArticle(@RequestBody Article article) {
         return articleService.postArticle(article);
+    }
+
+    @AuthAccess(desc = "获取用户帖子列表")
+    @GetMapping("/article/list/{uid}")
+    @ResponseBody
+    public ResultFul<?> getArticleListById(@PathVariable Serializable uid) throws Exception {
+        return articleService.getArticleListByPid(uid);
+    }
+
+
+    @AuthAccess(desc = "上传头像")
+    @PostMapping("/upload/avatar")
+    @ResponseBody
+    public ResultFul<?> uploadAvatar(MultipartFile file) throws IOException {
+        return fileService.uploadAvatar(file);
+    }
+
+    @AuthAccess(desc = "更新用户信息")
+    @PostMapping("/update")
+    @ResponseBody
+    public ResultFul<?> update(@RequestBody User user) {
+        return userServiceImpl.update(Objects.requireNonNull(user));
+    }
+
+
+    @AuthAccess(desc = "获取用户收藏的帖子")
+    @GetMapping("/collection/{uid}")
+    @ResponseBody
+    public ResultFul<?> getCollectionsByUid(@PathVariable Serializable uid) {
+        return collectionService.getArticleByCollection(uid);
     }
 }
