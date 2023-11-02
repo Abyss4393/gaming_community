@@ -1,6 +1,11 @@
 package cn.abyss4393.utils.audioUtils;
 
 
+import cn.hutool.core.codec.Base64Decoder;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -31,8 +36,4 @@ public class AudioUtils {
         }
     }
 
-    public static void main(String[] args) throws MalformedURLException, URISyntaxException {
-       File file = new File(new URI("https://abyss4393.cn/audio/v1/hjzf.mp3"));
-        System.out.println(file);
-    }
 }
