@@ -30,6 +30,7 @@ public class Article implements Serializable {
     private String posterName;
     private Integer posterId;
     private String title;
+    private String contentDes;
     private String content;
     private String type;
     private int positivenessCount;
