@@ -81,7 +81,7 @@ import { useStore } from 'vuex';
 import { ElMessage } from 'element-plus';
 import { PostArticle } from '@/utils/request/common'
 
-const currentUser = useStore().getters['user/getUserInfo'];
+const userInfo = useStore().getters['user/getUserInfo'].data;
 const VideoForm = ref(null);
 const _actionURL = 'http://localhost:2766/api/private/v1/community/file/upload';
 const data = reactive({
@@ -184,8 +184,8 @@ const confirm = async () => {
         if (valid) {
             console.log(data.video);
             const res = await PostArticle({
-                posterName: currentUser.data.nickname,
-                posterId: currentUser.data.id,
+                posterName: userInfo.nickname,
+                posterId: userInfo.id,
                 title: data.video.title,
                 contentDes: data.video.describe,
                 content: JSON.stringify(encapsulate()),

@@ -15,14 +15,14 @@
                             </el-col>
                         </el-row>
                         <el-row>
-                            <el-col :span="2" :push="2"><span>描述</span>:</el-col>
+                            <el-col :span="2" :push="2"><span>描述:</span>:</el-col>
                             <el-col :span="18" :push="2">
-                                <div class="descript">
+                                <div class="describe">
                                     <div class="recommand">
                                         <p>@</p>
                                     </div>
                                     <el-input :autosize="{ minRows: 5, maxRows: 25 }" type="textarea" placeholder="输入图片描述"
-                                        v-model="data.image.descript" maxlength="500" show-word-limit />
+                                        v-model="data.image.describe" maxlength="500" show-word-limit />
                                 </div>
                             </el-col>
                         </el-row>
@@ -63,20 +63,25 @@
     </div>
 </template>
 <script setup>
-import { reactive } from 'vue';
+import { reactive, getCurrentInstance } from 'vue';
+import { useStore } from 'vuex';
 import { ElCard, ElForm, ElRow, ElCol, ElRadio, ElButton, ElMessage } from 'element-plus';
+import { PostArticle } from "@/utils/request/common.js";
+
+
+
 
 const _actionURL = 'http://localhost:2766/api/private/v1/community/file/upload';
+const userInfo = useStore().getters['user/getUserInfo'].data;
 const data = reactive({
     image: {
         title: '',
-        descript: '',
+        describe: '',
         type: '',
         list: [],
-
-
     },
-    files: []
+    files: [],
+    confirm: false
 })
 
 const rules = {
@@ -92,12 +97,14 @@ const beforeUpload = (file) => {
 }
 
 const uploadSuccess = (res, file, fileList) => {
-    if (res.meta.code === 200) {
-        data.image.list.push(res.data.content['download_url']);
-        ElMessage.success('上传成功！')
+    if (res.meta.code === 239) {
+        data.image.list.push({
+            name: file.name,
+            url: res.data.content['downloadUrl']
+        });
+        ElMessage.success('添加列表成功！')
     }
     else ElMessage.error('上传失败');
-
 }
 
 const handlePreview = (file) => {
@@ -106,6 +113,30 @@ const handlePreview = (file) => {
 
 const handleRemove = (file) => {
     console.log("remove", file);
+}
+
+const confirm = async () => {
+    data.confirm = !data.confirm;
+    setTimeout(() => data.confirm = !data.confirm, 500);
+    console.log(data.image.list);
+    const res = await PostArticle({
+        posterName: userInfo.nickname,
+        posterId: userInfo.id,
+        title: data.image.title,
+        contentDes: data.image.describe,
+        content: JSON.stringify({
+            imageList: data.image.list
+        }),
+        type: data.image.type
+    });
+    if (res.meta.code == 245) {
+        ElMessage.success(res.meta.msg);
+        Object.keys(data.image).forEach(item => {
+            item = null;
+        })
+        data.files = [];
+    }
+
 }
 </script>
 <style lang="less" scoped>
