@@ -32,7 +32,7 @@ public class User extends BaseObj {
 
     private String avatar;
 
-    private Character gender;
+    private String gender;
 
     private String permission;
 
