@@ -3,10 +3,12 @@ package cn.abyss4393.service.impl;
 import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.service.IFileService;
+import cn.abyss4393.utils.ftp.FTPUtils;
 import cn.abyss4393.utils.imgbed.ImageBedUtils;
 import cn.abyss4393.utils.imgbed.ImagePath;
+import cn.abyss4393.utils.timestamp.TimeStampUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * @author abyss
@@ -51,7 +54,6 @@ public class FileServiceImpl implements IFileService {
                 this.put("content", jsonObject.get("content"));
             }});
         } else {
-
             String download = jsonObject.getJSONObject("content").getStr("download_url");
             String remote_url = jsonObject.getJSONObject("content").getStr("url");
             JSONObject remoteJSONObject = JSONUtil.parseObj(HttpUtil.get(remote_url));
@@ -72,6 +74,21 @@ public class FileServiceImpl implements IFileService {
             }});
         }
 
+    }
+
+    @Override
+    public ResultFul<?> ftpUpload(MultipartFile multipartFile) throws IOException {
+        String fileName = TimeStampUtil.getSingleTimeStamp() + UUID.randomUUID() +
+                Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+        fileName = fileName.replace("\t", "").replace("-", "");
+        boolean upload = FTPUtils.upload(fileName, multipartFile.getInputStream());
+
+        String remoteUrl = "https://abyss4393.cn/video/" + fileName;
+
+        return upload ? ResultFul.success(BaseCode.FILE_UPLOAD_SUCCESS, new HashMap<>() {{
+                this.put("url", remoteUrl);
+            }}) :
+                ResultFul.fail(BaseCode.FILE_UPLOAD_ERROR);
     }
 
     @Override

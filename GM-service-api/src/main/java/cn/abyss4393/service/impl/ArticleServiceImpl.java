@@ -87,10 +87,11 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     public ResultFul<?> postArticle(Article article) {
+        System.out.println(article);
         if (StringUtils.checkValNull(article))
             return ResultFul.fail(BaseCode.ARGS_ERROR);
         LambdaQueryWrapper<Article> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Article::getId, article.getId());
+        lambdaQueryWrapper.eq(Article::getPosterId, article.getPosterId());
         lambdaQueryWrapper.eq(Article::getTitle, article.getTitle());
         boolean exists = articleMapper.exists(lambdaQueryWrapper);
         if (!exists) {

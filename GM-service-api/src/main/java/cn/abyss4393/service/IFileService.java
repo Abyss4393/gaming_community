@@ -9,6 +9,8 @@ import java.io.IOException;
 public interface IFileService {
     ResultFul<?> upload(MultipartFile multipartFile) throws IOException;
 
+    ResultFul<?> ftpUpload(MultipartFile multipartFile) throws IOException;
+
     ResultFul<?> uploadAvatar(MultipartFile multipartFile) throws IOException;
     ResultFul<?> delete(ImagePath imagePath);
 }
