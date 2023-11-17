@@ -21,9 +21,21 @@ export default {
         setUserInfo(state, obj) {
             state.userInfo = obj
         },
+        setUserInfoData(state, obj) {
+            state.userInfo.data = obj
+        },
         setLoginState(state, newState) {
             state.userInfo = newState
-        }
+        },
+        resetUserInfo(state) {
+            state.userInfo = {
+                data: {
+                    avatar: require('@/assets/static/resource/default.png'),
+                    nickname: ''
+                }
+            }
+        },
+
     },
     getters: {
         getAvatar(state) {
