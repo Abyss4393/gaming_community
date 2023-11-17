@@ -8,7 +8,7 @@
     </div>
 </template>
 <script setup>
-const emit = defineEmits(["getEmoji"])
+const emit = defineEmits(["addEmoji"])
 const emojiList = require("@/assets/static/emoji/emoji.json")
 const pureEmojiList = []
 for (let i in emojiList) {
@@ -16,7 +16,7 @@ for (let i in emojiList) {
 }
 
 const handler = (emoji) => {
-    emit("getEmoji", emoji)
+    emit("addEmoji", emoji)
 }
 </script>
 <style lang="less" scoped>
