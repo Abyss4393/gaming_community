@@ -72,9 +72,10 @@ import { onMounted, reactive, ref } from 'vue';
 import { ElUpload, ElForm, ElFormItem, ElRow, ElCol, ElInput, ElButton, ElMessage } from 'element-plus';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import { UpdateUser } from '@/utils/request/common.js';
+import { UpdateUser, UserInfo } from '@/utils/request/common.js';
 
 const _actionURL = 'http://localhost:2766/api/private/v1/community/user/upload/avatar';
+const store = useStore();
 const uid = useRoute().query['author_id'];
 const EditForm = ref(null);
 
@@ -156,14 +157,25 @@ const rules = {
     ]
 }
 
-const submit = async () => {
-    const res = await UpdateUser(data.edit);
-    console.log(res);
-    if (res.meta.code === 200) {
-        ElMessage.success('保存成功')
-    } else ElMessage.error('保存失败')
 
+const submit = async () => {
+    function asyncUserInfo(info) {
+        store.commit("user/setUserInfoData", info);
+    }
+    const res = await UpdateUser(data.edit);
+    if (res.meta.code === 200) {
+        const user = await UserInfo(uid);
+        console.log(user);
+        if (200 == user.meta.code) {
+            asyncUserInfo(user.data);
+            ElMessage.success('保存成功')
+        } else ElMessage.error('保存失败')
+    } else ElMessage.error('保存失败')
 }
+
+
+
+
 </script>
 <style lang="less" scoped>
 @import url('./index.less');

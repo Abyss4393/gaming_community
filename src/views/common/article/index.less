@@ -50,6 +50,8 @@
         display: flex;
         margin: 0 auto;
         width: 70%;
+        height: auto;
+        min-height: 48rem;
         padding: .6rem;
         box-sizing: border-box;
         background-color: inherit;
@@ -58,7 +60,7 @@
             display: flex;
             flex-direction: column;
             width: 70%;
-            height: 1000px;
+            height: auto;
             padding: .8rem 1.2rem;
             box-sizing: border-box;
 
@@ -155,15 +157,31 @@
                 }
             }
 
-            .reply {
-                margin-top: 3.33rem;
-                display: flex;
-                flex-direction: column;
-                flex-wrap: wrap;
-                justify-content: center;
-                width: inherit;
-                height: 12rem;
-                background-color: rgb(243, 246, 245);
+
+        }
+
+        .reply {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: inherit;
+            flex-wrap: nowrap;
+            width: 100%;
+            height: auto;
+            min-height: 22rem;
+            padding: .5rem 1rem;
+            box-sizing: border-box;
+
+            span {
+                display: block;
+                font-size: .9rem;
+                color: #cdcdcd;
+                margin-bottom: 1rem;
+            }
+
+            :deep(.el-button) {
+                position: relative;
+                top: -2rem;
+                left: 53.2rem;
             }
         }
     }
@@ -194,5 +212,12 @@
                 margin-top: -4rem;
             }
         }
+    }
+
+    .emoji {
+        display: flex;
+        position: absolute;
+        top: 56%;
+        left: 18%;
     }
 }

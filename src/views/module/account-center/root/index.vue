@@ -53,8 +53,9 @@
 <script setup>
 import { useStore } from 'vuex';
 import { ElCard, ElButton } from 'element-plus';
-import { computed, reactive,getCurrentInstance } from 'vue';
+import { computed, reactive, getCurrentInstance } from 'vue';
 
+const store = useStore();
 const instance = getCurrentInstance();
 const userInfo = useStore().getters['user/getUserInfo'].data;
 
@@ -113,8 +114,9 @@ const choose = computed(() => {
 
 const loginout = (index) => {
     if (index === data.menuList.length - 1) {
-        window.localStorage.removeItem('erabbit-client-pc-store')
-        instance.proxy.$router.push('/abyss/')
+        store.commit('user/resetUserInfo');
+        location.reload();
+        instance.proxy.$router.replace('/abyss/');
     }
 }
 </script>

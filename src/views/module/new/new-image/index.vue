@@ -63,13 +63,10 @@
     </div>
 </template>
 <script setup>
-import { reactive, getCurrentInstance } from 'vue';
+import { reactive } from 'vue';
 import { useStore } from 'vuex';
 import { ElCard, ElForm, ElRow, ElCol, ElRadio, ElButton, ElMessage } from 'element-plus';
 import { PostArticle } from "@/utils/request/common.js";
-
-
-
 
 const _actionURL = 'http://localhost:2766/api/private/v1/community/file/upload';
 const userInfo = useStore().getters['user/getUserInfo'].data;
@@ -108,11 +105,10 @@ const uploadSuccess = (res, file, fileList) => {
 }
 
 const handlePreview = (file) => {
-    console.log("preview", file);
 }
 
 const handleRemove = (file) => {
-    console.log("remove", file);
+
 }
 
 const confirm = async () => {
@@ -124,16 +120,14 @@ const confirm = async () => {
         posterId: userInfo.id,
         title: data.image.title,
         contentDes: data.image.describe,
-        content: JSON.stringify({
+        content: JSON.stringify([{
             imageList: data.image.list
-        }),
+        }]),
         type: data.image.type
     });
     if (res.meta.code == 245) {
         ElMessage.success(res.meta.msg);
-        Object.keys(data.image).forEach(item => {
-            item = null;
-        })
+        Object.keys(data.image).forEach(key => data.image[key] = '')
         data.files = [];
     }
 

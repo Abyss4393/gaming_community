@@ -4,7 +4,7 @@
             <div class="article-banner">
                 <el-carousel :interval="3000" type="card" height="20rem">
                     <el-carousel-item v-for="item, index in banners" :key="index">
-                        <img :src="item" alt="">
+                        <img :src="item" alt="banner">
                     </el-carousel-item>
                 </el-carousel>
             </div>
@@ -27,16 +27,19 @@
                                 <h3>{{ item.type }}</h3>
                                 <h1 :title="item.title">{{ item.title }}</h1>
                             </div>
+                            <div class="article-item-card-describe" v-if="item.contentDes != null">
+                                <h4>{{ item.contentDes }}</h4>
+                            </div>
                             <div class="article-item-card-content">
                                 <div v-html="item.content.text"></div>
                             </div>
-                            <div class="article-item-card-preview" v-if="item.content.imageList">
-                                <el-image :src="i.url" :preview-src-list="filter(item.content.imageList)" @click.stop="(e) => {
-                                    if (e.preventDefault()) e.preventDefault();
-                                    else e.returnValue = false;
-                                }" v-for="i in item.content.imageList" />
-                            </div>
                         </a>
+                        <div class="article-item-card-preview" v-if="item.content.imageList">
+                            <el-image :src="i.url" :preview-src-list="filter(item.content.imageList)" @click.stop="(e) => {
+                                if (e.preventDefault()) e.preventDefault();
+                                else e.returnValue = false;
+                            }" v-for="i in item.content.imageList" />
+                        </div>
                         <div class="article-item-card-footer">
                         </div>
                     </el-card>
@@ -61,7 +64,7 @@
 <script setup>
 import { reactive, onMounted, computed, getCurrentInstance } from 'vue';
 import { useStore } from 'vuex';
-import { ElCard, ElButton, ElImage, ElCarousel } from 'element-plus';
+import { ElCard, ElButton, ElImage, ElCarousel, ElMessage } from 'element-plus';
 import { AsyncArticleList } from '@/utils/request/common.js'
 import { getUid } from '@/utils/auth';
 
@@ -106,16 +109,14 @@ const filter = computed(() => {
     }
 })
 onMounted(async () => {
-    if (data.articleList != null) {
-        changeHasMask(true);
-        const res = await AsyncArticleList();
-        if (res.meta.code === 200) {
-            data.articleList = res.data
-            if (data.articleList.length > DATA_MAX_SIZE)
-                data.articleList.splice(DATA_MAX_SIZE, data.articleList.length - 1);
-        }
-        asyncChangeHasMask(400);
+    changeHasMask(true);
+    const res = await AsyncArticleList();
+    if (res.meta.code === 200) {
+        data.articleList = res.data
+        if (data.articleList.length > DATA_MAX_SIZE)
+            data.articleList.splice(DATA_MAX_SIZE, data.articleList.length - 1);
     }
+    asyncChangeHasMask(400);
 })
 
 
@@ -132,7 +133,10 @@ const loadingMore = async () => {
 
 const to = (index) => {
     const page = index + 1;
-    instance.proxy.$router.push(`/abyss/new_article/0/${page}?author_id=${uid}`)
+    if (null != uid) {
+        instance.proxy.$router.push(`/abyss/new_article/0/${page}`)
+    } else ElMessage.info('请登录！')
+
 }
 </script>
 <style lang="less" scoped>

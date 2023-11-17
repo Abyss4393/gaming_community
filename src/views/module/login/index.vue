@@ -123,7 +123,6 @@ const login = function () {
                 if (res.meta.code === 222) {
                     setUserInfo(res.data);
                     setToken(res.data.token);
-                    console.log(store.state.user.userInfo);
                     ElMessage.success(res.meta.msg);
                     asyncChangeHasMask(100);
                     intance.proxy.$router.push('/abyss/')

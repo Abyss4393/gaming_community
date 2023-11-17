@@ -141,7 +141,6 @@ const uploadSuccess = (res, file, fileList) => {
 
 }
 
-
 const beforeCoverUpload = (file) => {
     const type = file.type.match('image/');
     const size = file.size / 1024 / 1024 < 5;
@@ -160,11 +159,11 @@ const uploadCoverSuccess = (res, file, fileList) => {
 }
 
 const handlePreview = (file) => {
-    console.log("preview", file);
+   
 }
 
 const handleRemove = (file) => {
-    console.log("remove", file);
+    
 }
 
 
@@ -193,9 +192,7 @@ const confirm = async () => {
             });
             console.log(res);
             if (res.meta.code === 245) {
-                Object.keys(data.video).filter(item => {
-                    item = null;
-                })
+                Object.keys(data.video).forEach(key => data.video[key] = '')
                 ElMessage.success(res.meta.msg);
             }
             setTimeout(() => data.confirm = false, 800);
