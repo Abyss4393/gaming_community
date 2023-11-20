@@ -8,10 +8,12 @@ import cn.abyss4393.po.Article;
 import cn.abyss4393.po.Collection;
 import cn.abyss4393.service.ICollectionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,5 +47,18 @@ public class CollectionServiceImpl implements ICollectionService {
             resultContainer.add(article);
         });
         return ResultFul.success(BaseCode.SUCCESS,resultContainer);
+    }
+
+    @Override
+    public ResultFul<?> isCollected(Serializable uid, Serializable aid) {
+        if (StringUtils.checkValNull(uid) || StringUtils.checkValNull(aid))
+            return ResultFul.fail(BaseCode.MISS_PARAMS);
+        LambdaQueryWrapper<Collection> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Collection::getUserId, uid);
+        lambdaQueryWrapper.eq(Collection::getArticleId, aid);
+        final boolean exists = collectionMapper.exists(lambdaQueryWrapper);
+        return ResultFul.success(BaseCode.SUCCESS,new HashMap<>(){{
+            this.put("isCollect",exists);
+        }});
     }
 }

@@ -6,4 +6,6 @@ import java.io.Serializable;
 
 public interface ICollectionService {
     ResultFul<?> getArticleByCollection(Serializable uid);
+
+    ResultFul<?> isCollected(Serializable  uid, Serializable cid);
 }
