@@ -3,6 +3,7 @@ package cn.abyss4393.dto.controller;
 import cn.abyss4393.annotation.AuthAccess;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.po.Article;
+import cn.abyss4393.po.Comment;
 import cn.abyss4393.po.User;
 import cn.abyss4393.service.impl.*;
 import jakarta.annotation.Resource;
@@ -39,6 +40,12 @@ public class UserController {
 
     @Resource
     private FileServiceImpl fileService;
+
+    @Resource
+    private  CommentServiceImpl commentService;
+
+    @Resource
+    private UpvoteServiceImpl upvoteService;
 
     @AuthAccess(desc = "用户注册")
     @PostMapping("/register")
@@ -90,6 +97,20 @@ public class UserController {
         return articleService.getArticleListByPid(uid);
     }
 
+    @AuthAccess(desc = "用户点赞帖子状态")
+    @GetMapping("/article/upvote/{uid}/{aid}")
+    @ResponseBody
+    public ResultFul<?> upvoteStatus(@PathVariable Serializable uid, @PathVariable Serializable aid) {
+        return upvoteService.isUpvote(uid,aid);
+    }
+
+    @AuthAccess(desc = "用户收藏帖子状态")
+    @GetMapping("/article/collect/{uid}/{aid}")
+    @ResponseBody
+    public ResultFul<?> collectStatus(@PathVariable Serializable uid, @PathVariable Serializable aid) {
+        return collectionService.isCollected(uid,aid);
+    }
+
 
     @AuthAccess(desc = "上传头像")
     @PostMapping("/upload/avatar")
@@ -107,9 +128,19 @@ public class UserController {
 
 
     @AuthAccess(desc = "获取用户收藏的帖子")
-    @GetMapping("/collection/{uid}")
+    @GetMapping("/collect/{uid}")
     @ResponseBody
     public ResultFul<?> getCollectionsByUid(@PathVariable Serializable uid) {
         return collectionService.getArticleByCollection(uid);
+    }
+
+
+
+
+    @AuthAccess(desc = "用户评论")
+    @PostMapping("/comment")
+    @ResponseBody
+    public ResultFul<?> comment(@RequestBody Comment comment) {
+        return commentService.postComment(comment);
     }
 }
