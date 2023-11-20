@@ -87,7 +87,6 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Override
     public ResultFul<?> postArticle(Article article) {
-        System.out.println(article);
         if (StringUtils.checkValNull(article))
             return ResultFul.fail(BaseCode.ARGS_ERROR);
         LambdaQueryWrapper<Article> lambdaQueryWrapper = new LambdaQueryWrapper<>();

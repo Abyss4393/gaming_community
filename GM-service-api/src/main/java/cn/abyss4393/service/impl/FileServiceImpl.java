@@ -8,7 +8,6 @@ import cn.abyss4393.utils.imgbed.ImageBedUtils;
 import cn.abyss4393.utils.imgbed.ImagePath;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.hutool.core.lang.UUID;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -28,51 +27,23 @@ import java.util.Objects;
  */
 @Service
 public class FileServiceImpl implements IFileService {
-
-
     @Override
     public ResultFul<?> upload(MultipartFile multipartFile) throws IOException {
         String originalFileName = multipartFile.getOriginalFilename();
-        String uploadPath = null;
-        String contentType = multipartFile.getContentType();
-        assert contentType != null;
-        if (contentType.startsWith("image/"))
-            uploadPath = ImageBedUtils.IMAGE_PATH;
-        if (contentType.startsWith("audio/"))
-            uploadPath = ImageBedUtils.AUDIO_PATH;
-        if (contentType.startsWith("video/")) {
-            uploadPath = ImageBedUtils.VIDEO_PATH;
-        }
         if (StringUtils.checkValNull(originalFileName))
             return ResultFul.fail(BaseCode.IMAGE_URL_NULL);
-        String result = ImageBedUtils.uploadFile(uploadPath, originalFileName, multipartFile.getBytes());
-        JSONObject jsonObject = JSONUtil.parseObj(result);
+        String ImageUploadResult = ImageBedUtils.uploadFile(ImageBedUtils.IMAGE_PATH, originalFileName, multipartFile.getBytes());
+        JSONObject jsonObject = JSONUtil.parseObj(ImageUploadResult);
         if (StringUtils.checkValNull(jsonObject) || jsonObject.get(ImageBedUtils.CONSTANT.RESULT_BODY_COMMIT) == null)
             return ResultFul.fail(BaseCode.FILE_URL_ERROR);
-        if (contentType.equals("image/")) {
-            return ResultFul.success(BaseCode.FILE_UPLOAD_SUCCESS, new HashMap<>() {{
-                this.put("content", jsonObject.get("content"));
-            }});
-        } else {
-            String download = jsonObject.getJSONObject("content").getStr("download_url");
-            String remote_url = jsonObject.getJSONObject("content").getStr("url");
-            JSONObject remoteJSONObject = JSONUtil.parseObj(HttpUtil.get(remote_url));
-            Double fileSize = (double) (remoteJSONObject.getInt("size") / 1024 / 1024);
-            StringBuffer src = new StringBuffer();
-            src.append("data:");
-            src.append(contentType);
-            src.append(";");
-            src.append("base64,");
-            src.append(remoteJSONObject.getStr("content"));
-            JSONObject responseObject = new JSONObject();
-            responseObject.set("url", remote_url);
-            responseObject.set("downloadUrl", download);
-            responseObject.set("fileSize", fileSize);
-            responseObject.set("src", src);
-            return ResultFul.success(BaseCode.FILE_UPLOAD_SUCCESS, new HashMap<>() {{
-                this.put("content", responseObject);
-            }});
-        }
+        JSONObject responseObj = new JSONObject();
+        int fileSize = jsonObject.getJSONObject("content").getInt("size") / 1024 ;
+        String download = jsonObject.getJSONObject("content").getStr("download_url");
+        responseObj.set("download", download);
+        responseObj.set("size", fileSize);
+        return ResultFul.success(BaseCode.FILE_UPLOAD_SUCCESS, new HashMap<>() {{
+            this.put("content", responseObj);
+        }});
 
     }
 
@@ -83,7 +54,7 @@ public class FileServiceImpl implements IFileService {
         fileName = fileName.replace("\t", "").replace("-", "");
         boolean upload = FTPUtils.upload(fileName, multipartFile.getInputStream());
 
-        String remoteUrl = "https://abyss4393.cn/video/" + fileName;
+        String remoteUrl = "https://abyss4393.cn/ftp/" + fileName;
 
         return upload ? ResultFul.success(BaseCode.FILE_UPLOAD_SUCCESS, new HashMap<>() {{
                 this.put("url", remoteUrl);
@@ -123,8 +94,6 @@ public class FileServiceImpl implements IFileService {
         return ResultFul.success(BaseCode.DELETE, new HashMap<>(1) {{
             this.put("file_name", pureUrl.substring(pureUrl.indexOf("/") + 1));
         }});
-
-
     }
 
 }

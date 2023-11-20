@@ -1,6 +1,5 @@
 package cn.abyss4393.webservice.encoder;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import jakarta.websocket.EncodeException;
 import jakarta.websocket.Encoder;
