@@ -24,16 +24,9 @@ public class ImageBedUtils {
     private static final String NAME_SPACE = "abyss4393";
 
     private static final String REPOSITORY = "gaming_community";
-
     private static final String PATH = "test/";
-
     public static final String AVATAR_PATH = "avatar/";
     public static final String IMAGE_PATH = "image/";
-
-    public static final String AUDIO_PATH = "audio/";
-
-    public static final String VIDEO_PATH = "video/";
-
 
     private static final int TIME_OUT = 10000;
 
@@ -41,9 +34,7 @@ public class ImageBedUtils {
         public static final String RESULT_BODY_COMMIT = "commit";
         public static final String RESULT_BODY_CONTENT = "content";
         public static final String RESULT_BODY_SHA = "sha";
-        public static final String RESULT_BODY_DOWNLOAD_URL = "url";
     }
-
 
     private static final String API_BASIC_URL_POST = "https://gitee.com/api/v5/repos/%s/%s/contents/%s";
 
@@ -62,23 +53,6 @@ public class ImageBedUtils {
                 NAME_SPACE,
                 REPOSITORY,
                 filePath);
-    }
-
-    private static HashMap<String, Object> getRequestBodyMap(byte[] multipartFile) {
-        return new HashMap<>() {{
-            this.put("access_token", ACCESS_TOKEN);
-            this.put("message", "add file!");
-            this.put("content", Base64.getEncoder().encodeToString(multipartFile));
-        }};
-    }
-
-    private static HashMap<String, Object> getCommonRequestBodyMap(HashMap<String, Object> hashMap, String msg) {
-        HashMap<String, Object> newHm = new HashMap<>();
-        if (hashMap != null)
-            newHm.putAll(hashMap);
-        newHm.put("access_token", ACCESS_TOKEN);
-        newHm.put("message", msg);
-        return newHm;
     }
 
     public static String uploadFile(String path, String originalFileName, byte[] data) {
@@ -102,5 +76,22 @@ public class ImageBedUtils {
         return HttpUtil.createGet(newFilePath)
                 .form(getCommonRequestBodyMap(null, "get sha!"))
                 .timeout(TIME_OUT).execute().body();
+    }
+
+    private static HashMap<String, Object> getCommonRequestBodyMap(HashMap<String, Object> hashMap, String msg) {
+        HashMap<String, Object> newHm = new HashMap<>();
+        if (hashMap != null)
+            newHm.putAll(hashMap);
+        newHm.put("access_token", ACCESS_TOKEN);
+        newHm.put("message", msg);
+        return newHm;
+    }
+
+    private static HashMap<String, Object> getRequestBodyMap(byte[] multipartFile) {
+        return new HashMap<>() {{
+            this.put("access_token", ACCESS_TOKEN);
+            this.put("message", "add file!");
+            this.put("content", Base64.getEncoder().encodeToString(multipartFile));
+        }};
     }
 }

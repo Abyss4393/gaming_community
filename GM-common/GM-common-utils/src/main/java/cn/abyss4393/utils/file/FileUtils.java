@@ -1,5 +1,9 @@
 package cn.abyss4393.utils.file;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import java.io.File;
+
 /**
  * @author abyss
  * @version 1.0-SNAPSHOT

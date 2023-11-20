@@ -16,8 +16,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Setter
-@Getter
 public class FriendList  implements Serializable {
 
 

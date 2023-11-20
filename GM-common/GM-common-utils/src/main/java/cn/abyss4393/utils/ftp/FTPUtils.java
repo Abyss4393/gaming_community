@@ -16,21 +16,14 @@ import java.io.InputStream;
 public class FTPUtils {
 
     private static final String FTP_ADDRESS = "47.109.22.92";
-
     private static final int FTP_PORT = 21;
-
-    private static final String FTP_USERNAME = "ftp";
-
-            private static final String FTP_PASSWORD = "c2r46bWcTPzBwrHw";
-
-    private static final String FTP_BASE_PATH = "/www/wwwroot/ftp/audio";
+    private static final String FTP_USERNAME = "nmz";
+    private static final String FTP_PASSWORD = "c2r46bWcTPzBwrHw";
+    private static final String FTP_BASE_PATH = "/home/nmz/ftp/";
 
     public static boolean upload(String fileName, InputStream is) throws IOException {
         boolean success = false;
-
         FTPClient ftpClient = new FTPClient();
-        String type = fileName.substring(fileName.lastIndexOf(".") + 1);
-
         try {
             int reply;
             ftpClient.connect(FTP_ADDRESS, FTP_PORT);
@@ -41,10 +34,9 @@ public class FTPUtils {
             }
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
             ftpClient.setControlEncoding("UTF-8");
-            if (!ftpClient.changeWorkingDirectory(FTP_BASE_PATH)) {
-                ftpClient.makeDirectory(FTP_BASE_PATH);
-            }
+            ftpClient.makeDirectory(FTP_BASE_PATH);
             ftpClient.changeWorkingDirectory(FTP_BASE_PATH);
+            System.out.println();
             ftpClient.enterLocalPassiveMode();
             success = ftpClient.storeFile(fileName, is);
         } catch (IOException e) {
@@ -58,6 +50,4 @@ public class FTPUtils {
         }
         return success;
     }
-
-
 }
