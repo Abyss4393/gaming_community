@@ -9,7 +9,7 @@
                 <div class="upload">
                     <el-upload :action="_actionURL" :before-upload="beforeUpload" :on-success="uploadSuccess"
                         :on-preview="handlePreview" :on-remove="handleRemove" :file-list="data.upload"
-                        :show-file-list="false">
+                        :show-file-list="false" accept="image/*">
                         <template #="tip">
                             <el-button type="primary">修改头像</el-button>
                         </template>

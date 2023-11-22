@@ -7,10 +7,6 @@ const routes = [
     redirect: "/abyss/"
   },
   {
-    path: '/test',
-    component: () => import("@/views/other/index")
-  },
-  {
     path: '/abyss',
     name: "Abyss",
     component: () => import("@/views/module/root/index"),
@@ -75,8 +71,8 @@ const routes = [
   },
   {
     path: "/test",
-    name: "Text",
-    component: () => import("@/test/Test"),
+    name: 'Test',
+    component: () => import('@/test/index'),  
     meta: {
       title: '测试'
     }

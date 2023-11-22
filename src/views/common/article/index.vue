@@ -7,45 +7,60 @@
                         <h2>「{{ data.articleData.title }}」</h2>
                     </div>
                     <div class="page-info">
-                        <span>来源：{{ data.articleData.type }}</span>
-                        <span class="passive">
+                        <span>类型：{{ data.articleData.type }}</span>
+                        <div class="passive">
                             <img :src="require('@/assets/static/icons/message.png')" alt="">
-                            {{ data.articleData.passivenessCount }}</span>
-                        <span class="positive">
-                            <img :src="require('@/assets/static/icons/zan.png')" alt="">
-                            {{ data.articleData.positivenessCount }}</span>
-                        <span class="collect">
-                            <img :src="require('@/assets/static/icons/collection.png')" alt="">
-                            {{ data.articleData.collectCount }}</span>
+                            <span>0</span>
+                        </div>
+                        <div class="positive">
+                            <img :src="data.upvoted ? require('@/assets/static/icons/zan-active.png') : require('@/assets/static/icons/zan.png')"
+                                alt="like">
+                            <span>{{ data.articleData.passivenessCount }}</span>
+                        </div>
+                        <div class="collect">
+                            <img :src="data.collected ? require('@/assets/static/icons/collection-active.png') : require('@/assets/static/icons/collection.png')"
+                                alt="collection">
+                            <span>{{ data.articleData.collectCount }}</span>
+                        </div>
                     </div>
                     <div class="post-timestamp">
-                        <span>帖子发布时间</span>
+                        <span>帖子发表</span>
                         <span>{{ data.articleData.postTime }}</span>
                     </div>
                     <div class="content">
-                        <div class="content-title">
-                            <span>{{ data.articleData.title }}</span>
-                        </div>
-                        <div class="content-des">
-                            <span>{{ data.articleData.contentDes }}</span>
-                        </div>
-                        <div class="content-item">
-                            <div>
-                                <img v-for="item, index in data.articleData.content.imageList" :key="index" :src="item.url"
-                                    alt="">
+                        <div class="content-item" v-if="data.articleData.content">
+                            <div class="content-des">
+                                <span>简介：{{ data.articleData.contentDes }}</span>
+                            </div>
+                            <div v-for="item, index in data.articleData.content.contentList" :key="index" :src="index">
+                                <div class="content-item-html" v-if="item.text">
+                                    <div v-html="item.text"></div>
+                                </div>
+                                <div class="content-item-image" v-if="item.imageList">
+                                    <img v-for="image, imageIndex in item.imageList" :key="imageIndex" :src="image.url"
+                                        alt="image">
+                                </div>
+                                <div v-if="item.videoList">
+                                    <video controls width="840" v-for="video, videoIndex in item.videoList"
+                                        :key="videoIndex">
+                                        <source :src="video.url" type="video/mp4">
+                                    </video>
+                                </div>
                             </div>
                         </div>
                         <div class="content-text" v-if="data.articleData.content.text != null"
                             v-html="data.articleData.content.text"></div>
                     </div>
                     <div class="footer">
-                        <div class="left">
-                            <img :src="require('@/assets/static/icons/zan.png')" alt="">
+                        <div class="left" @click="actionupvoted()">
+                            <img :src="data.upvoted ? require('@/assets/static/icons/zan-active.png') : require('@/assets/static/icons/zan.png')"
+                                alt="like">
                             <span>{{ data.articleData.passivenessCount }}</span>
                         </div>
-                        <div class="right">
-                            <img :src="require('@/assets/static/icons/collection.png')" alt="">
-                            <span>{{ data.articleData.positivenessCount }}</span>
+                        <div class="right" @click="actionCollected()">
+                            <img :src="data.collected ? require('@/assets/static/icons/collection-active.png') : require('@/assets/static/icons/collection.png')"
+                                alt="">
+                            <span>{{ data.articleData.collectCount }}</span>
                         </div>
                     </div>
 
@@ -55,15 +70,32 @@
                         <el-col>
                             <span>上善若水，水善利万物而不争，处众人之所恶，故几于道</span>
                         </el-col>
-                        <el-col style="margin-bottom: 8rem;" :span="24"><quill-editor theme="bubble" ref="Quill"
+                        <el-col style="margin-bottom: 8rem;"><quill-editor theme="bubble" ref="Quill"
                                 v-model:value="data.quillEditor.content" :options="data.quillEditor.editorOption"
                                 :disabled="data.quillEditor.disabled" @blur="onEditorBlur($event)"
                                 @focus="onEditorFocus($event)" @ready="onEditorReady($event)"
                                 @change="onEditorChange($event)" />
                         </el-col>
                     </el-row>
-                    <el-button type="primary" @click="submitReply">评论</el-button>
+                    <el-button type="primary" @click="submitComment()">评论</el-button>
+                    <div class="emoji" v-show="data.isShowEmoji">
+                        <emoji-slider @addEmoji="addEmoji" />
+                    </div>
                 </el-card>
+                <div class="comments" v-if="data.articleData.comments.length !== 0">
+                    <el-card v-for="item, itemIndex in data.articleData.comments" :key="itemIndex">
+                        <div class="comments-myself">
+                            <img :src="item.user.avatar" alt="">
+                            <span>
+                                <em>{{ item.user.nickname }}</em>
+                            </span>
+                            <span>{{ item.comment.replyTime.slice(0, 10) }}</span>
+                        </div>
+                        <div class="comments-content">
+                            <div v-html="item.comment.content"></div>
+                        </div>
+                    </el-card>
+                </div>
             </div>
             <div class="container-sub">
                 <el-card class="article-page-author">
@@ -75,24 +107,34 @@
             </div>
         </div>
         <div class="article-actions">
-            <div class="article-ations-item" v-for="item, index in data.ationIcons" @click="handler(index)">
-                <img :src="item" alt="">
-                <span :title="item">0</span>
+            <div class="article-ations-item">
+                <img :src="require('@/assets/static/icons/message.png')" alt="">
+                <span>{{ data.articleData.comments.length }}</span>
+            </div>
+            <div class="article-ations-item" @click="actionupvoted()">
+                <img :src="data.upvoted ? require('@/assets/static/icons/zan-active.png') : require('@/assets/static/icons/zan.png')"
+                    alt="">
+                <span>{{ data.articleData.passivenessCount }}</span>
+            </div>
+            <div class="article-ations-item" @click="actionCollected()">
+                <img :src="data.collected ? require('@/assets/static/icons/collection-active.png') : require('@/assets/static/icons/collection.png')"
+                    alt="">
+                <span>{{ data.articleData.collectCount }}</span>
             </div>
         </div>
-        <div class="emoji" v-show="data.isShowEmoji">
-            <emoji-slider @addEmoji="addEmoji" />
-        </div>
+
     </div>
 </template>
 <script setup>
 import { reactive, onMounted, getCurrentInstance } from 'vue';
-import { ElCard, ElRow, ElCol } from 'element-plus';
+import { ElCard, ElRow, ElCol, ElMessage } from 'element-plus';
 import { quillEditor } from 'vue3-quill';
 import EmojiSlider from '@/components/emoji-slider/index.vue';
-import { AsyncArticleById } from '@/utils/request/common.js';
+import { AsyncArticleById, AsyncArticleUpvoteStatus, AsyncArticleCollectStatus, PostComment } from '@/utils/request/common.js';
+import { useStore } from 'vuex';
 
 const instance = getCurrentInstance();
+const uid = useStore().getters['user/getUserInfo'].data.id;
 
 const data = reactive({
     articleId: null,
@@ -101,16 +143,12 @@ const data = reactive({
         contentDes: '',
         content: {},
         type: '',
+        comments: []
     },
     posterData: {
         avatar: '',
         nickname: '',
     },
-    ationIcons: [
-        require('@/assets/static/icons/message.png'),
-        require('@/assets/static/icons/collection.png'),
-        require('@/assets/static/icons/zan.png'),
-    ],
     isShowEmoji: false,
     quillEditor: {
         disabled: false,
@@ -125,18 +163,27 @@ const data = reactive({
             }
         },
     },
+    upvoted: false,
+    collected: false
 })
-
-onMounted(async function init() {
+async function init() {
     data.articleId = instance.proxy.$route.params.id;
     const res = await AsyncArticleById(data.articleId);
     if (res.meta.code === 200) {
         data.articleData = res.data;
         data.posterData.avatar = res.data.posterData.avatar;
         data.posterData.nickname = res.data.posterData.nickname;
+        const upvoteStatus = await AsyncArticleUpvoteStatus(uid, data.articleId);
+        if (upvoteStatus.meta.code === 200) {
+            data.upvoted = upvoteStatus.data.isUpvote;
+        }
+        const collectStatus = await AsyncArticleCollectStatus(uid, data.articleId);
+        if (collectStatus.meta.code === 200) {
+            data.collected = collectStatus.data.isCollect;
+        }
     }
-    console.log(data.articleData);
-})
+}
+onMounted(() => init())
 
 
 onMounted(() => {
@@ -157,9 +204,36 @@ const addEmoji = (emoji) => {
     data.isShowEmoji = !data.isShowEmoji;
 }
 
-//评论
-const submitReply = () => {
+// 点赞 收藏
+const actionupvoted = () => {
+    if (data.upvoted) data.articleData.passivenessCount -= 1;
+    else data.articleData.passivenessCount += 1
+    data.upvoted = !data.upvoted;
+}
 
+const actionCollected = () => {
+    if (data.collected) data.articleData.collectCount -= 1;
+    else data.articleData.collectCount += 1
+    data.collected = !data.collected;
+}
+
+
+//评论
+const submitComment = async () => {
+    if (data.quillEditor.content.length === 0) {
+        ElMessage.warning('评论不能为空！')
+        return
+    }
+    const res = await PostComment({
+        aid: data.articleId,
+        uid: uid,
+        content: data.quillEditor.content
+    })
+    if (res.meta.code === 263) {
+        data.quillEditor.content = '';
+        ElMessage.success(res.meta.msg);
+        init();
+    } else ElMessage.info('你已经评论过了！稍安勿躁');
 }
 
 const onEditorBlur = (quill) => {

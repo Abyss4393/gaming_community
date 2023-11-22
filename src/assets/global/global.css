@@ -24,3 +24,33 @@ a {
 li {
     list-style: none;
 }
+
+
+/* 导航栏动画 */
+.nav-animation {
+    background-size: 333% 333%;
+    padding: 5rem 0 0 0;
+    box-sizing: border-box;
+    background-image: radial-gradient(at 10px 20px, white 2%, #f0ccd5 25%,rgb(157, 56, 56) 10%, #5a93cb 60%, lightcyan 100%);
+    box-shadow: 0rem 0rem .4rem 0rem lightcyan;
+    animation: animation 15s infinite both ease-in;
+    perspective: 1vmin;
+}
+
+@keyframes animation {
+    0% {
+        background-position: 100% 100%;
+    }
+
+    33% {
+        background-position: 0 100%;
+    }
+
+    66% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: 100% 100%;
+    }
+}   

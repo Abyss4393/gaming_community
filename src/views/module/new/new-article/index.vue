@@ -153,12 +153,14 @@ async function confirm() {
                 posterName: userInfo.nickname,
                 posterId: userInfo.id,
                 title: data.article.title,
-                content: JSON.stringify([{
-                    text: data.quillEditor.content
-                }]),
+                content: JSON.stringify({
+                    contentList: [{
+                        text: data.quillEditor.content
+                    }]
+                }),
                 type: data.article.type
             });
-            if (res.meta.code == 245) {
+            if (res.meta.code === 245) {
                 ElMessage.success(res.meta.msg);
                 Object.keys(data.article).forEach(key => data.article[key] = '');
                 data.quillEditor.content = ''

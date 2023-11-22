@@ -18,9 +18,9 @@
                             <el-col :span="4"><span class="label">上传视频:</span></el-col>
                             <el-col :span="16">
                                 <div class="upload">
-                                    <el-upload :action="_actionURL" :before-upload="beforeUpload"
+                                    <el-upload :action="_actionURL + '/ftp'" :before-upload="beforeUpload"
                                         :on-success="uploadSuccess" :on-preview="handlePreview" :on-remove="handleRemove"
-                                        :file-list="data.files" multiple drag>
+                                        :file-list="data.files" accept="video/*" multiple drag>
                                         <template #="tip">
                                             <div style="margin-top: 1rem;">点击或者拖拽文件进行上传</div>
                                             <el-button style="margin-top: 1rem;" type="primary" round>上传视频</el-button>
@@ -45,7 +45,8 @@
                                 <div class="upload">
                                     <el-upload :action="_actionURL" :before-upload="beforeCoverUpload"
                                         :on-success="uploadCoverSuccess" :on-preview="handlePreview"
-                                        :on-remove="handleRemove" :file-list="data.covers" list-type="picture" multiple>
+                                        :on-remove="handleRemove" :file-list="data.covers" list-type="picture"
+                                        accept="image/*" multiple>
                                         <template #="tip">
                                             <el-button style="margin-top: 1rem;" type="primary" round>上传封面</el-button>
                                             <div style="margin-top: 1rem;">上传的封面大小不超过5MB，仅支持jpg、png、jpeg格式</div>
@@ -133,52 +134,46 @@ const beforeUpload = (file) => {
 
 const uploadSuccess = (res, file, fileList) => {
     if (res.meta.code === 239) {
-        data.video.list.push(res.data.content.url);
-        console.log('res', res);
-        ElMessage.success('上传成功！')
+        data.video.list.push({
+            name: file.name,
+            url: res.data.url
+        });
+        ElMessage.success('上传视频成功！')
     }
-    else ElMessage.error('上传失败');
+    else ElMessage.error('上传视频失败');
 
 }
 
 const beforeCoverUpload = (file) => {
     const type = file.type.match('image/');
-    const size = file.size / 1024 / 1024 < 5;
+    const size = file.size / 1024 / 1024 / 1024 < 1;
     if (!type) ElMessage.error('上传文件仅支持jpg、jpeg、png');
-    if (!size) ElMessage.error('上传视频大于5MB')
+    if (!size) ElMessage.error('上传视频大于1GB')
     return type && size;
 }
 
 const uploadCoverSuccess = (res, file, fileList) => {
     if (res.meta.code === 239) {
-        data.video.covers.push(res.data.content.downloadUrl);
-        console.log('res', res);
+        data.video.covers.push({
+            name: file.name,
+            url: res.data.content.download
+        });
         ElMessage.success('上传封面成功！')
     }
     else ElMessage.error('上传封面失败，请重试！');
 }
 
 const handlePreview = (file) => {
-   
+
 }
 
 const handleRemove = (file) => {
-    
+
 }
 
 
 const confirm = async () => {
-    function encapsulate() {
-        let array = [];
-        for (let i = 0; i < data.video.covers.length; i++) {
-            array.push({
-                cover: data.covers[i],
-                video: data.video.list[i]
-            })
-        }
-        return array;
-    }
-    data.confirm = true;
+    data.confirm = !data.confirm;
     unref(VideoForm).validate(async valid => {
         if (valid) {
             console.log(data.video);
@@ -187,21 +182,27 @@ const confirm = async () => {
                 posterId: userInfo.id,
                 title: data.video.title,
                 contentDes: data.video.describe,
-                content: JSON.stringify(encapsulate()),
+                content: JSON.stringify({
+                    contentList: [{
+                        videoList: data.video.list,
+                        imageList: data.video.covers,
+                    }]
+                }),
                 type: data.video.type
             });
-            console.log(res);
             if (res.meta.code === 245) {
-                Object.keys(data.video).forEach(key => data.video[key] = '')
+                Object.keys(data.video).forEach(key => data.video[key] = null)
+                data.files = [];
+                data.covers = [];
                 ElMessage.success(res.meta.msg);
             }
             setTimeout(() => data.confirm = false, 800);
         } else {
             setTimeout(() => data.confirm = false, 800);
-            ElMessage.error('校检未通过，请重试!')
+            ElMessage.error('未通过文本，请重试!')
         }
     })
-    setTimeout(() => data.confirm = false, 800);
+    setTimeout(() => data.confirm = !data.confirm, 800);
 }
 </script>
 <style lang="less" scoped>

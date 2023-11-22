@@ -31,14 +31,16 @@
                                 <h4>{{ item.contentDes }}</h4>
                             </div>
                             <div class="article-item-card-content">
-                                <div v-html="item.content.text"></div>
+                                <div v-if="item.content.contentList.length != 0 && item.content.contentList[0].text"
+                                    v-html="item.content.contentList[0].text"></div>
                             </div>
                         </a>
-                        <div class="article-item-card-preview" v-if="item.content.imageList">
-                            <el-image :src="i.url" :preview-src-list="filter(item.content.imageList)" @click.stop="(e) => {
-                                if (e.preventDefault()) e.preventDefault();
-                                else e.returnValue = false;
-                            }" v-for="i in item.content.imageList" />
+                        <div class="article-item-card-preview" v-if="item.content.contentList.length != 0">
+                            <div v-for="inner, innerIndex in  item.content.contentList" :key="innerIndex">
+                                <el-image v-for="image,imageIndex in inner.imageList" :key="imageIndex" :src="image.url" :preview-src-list="filter(inner.imageList)" />
+                                <div v-if="inner.videoList">视频...</div>
+                            </div>
+                            
                         </div>
                         <div class="article-item-card-footer">
                         </div>

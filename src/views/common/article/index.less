@@ -117,43 +117,77 @@
                 }
             }
 
+            .content-item {
+                display: inherit;
+                margin: 2rem 0 2rem 0;
+                width: inherit;
+
+                .content-item-image {
+                    display: flex;
+                    flex: 1;
+                    width: 16rem;
+                    margin: 0 auto;
+                    padding: 1rem;
+                    box-sizing: border-box;
+
+                    img {
+                        width: 12rem;
+                    }
+                }
+
+                .content-item-video {
+                    width: inherit;
+
+                    video {
+                        width: 100% !important;
+                    }
+                }
+
+
+            }
+
+
             .footer {
-                margin-top: 2rem;
-                width: 100%;
-                height: 8rem;
+                margin: 2rem auto;
+                width: 40%;
+                height: 2.8rem;
                 display: flex;
                 flex-wrap: nowrap;
 
+
                 .left,
                 .right {
-                    width: 50%;
+                    width: 60%;
                     height: inherit;
-                    padding: 2rem 4rem;
+                    padding: 1rem 2rem;
                     justify-content: center;
                     box-sizing: border-box;
-                    position: relative;
                     cursor: pointer;
 
 
                     img {
                         margin: 0 auto;
-                        width: 4rem;
+                        width: 2.4rem;
                         height: auto;
                     }
 
                     span {
-                        display: inline;
+                        display: block;
                         width: auto;
                         position: relative;
-                        left: 1rem;
-                        top: -1rem;
-                        font-size: 2rem;
-                        font-weight: bolder;
+                        left: 4rem;
+                        top: -2rem;
+                        color: #383838;
+                        font-size: 1rem;
                     }
                 }
 
                 .left {
                     border-right: 1px solid #cdcdcd;
+                }
+
+                .right {
+                    margin-left: 2rem;
                 }
             }
 
@@ -167,7 +201,6 @@
             flex-wrap: nowrap;
             width: 100%;
             height: auto;
-            min-height: 22rem;
             padding: .5rem 1rem;
             box-sizing: border-box;
 
@@ -180,8 +213,65 @@
 
             :deep(.el-button) {
                 position: relative;
-                top: -2rem;
-                left: 53.2rem;
+                top: -3rem;
+                left: 46.8rem;
+            }
+
+            .emoji {
+                display: inline;
+                position: relative;
+                z-index: 999;
+                top: -12.4rem;
+                left: -1.5rem;
+            }
+        }
+
+        .comments {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: inherit;
+            flex-wrap: nowrap;
+            width: 100%;
+            height: auto;
+
+            :deep(.el-card) {
+                display: flex;
+                flex-direction: inherit;
+                flex-wrap: nowrap;
+                width: 100%;
+                height: auto;
+
+                .comments-myself {
+                    display: flex;
+                    flex-direction: inherit;
+                    flex-wrap: nowrap;
+                    width: 100%;
+                    height: auto;
+                    padding: .5rem 1rem;
+                    box-sizing: border-box;
+
+                    img {
+                        width: 4rem;
+                        height: 4rem;
+                        border-radius: 50%;
+                    }
+
+                    span {
+                        width: auto;
+                        line-height: 2rem;
+                        height: 2rem;
+                        display: inline-block;
+                        margin-left: 2rem;
+                    }
+                }
+
+                .comments-content {
+                    margin-top: 2rem;
+                    width: inherit;
+                    min-height: 4rem;
+                    padding: 0 8rem;
+                    box-sizing: border-box;
+                }
             }
         }
     }
@@ -214,10 +304,5 @@
         }
     }
 
-    .emoji {
-        display: flex;
-        position: absolute;
-        top: 56%;
-        left: 18%;
-    }
+
 }

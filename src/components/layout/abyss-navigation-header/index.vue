@@ -1,14 +1,14 @@
 <template>
     <div id="abyss-header">
         <div v-if="instance.proxy.$route.path != rootRoutePath && canGoBack" class="previous">
-            <img :src="previous" @click="previousPage" alt="">
+            <img :src="previous" @click="previousPage" alt="previous">
         </div>
         <div class="navbar">
             <ul>
-                <li v-for="item, index in link" :key="index">
-                    <a :href="item.href">
+                <li v-for="item, index in link" :key="index" :class="index === 3 ? 'nav-animation' : ''">
+                    <a :href="item.href" >
                         <p>{{ item.title }}</p>
-                    </a>
+                    </a>    
                 </li>
             </ul>
         </div>
@@ -29,14 +29,12 @@
     </div>
 </template>
 <script setup>
-import { ref, getCurrentInstance, watch, onMounted } from 'vue';
+import { ref, getCurrentInstance, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
 import abyssResearch from '../../func/abyss-research/index';
 import { getUid } from '@/utils/auth';
 import { ElMessage } from 'element-plus';
 
-const routerInstance = useRouter();
 const canGoBack = ref(false);
 const uid = getUid();
 const store = useStore();
@@ -47,26 +45,34 @@ const rootRoutePath = '/abyss/';
 const previous = require('@/assets/static/icons/previous.png')
 const url = store.getters["user/getAvatar"]
 
-console.log(window.history.state.back != null);
 
 onMounted(() => canGoBack.value = window.history.state.back != null)
 
 const link = [{
     title: "首页",
     href: '/abyss/'
-}, {
+},
+{
     title: "攻略",
     href: '/abyss/'
-}, {
+},
+{
     title: "官方",
     href: '/abyss/'
-}, {
+},
+{
+    title: "Chat",
+    href: '/chat'
+},
+{
     title: "观测区",
     href: '/abyss/'
-}, {
+},
+{
     title: "更多",
     href: '/abyss/'
 }];
+
 const router = [{
     url: require('@/assets/static/icons/center.png'),
     title: "个人中心",
@@ -76,7 +82,6 @@ const router = [{
     title: "更多",
     path: '/more'
 }];
-
 
 const transfor = (path) => {
     if (uid != null) instance.proxy.$router.push(path);
