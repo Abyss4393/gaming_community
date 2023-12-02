@@ -6,15 +6,17 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
+import java.io.Serializable;
+
 @Repository
 public interface ArticleMapper extends BaseMapper<Article> {
 
     @Select("select positiveness_count from tb_article where id = #{id}")
-    int getPositivenessCount(@Param("id") Integer id);
+    int getPositivenessCount(@Param("id") Serializable id);
 
     @Select("select passiveness_count from tb_article where id = #{id}")
-    int getPassivenessCount(@Param("id") Integer id);
+    int getPassivenessCount(@Param("id") Serializable id);
 
     @Select("select collect_count from tb_article where id = #{id}")
-    int getCollectCount(@Param("id") Integer id);
+    int getCollectCount(@Param("id") Serializable id);
 }

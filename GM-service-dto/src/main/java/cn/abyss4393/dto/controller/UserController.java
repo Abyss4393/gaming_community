@@ -42,10 +42,14 @@ public class UserController {
     private FileServiceImpl fileService;
 
     @Resource
-    private  CommentServiceImpl commentService;
+    private CommentServiceImpl commentService;
+
+    @Resource
+    private ReplyServiceImpl replyService;
 
     @Resource
     private UpvoteServiceImpl upvoteService;
+
 
     @AuthAccess(desc = "用户注册")
     @PostMapping("/register")
@@ -134,7 +138,19 @@ public class UserController {
         return collectionService.getArticleByCollection(uid);
     }
 
+    @AuthAccess(desc = "获取用户评论的帖子")
+    @GetMapping("/comment/{uid}")
+    @ResponseBody
+    public ResultFul<?> getCommentsByUId(@PathVariable Serializable uid) {
+        return commentService.getCommentByUid(uid);
+    }
 
+    @AuthAccess(desc = "获取用户头评论的回复")
+    @GetMapping("/comment/reply/{uid}")
+    @ResponseBody
+    public ResultFul<?> getRepliesByUId(@PathVariable String uid) {
+        return replyService.getRepliesByUId(uid);
+    }
 
 
     @AuthAccess(desc = "用户评论")
@@ -142,5 +158,12 @@ public class UserController {
     @ResponseBody
     public ResultFul<?> comment(@RequestBody Comment comment) {
         return commentService.postComment(comment);
+    }
+
+    @AuthAccess(desc = "关注用户")
+    @GetMapping("/friend/add/{uid}/{friendId}")
+    @ResponseBody
+    public ResultFul<?> addFriend(@PathVariable Integer uid, @PathVariable Integer friendId) {
+        return friendServiceImpl.addFriend(uid, friendId);
     }
 }

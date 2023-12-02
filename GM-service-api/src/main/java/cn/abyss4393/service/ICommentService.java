@@ -3,6 +3,8 @@ package cn.abyss4393.service;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.po.Comment;
 
+import java.io.Serializable;
+
 /**
  * @author abyss
  * @version 1.0-SNAPSHOT
@@ -13,4 +15,6 @@ import cn.abyss4393.po.Comment;
  */
 public interface ICommentService {
     ResultFul<?> postComment(Comment comment);
+
+    ResultFul<?> getCommentByUid(Serializable uid);
 }

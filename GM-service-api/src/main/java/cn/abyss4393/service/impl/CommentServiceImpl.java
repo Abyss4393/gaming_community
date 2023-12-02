@@ -11,6 +11,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * @author abyss
  * @version 1.0-SNAPSHOT
@@ -27,7 +30,6 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     public ResultFul<?> postComment(Comment comment) {
-        System.out.println(comment);
         if (StringUtils.checkValNull(comment))
             return ResultFul.fail(BaseCode.MISS_PARAMS);
         LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -36,10 +38,21 @@ public class CommentServiceImpl implements ICommentService {
         final boolean exists = commentMapper.exists(lambdaQueryWrapper);
         if (!exists) {
             comment.setId(Math.toIntExact(commentMapper.selectCount(null)) + 1);
-            comment.setReplyTime(TimeStampUtil.getTimestamp());
+            comment.setCommentTime(TimeStampUtil.getTimestamp());
             commentMapper.insert(comment);
             return ResultFul.success(BaseCode.COMMENT_SUCCESS);
         }
-        return ResultFul.fail(BaseCode.COLLECT_FAIL);
+        return ResultFul.fail(BaseCode.COMMENT_ERROR);
+    }
+
+    @Override
+    public ResultFul<?> getCommentByUid(Serializable uid) {
+        if (StringUtils.checkValNull(uid))
+            return ResultFul.fail(BaseCode.MISS_PARAMS);
+        LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Comment::getUId, uid);
+        lambdaQueryWrapper.orderByDesc(Comment::getId);
+        final List<Comment> comments = commentMapper.selectList(lambdaQueryWrapper);
+        return ResultFul.success(BaseCode.SUCCESS,comments);
     }
 }

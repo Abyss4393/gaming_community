@@ -2,14 +2,11 @@ package cn.abyss4393.service.impl;
 
 import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
-import cn.abyss4393.mapper.ArticleMapper;
-import cn.abyss4393.mapper.CollectionMapper;
-import cn.abyss4393.mapper.UserMapper;
-import cn.abyss4393.po.Article;
-import cn.abyss4393.po.Collection;
-import cn.abyss4393.po.User;
+import cn.abyss4393.mapper.*;
+import cn.abyss4393.po.*;
 import cn.abyss4393.service.IArticleService;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
+import cn.abyss4393.vo.CommentVo;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -18,8 +15,10 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import jakarta.annotation.Resource;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,8 +41,13 @@ public class ArticleServiceImpl implements IArticleService {
     private UserMapper userMapper;
 
     @Resource
+    private UpvoteMapper upvoteMapper;
+
+    @Resource
     private CollectionMapper collectionMapper;
 
+    @Resource
+    private CommentMapper commentMapper;
 
     @Override
     public ResultFul<?> getArticleById(Serializable aid) throws Exception {
@@ -52,9 +56,22 @@ public class ArticleServiceImpl implements IArticleService {
             return ResultFul.fail(BaseCode.ARGS_ERROR);
         JSONObject temp = JSONUtil.parseObj(article);
         User tempUserInfo = userMapper.getSimpleUserInfo(Objects.requireNonNull((Integer) temp.get("posterId")));
+        tempUserInfo.setId(temp.getInt("posterId"));
+        List<CommentVo> commentVos = new ArrayList<>();
+        LambdaQueryWrapper<Comment> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Comment::getAId, aid);
+        final List<Comment> list = commentMapper.selectList(lambdaQueryWrapper);
+        list.forEach(item -> {
+            CommentVo commentvo = new CommentVo();
+            commentvo.setComment(item);
+            User user = userMapper.getSimpleUserInfo(item.getUId());
+            commentvo.setUser(user);
+            commentVos.add(commentvo);
+        });
         JSONObject tempContent = JSONUtil.parseObj(temp.getStr("content"));
         temp.set("posterData", tempUserInfo);
         temp.replace("content", tempContent);
+        temp.set("comments", commentVos);
         return ResultFul.success(BaseCode.SUCCESS, temp);
     }
 
@@ -103,23 +120,35 @@ public class ArticleServiceImpl implements IArticleService {
         return ResultFul.fail(BaseCode.POST_FAIL);
     }
 
+    @Transactional
     @Override
-    public ResultFul<?> addPositivenessCount(@NonNull Integer aid) {
+    public ResultFul<?> addPositivenessCount(Integer uid, Integer aid) {
         if (StringUtils.checkValNull(aid))
             return ResultFul.fail(BaseCode.ARGS_ERROR);
         int count = articleMapper.getPositivenessCount(aid);
         AtomicInteger atomicInteger = new AtomicInteger(count);
         atomicInteger.incrementAndGet();
-        int update = articleMapper.update(new Article() {{
+        final int update = articleMapper.update(new Article() {{
             this.setId(aid);
             this.setPositivenessCount(atomicInteger.get());
         }}, new LambdaQueryWrapper<>() {{
             this.eq(Article::getId, aid);
         }});
-        if (update == 0) {
-            ResultFul.fail(BaseCode.UPVOTE_FAIL);
+        LambdaQueryWrapper<Upvote> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Upvote::getUId, uid);
+        lambdaQueryWrapper.eq(Upvote::getAId, aid);
+        final boolean exists = upvoteMapper.exists(lambdaQueryWrapper);
+        if (!exists) {
+            Upvote upvote = new Upvote();
+            upvote.setId(Math.toIntExact((upvoteMapper.selectCount(null) + 1)));
+            upvote.setUId(uid);
+            upvote.setAId(aid);
+            final int insert = upvoteMapper.insert(upvote);
+            if (update == 0 || insert == 0) {
+                ResultFul.fail(BaseCode.UPVOTE_FAIL);
+            }
         }
-        return ResultFul.success(BaseCode.UPVOTE);
+        return ResultFul.fail(BaseCode.UPVOTE_FAIL);
     }
 
     @Override

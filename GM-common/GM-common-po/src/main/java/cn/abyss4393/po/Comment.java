@@ -22,5 +22,5 @@ public class Comment implements Serializable {
     private Integer aId;
     private Integer uId;
     private String content;
-    private String replyTime;
+    private String commentTime;
 }
