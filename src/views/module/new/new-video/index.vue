@@ -199,7 +199,7 @@ const confirm = async () => {
             setTimeout(() => data.confirm = false, 800);
         } else {
             setTimeout(() => data.confirm = false, 800);
-            ElMessage.error('未通过文本，请重试!')
+            ElMessage.error('未通过文本校检，请重试！')
         }
     })
     setTimeout(() => data.confirm = !data.confirm, 800);
