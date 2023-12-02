@@ -76,6 +76,10 @@ public enum BaseCode {
     COMMENT_SUCCESS(263, "评论成功"),
     COMMENT_ERROR(264, "评论失败"),
 
+
+    ATTENTION_SUCCESS(271, "关注成功"),
+    ATTENTION_FAIL(272, "关注失败"),
+
     ERROR_REQUEST(400, "错误请求"),
 
     UNAUTHORIZED(401, "请求未授权，请登录后重试"),
