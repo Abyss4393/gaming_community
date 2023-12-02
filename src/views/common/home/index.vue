@@ -39,8 +39,7 @@
                             <div v-for="inner, innerIndex in  item.content.contentList" :key="innerIndex">
                                 <el-image v-for="image,imageIndex in inner.imageList" :key="imageIndex" :src="image.url" :preview-src-list="filter(inner.imageList)" />
                                 <div v-if="inner.videoList">视频...</div>
-                            </div>
-                            
+                            </div>     
                         </div>
                         <div class="article-item-card-footer">
                         </div>

@@ -24,24 +24,23 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router';
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { ElEmpty } from 'element-plus';
 import { AsyncUserCollections } from '@/utils/request/common.js'
 
-const uid = useRoute().query['author_id'];
+const uid = useRoute().query.id;
 
 const data = reactive({
     list: []
 });
 
-async function init() {
+onMounted(async function init() {
     const res = await AsyncUserCollections(uid);
     if (res.meta.code === 200) {
         if (res.data != null)
             data.list = res.data;
     }
-}
-init();
+})
 </script>
 <style lang="less" scoped>
 @import url('./index.less');

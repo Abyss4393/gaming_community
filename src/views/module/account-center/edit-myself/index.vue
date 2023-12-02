@@ -76,7 +76,7 @@ import { UpdateUser, UserInfo } from '@/utils/request/common.js';
 
 const _actionURL = 'http://localhost:2766/api/private/v1/community/user/upload/avatar';
 const store = useStore();
-const uid = useRoute().query['author_id'];
+const uid = useRoute().query.id;
 const EditForm = ref(null);
 
 const userInfo = useStore().getters['user/getUserInfo'].data;
@@ -85,7 +85,7 @@ const data = reactive({
         id: '',
         avatar: '',
         nickname: '',
-        mobile: null,
+        mobile: '',
         gender: '',
         email: ''
     },
@@ -96,7 +96,7 @@ onMounted(() => {
     data.edit.id = uid;
     data.edit.avatar = userInfo.avatar;
     data.edit.nickname = userInfo.nickname;
-    data.edit.mobile = userInfo.mobile;
+    data.edit.mobile = userInfo.mobile; 
     data.edit.gender = userInfo.gender;
     data.edit.email = userInfo.email;
 })
@@ -172,10 +172,6 @@ const submit = async () => {
         } else ElMessage.error('保存失败')
     } else ElMessage.error('保存失败')
 }
-
-
-
-
 </script>
 <style lang="less" scoped>
 @import url('./index.less');

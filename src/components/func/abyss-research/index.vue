@@ -1,18 +1,30 @@
 <template>
     <div id="abyss-research">
-        <el-input @keydown.enter.native="search" v-model="data.value" />
+        <el-autocomplete
+        v-bind="instance.proxy.$attrs" 
+        popper-class="my-autocomplete"
+        v-model="data.value"
+        :fetch-suggestions="querySearchAsync"
+         @select.enter.native="search">
+
+        </el-autocomplete>
         <img @click="search" :src="require('@/assets/static/icons/search.png')">
     </div>
 </template>
 <script setup>
-import { defineEmits, reactive } from 'vue';
-import { ElInput } from 'element-plus';
-const emit = defineEmits(["val"])
+import { defineEmits, getCurrentInstance, reactive } from 'vue';
+import { ElAutocomplete } from 'element-plus';
+
+const instance = getCurrentInstance();
+const emit = defineEmits(['querySearchAsync','val'])
 const data = reactive({
     value: ''
 })
+const querySearchAsync = () => {
+    emit('querySearchAsync')
+}
 const search = () => {
-    emit("val", data.value)
+    emit('val', data.value)
 }
 </script>
 <style lang="less" scoped>

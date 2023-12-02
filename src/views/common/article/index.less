@@ -83,13 +83,27 @@
                 .passive,
                 .positive,
                 .collect {
+                    display: flex;
+                    flex: 1;
+                    flex-direction: row;
                     vertical-align: middle;
                     width: 4rem;
                     text-align: center;
                     display: inline-block;
 
+                    span {
+                        display: inline;
+                        position: relative;
+                        top: -.25rem;
+                        left: 1rem;
+                        width: 100%;
+                        height: 100%;
+                        font-size: 1.2rem;
+                        letter-spacing: 2px;
+                    }
+
                     img {
-                        width: 1.2rem;
+                        width: 1.5rem;
                         height: auto;
                     }
                 }
@@ -291,16 +305,27 @@
             white-space: nowrap;
             vertical-align: top;
 
-            img {
-                width: @article_author_avatar;
-                height: @article_author_avatar;
+            a {
+                color: #201d1d;
+
+                &:hover {
+                    color: #78c5f5;
+                }
+
+
+                img {
+                    width: @article_author_avatar;
+                    height: @article_author_avatar;
+                }
+
+                .article-author-info {
+                    word-spacing: .3rem;
+                    margin-left: 6rem;
+                    margin-top: -4rem;
+                }
             }
 
-            .article-author-info {
-                word-spacing: .3rem;
-                margin-left: 6rem;
-                margin-top: -4rem;
-            }
+
         }
     }
 

@@ -25,7 +25,7 @@
         box-sizing: border-box;
         width: 5rem;
 
-        img{
+        img {
             cursor: pointer;
         }
     }
@@ -71,10 +71,29 @@
     }
 
     .search {
-        width: 30rem;
         position: absolute;
         top: @layout_search_top;
         left: @layout_search_left;
+        width: 12rem;
+        max-width: 9rem;
+        line-height: 2rem;
+        height: 2.1rem;
+
+        :deep(.el-input__wrapper) {
+            width: 8rem;
+            border-radius: .6rem;
+            background-color: #ffffffd7;
+        }
+
+
+        img {
+            position: relative;
+            top: -1.6rem;
+            left: 7.5rem;
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+        }
 
     }
 

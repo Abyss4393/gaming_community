@@ -8,10 +8,10 @@
                 <li v-for="item, index in data.list" :key="index">
                     <div class="_inner">
                         <img :src="icon" alt="time">
-                        <span>{{ item.postTime }}</span>
+                        <span>{{ item.commentTime.slice(0, 10) }}</span>
                     </div>
                     <div class="_main">
-                        <h2>{{ item.title }}</h2>
+                        <div v-html="item.content" />
                     </div>
                     <div class="_reply">
                         回复：
@@ -26,18 +26,26 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router';
-import { reactive } from 'vue';
-import { ElEmpty } from 'element-plus'
+import { onMounted, reactive } from 'vue';
+import { ElEmpty } from 'element-plus';
+import { AsyncUserComments } from '@/utils/request/common.js';
 
 const icon = require('@/assets/static/icons/time.png');
-const uid = useRoute().query['author_id'];
+const uid = useRoute().query.id;
 
 
 const data = reactive({
     list: []
 });
 
-
+onMounted(async function init() {
+    const res = await AsyncUserComments(uid);
+    console.log(res);
+    if (res.meta.code === 200) {
+        if (res.data != null)
+            data.list = res.data;
+    }
+})
 </script>
 <style lang="less" scoped>
 @import url('./index.less');

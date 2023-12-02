@@ -10,12 +10,12 @@
                         <span>类型：{{ data.articleData.type }}</span>
                         <div class="passive">
                             <img :src="require('@/assets/static/icons/message.png')" alt="">
-                            <span>0</span>
+                            <span>{{ data.articleData.comments.length }}</span>
                         </div>
                         <div class="positive">
                             <img :src="data.upvoted ? require('@/assets/static/icons/zan-active.png') : require('@/assets/static/icons/zan.png')"
                                 alt="like">
-                            <span>{{ data.articleData.passivenessCount }}</span>
+                            <span>{{ data.articleData.positivenessCount }}</span>
                         </div>
                         <div class="collect">
                             <img :src="data.collected ? require('@/assets/static/icons/collection-active.png') : require('@/assets/static/icons/collection.png')"
@@ -55,7 +55,7 @@
                         <div class="left" @click="actionupvoted()">
                             <img :src="data.upvoted ? require('@/assets/static/icons/zan-active.png') : require('@/assets/static/icons/zan.png')"
                                 alt="like">
-                            <span>{{ data.articleData.passivenessCount }}</span>
+                            <span>{{ data.articleData.positivenessCount }}</span>
                         </div>
                         <div class="right" @click="actionCollected()">
                             <img :src="data.collected ? require('@/assets/static/icons/collection-active.png') : require('@/assets/static/icons/collection.png')"
@@ -63,7 +63,6 @@
                             <span>{{ data.articleData.collectCount }}</span>
                         </div>
                     </div>
-
                 </el-card>
                 <el-card class="reply">
                     <el-row style="height: auto;">
@@ -89,7 +88,7 @@
                             <span>
                                 <em>{{ item.user.nickname }}</em>
                             </span>
-                            <span>{{ item.comment.replyTime.slice(0, 10) }}</span>
+                            <span>{{ item.comment.commentTime.slice(0, 10) }}</span>
                         </div>
                         <div class="comments-content">
                             <div v-html="item.comment.content"></div>
@@ -99,10 +98,12 @@
             </div>
             <div class="container-sub">
                 <el-card class="article-page-author">
-                    <img :src="data.posterData.avatar" alt="">
-                    <div class="article-author-info">
-                        <h4>{{ data.posterData.nickname }}</h4>
-                    </div>
+                    <a :href="`/abyss/accountCenter/postList?id=${data.posterData.id}`" target="_blank">
+                        <img :src="data.posterData.avatar" alt="">
+                        <div class="article-author-info">
+                            <h4>{{ data.posterData.nickname }}</h4>
+                        </div>
+                    </a>
                 </el-card>
             </div>
         </div>
@@ -114,7 +115,7 @@
             <div class="article-ations-item" @click="actionupvoted()">
                 <img :src="data.upvoted ? require('@/assets/static/icons/zan-active.png') : require('@/assets/static/icons/zan.png')"
                     alt="">
-                <span>{{ data.articleData.passivenessCount }}</span>
+                <span>{{ data.articleData.positivenessCount }}</span>
             </div>
             <div class="article-ations-item" @click="actionCollected()">
                 <img :src="data.collected ? require('@/assets/static/icons/collection-active.png') : require('@/assets/static/icons/collection.png')"
@@ -130,7 +131,12 @@ import { reactive, onMounted, getCurrentInstance } from 'vue';
 import { ElCard, ElRow, ElCol, ElMessage } from 'element-plus';
 import { quillEditor } from 'vue3-quill';
 import EmojiSlider from '@/components/emoji-slider/index.vue';
-import { AsyncArticleById, AsyncArticleUpvoteStatus, AsyncArticleCollectStatus, PostComment } from '@/utils/request/common.js';
+import {
+    AsyncArticleById, AsyncArticleUpvoteStatus,
+    AsyncArticleCollectStatus, PostComment,
+    AsyncArticleUpvote, AsyncArticleTrample,
+    AsyncArticleCollect
+} from '@/utils/request/common.js';
 import { useStore } from 'vuex';
 
 const instance = getCurrentInstance();
@@ -146,6 +152,7 @@ const data = reactive({
         comments: []
     },
     posterData: {
+        id: '',
         avatar: '',
         nickname: '',
     },
@@ -171,6 +178,7 @@ async function init() {
     const res = await AsyncArticleById(data.articleId);
     if (res.meta.code === 200) {
         data.articleData = res.data;
+        data.posterData.id = res.data.posterData.id;
         data.posterData.avatar = res.data.posterData.avatar;
         data.posterData.nickname = res.data.posterData.nickname;
         const upvoteStatus = await AsyncArticleUpvoteStatus(uid, data.articleId);
@@ -204,13 +212,20 @@ const addEmoji = (emoji) => {
     data.isShowEmoji = !data.isShowEmoji;
 }
 
-// 点赞 收藏
-const actionupvoted = () => {
+// 点赞 
+const actionupvoted = async () => {
+
     if (data.upvoted) data.articleData.passivenessCount -= 1;
-    else data.articleData.passivenessCount += 1
+    else {
+        data.articleData.passivenessCount += 1;
+        const upvoted = await AsyncArticleUpvote(uid, data.articleId)
+        if (upvoted.meta.code === 241)
+            ElMessage.success(upvoted.meta.msg)
+        else ElMessage.info('已经点赞过请勿重复操作')
+    }
     data.upvoted = !data.upvoted;
 }
-
+// 收藏
 const actionCollected = () => {
     if (data.collected) data.articleData.collectCount -= 1;
     else data.articleData.collectCount += 1
@@ -249,9 +264,10 @@ function onEditorReady({ quill, html, text }) {
 
 function onEditorChange(e) {
 }
+window.onclose = async function AsnycArticleInfo() {
+    console.log(data.upvoted);
 
-const handler = (index) => {
-    console.log(index);
+
 }
 </script>
 <style lang="less" scoped>
