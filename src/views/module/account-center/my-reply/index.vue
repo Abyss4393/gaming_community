@@ -30,7 +30,7 @@ import { reactive } from 'vue';
 import { ElEmpty } from 'element-plus'
 
 const icon = require('@/assets/static/icons/time.png');
-const uid = useRoute().query['author_id'];
+const uid = useRoute().query.id;
 
 
 const data = reactive({
