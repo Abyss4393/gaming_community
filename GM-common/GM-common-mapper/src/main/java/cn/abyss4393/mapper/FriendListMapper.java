@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface FriendListMapper extends BaseMapper<FriendList> {
 
-    @Select("SELECT user_id FROM `tb_friend` WHERE root_id = 1")
+    @Select("SELECT user_id FROM `tb_friend` WHERE root_id = #{id}")
     List<Integer> getFriendsIdByRootId(@Param("id")Integer id);
 }

@@ -27,6 +27,8 @@ public class Reply {
 
     private Integer parentCommentId;
 
+    private Integer parentReplyId;
+
     private String content;
 
     private String replyTime;

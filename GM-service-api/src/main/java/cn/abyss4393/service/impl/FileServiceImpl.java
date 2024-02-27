@@ -54,7 +54,7 @@ public class FileServiceImpl implements IFileService {
         fileName = fileName.replace("\t", "").replace("-", "");
         boolean upload = FTPUtils.upload(fileName, multipartFile.getInputStream());
 
-        String remoteUrl = "https://abyss4393.cn/ftp/" + fileName;
+        String remoteUrl = "http://abyss4393.cn/ftp/" + fileName;
 
         return upload ? ResultFul.success(BaseCode.FILE_UPLOAD_SUCCESS, new HashMap<>() {{
                 this.put("url", remoteUrl);

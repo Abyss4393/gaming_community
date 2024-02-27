@@ -7,6 +7,7 @@ import cn.abyss4393.po.BaseObj;
 import cn.abyss4393.po.Manager;
 import cn.abyss4393.po.User;
 import cn.abyss4393.service.AbstractService;
+import cn.abyss4393.service.IUserService;
 import cn.abyss4393.utils.jwt.JwtUtils;
 import cn.abyss4393.utils.redis.RedisUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
@@ -14,13 +15,14 @@ import cn.abyss4393.utils.wrap.WrapUtils;
 import cn.abyss4393.vo.ResultVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.lettuce.core.RedisException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author abyss
@@ -31,7 +33,7 @@ import java.util.Random;
  */
 @Slf4j
 @Service
-public class UserServiceImpl implements AbstractService {
+public class UserServiceImpl implements IUserService, AbstractService {
 
     @SuppressWarnings("all")
     @Autowired
@@ -161,5 +163,41 @@ public class UserServiceImpl implements AbstractService {
         }});
         return ResultFul.success(BaseCode.SUCCESS,
                 WrapUtils.removeAttr(user, "password"));
+    }
+
+
+    @Override
+    public ResultFul<?> searchUser(String keyword, Integer pageNum, Integer pageSize) {
+        Map<String, Object> searchPageResult = new HashMap<>();
+        Page<User> searchPage = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(User::getUsername, keyword);
+        queryWrapper.or().like(User::getNickname, keyword);
+        queryWrapper.or().like(User::getEmail, keyword);
+        Page<User> pages = userMapper.selectPage(searchPage, queryWrapper);
+        searchPageResult.put("data", pages.getRecords());
+        searchPageResult.put("currentPage", pages.getCurrent());
+        searchPageResult.put("pageSize", pages.getSize());
+        searchPageResult.put("total", pages.getTotal());
+        return ResultFul.success(BaseCode.SUCCESS,searchPageResult);
+    }
+
+    @Transactional
+    @Override
+    public ResultFul<?> modifyUser(User user) {
+        if (Objects.isNull(user) || StringUtils.checkValNull(user.getId())) return ResultFul.fail(BaseCode.MODIFY_ERROR);
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(User::getId, user.getId());
+        int update = userMapper.update(user, lambdaQueryWrapper);
+        return 0 != update ? ResultFul.success(BaseCode.MODIFY) : ResultFul.fail(BaseCode.MODIFY_ERROR);
+    }
+
+    @Transactional
+    @Override
+    public ResultFul<?> deleteUser(Long id) {
+        if (Objects.isNull(id)) return ResultFul.fail(BaseCode.DELETE_ERROR);
+        int deleteRow = userMapper.deleteById(id);
+        boolean sort = userMapper.sort();
+        return 0 != deleteRow && sort ? ResultFul.success(BaseCode.DELETE) : ResultFul.fail(BaseCode.DELETE_ERROR);
     }
 }

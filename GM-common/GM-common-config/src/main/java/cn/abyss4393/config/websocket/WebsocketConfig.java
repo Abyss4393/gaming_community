@@ -17,7 +17,6 @@ public class WebsocketConfig {
      * 注册一个ServletEndpointExporter,
      * 该Bean自动注册使用@ServletEndpoint注解声明中的websocket Endpoint
      */
-
     @Bean
     public ServerEndpointExporter serverEndpointExporter(){
         return new ServerEndpointExporter();

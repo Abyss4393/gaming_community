@@ -17,4 +17,6 @@ public interface ICommentService {
     ResultFul<?> postComment(Comment comment);
 
     ResultFul<?> getCommentByUid(Serializable uid);
+
+    ResultFul<?> delCommentByIds(Serializable aid,Serializable uid);
 }

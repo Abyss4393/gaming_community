@@ -7,11 +7,13 @@ import cn.abyss4393.po.FriendList;
 import cn.abyss4393.service.IFriendService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author abyss
@@ -24,8 +26,7 @@ import java.util.List;
 @Service
 public class FriendServiceImpl implements IFriendService {
 
-    @SuppressWarnings("all")
-    @Autowired
+    @Resource
     private FriendListMapper friendListMapper;
 
     @Override
@@ -33,9 +34,23 @@ public class FriendServiceImpl implements IFriendService {
         if (StringUtils.checkValNull(uid)) return ResultFul.fail(BaseCode.VALUE_NULL);
         List<Integer> friendsId = friendListMapper.getFriendsIdByRootId(uid);
         return ResultFul.success(BaseCode.SEARCH, new HashMap<>() {{
-            this.put("uid", uid);
-            this.put("friends_id", friendsId);
+            this.put("rootId", uid);
+            this.put("friendIds", friendsId);
         }});
+    }
+
+    @Override
+    public ResultFul<?> isFriend(Integer uid, Integer friendId) {
+        if (StringUtils.checkValNull(Objects.requireNonNull(uid)) ||
+                StringUtils.checkValNull(Objects.requireNonNull(friendId)))
+            return ResultFul.fail(BaseCode.MISS_PARAMS);
+        LambdaQueryWrapper<FriendList> existsQuery = new LambdaQueryWrapper<>();
+        existsQuery.eq(FriendList::getRootId, uid);
+        existsQuery.eq(FriendList::getUserId, friendId);
+        final boolean exists = friendListMapper.exists(existsQuery);
+        Map<String, Object> map = new HashMap<>();
+        map.put("isFriend", exists);
+        return ResultFul.success(BaseCode.SUCCESS, map);
     }
 
     @Override

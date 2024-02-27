@@ -1,8 +1,7 @@
 package cn.abyss4393.service;
 
 import cn.abyss4393.entity.ResultFul;
-
-import java.io.Serializable;
+import cn.abyss4393.po.Reply;
 
 /**
  * @author abyss
@@ -13,5 +12,9 @@ import java.io.Serializable;
  * @completion false
  */
 public interface IReplyService {
-    ResultFul<?> getRepliesByUId(Serializable uid);
+    ResultFul<?> postReply(Reply reply);
+
+    ResultFul<?> getRepliesByUId(Integer uid);
+
+    ResultFul<?> getRepliesTreeByUID(Integer aid, Integer commentId, Integer replyId);
 }

@@ -76,6 +76,9 @@ public enum BaseCode {
     COMMENT_SUCCESS(263, "评论成功"),
     COMMENT_ERROR(264, "评论失败"),
 
+    REPLY_SUCCESS(265,"回复成功"),
+
+    REPLY_FAIL(266,"回复失败"),
 
     ATTENTION_SUCCESS(271, "关注成功"),
     ATTENTION_FAIL(272, "关注失败"),

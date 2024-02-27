@@ -55,4 +55,24 @@ public class CommentServiceImpl implements ICommentService {
         final List<Comment> comments = commentMapper.selectList(lambdaQueryWrapper);
         return ResultFul.success(BaseCode.SUCCESS,comments);
     }
+
+    @Override
+    public ResultFul<?> delCommentByIds(Serializable aid,Serializable uid) {
+        if (StringUtils.checkValNull(aid) || StringUtils.checkValNull(uid))
+            return ResultFul.fail(BaseCode.MISS_PARAMS);
+        LambdaQueryWrapper<Comment> exitWrapper = new LambdaQueryWrapper<>();
+        exitWrapper.eq(Comment::getAId, aid);
+        exitWrapper.eq(Comment::getUId,uid);
+        final boolean exists = commentMapper.exists(exitWrapper);
+        if(exists){
+            LambdaQueryWrapper<Comment> delWrapper = new LambdaQueryWrapper<>();
+            delWrapper.eq(Comment::getUId,uid);
+            delWrapper.orderByDesc(Comment::getUId);
+            final int delete = commentMapper.delete(delWrapper);
+            final boolean sort = commentMapper.sort();
+            return delete != 0 && sort ? ResultFul.success(BaseCode.DELETE) :
+                    ResultFul.fail(BaseCode.DELETE_ERROR);
+        }
+        return ResultFul.fail(BaseCode.DELETE_ERROR);
+    }
 }

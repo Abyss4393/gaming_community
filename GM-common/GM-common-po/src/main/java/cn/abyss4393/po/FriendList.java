@@ -20,6 +20,10 @@ public class FriendList  implements Serializable {
 
 
     private Integer id;
+
     private Integer rootId;
+
     private Integer userId;
+
+    private String note;
 }

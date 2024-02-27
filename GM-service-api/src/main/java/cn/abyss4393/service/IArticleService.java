@@ -19,4 +19,8 @@ public interface IArticleService {
     ResultFul<?> addPassivenessCount(Integer aid) throws Exception;
 
     ResultFul<?> addCollect(Integer id, Integer uid) throws Exception;
+
+
+    ResultFul<?> searchArticles(String keyword,Integer currentPage,Integer pageSize);
+    ResultFul<?> deleteArticleById(Serializable id) throws Exception;
 }

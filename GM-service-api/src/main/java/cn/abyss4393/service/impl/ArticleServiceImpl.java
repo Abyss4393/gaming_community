@@ -4,6 +4,7 @@ import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.mapper.*;
 import cn.abyss4393.po.*;
+import cn.abyss4393.po.Collection;
 import cn.abyss4393.service.IArticleService;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.abyss4393.vo.CommentVo;
@@ -12,15 +13,14 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -49,6 +49,9 @@ public class ArticleServiceImpl implements IArticleService {
     @Resource
     private CommentMapper commentMapper;
 
+    @Resource
+    private ReplyMapper replyMapper;
+
     @Override
     public ResultFul<?> getArticleById(Serializable aid) throws Exception {
         Article article = articleMapper.selectById(aid);
@@ -65,6 +68,7 @@ public class ArticleServiceImpl implements IArticleService {
             CommentVo commentvo = new CommentVo();
             commentvo.setComment(item);
             User user = userMapper.getSimpleUserInfo(item.getUId());
+            user.setId(item.getUId());
             commentvo.setUser(user);
             commentVos.add(commentvo);
         });
@@ -151,6 +155,7 @@ public class ArticleServiceImpl implements IArticleService {
         return ResultFul.fail(BaseCode.UPVOTE_FAIL);
     }
 
+    @Transactional
     @Override
     public ResultFul<?> addPassivenessCount(@NonNull Integer aid) {
         if (StringUtils.checkValNull(aid))
@@ -171,6 +176,7 @@ public class ArticleServiceImpl implements IArticleService {
         return ResultFul.success(BaseCode.DISLIKE);
     }
 
+    @Transactional
     @Override
     public ResultFul<?> addCollect(Integer id, Integer uid) {
         if (StringUtils.checkValNull(id) || StringUtils.checkValNull(uid))
@@ -200,11 +206,50 @@ public class ArticleServiceImpl implements IArticleService {
                 }}, new LambdaQueryWrapper<>() {{
                     this.eq(Article::getId, id);
                 }});
-                if (0 != update && insert != 0)
+                if (0 != update && 0 != insert)
                     return ResultFul.success(BaseCode.COLLECT);
             }
         }
 
         return ResultFul.fail(BaseCode.COLLECT_FAIL);
+    }
+
+    @Override
+    public ResultFul<?> searchArticles(String keyword, Integer currentPage, Integer pageSize) {
+        Page<Article> pageArticle = new Page<>(currentPage, pageSize);
+        Map<String,Object> articlePageResult = new HashMap<>();
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Article::getTitle, keyword).
+                or().like(Article::getType, keyword).
+                or().like(Article::getPosterName,keyword).
+                or().like(Article::getContentDes, keyword);
+        Page<Article> articlePage = articleMapper.selectPage(pageArticle, queryWrapper);
+        articlePageResult.put("currentPage",currentPage);
+        articlePageResult.put("pageSize",pageSize);
+        articlePageResult.put("total",articlePage.getTotal());
+        articlePageResult.put("data",articlePage.getRecords());
+        return ResultFul.success(BaseCode.SUCCESS,articlePageResult);
+    }
+
+    @Transactional
+    @Override
+    public ResultFul<?> deleteArticleById(Serializable id) throws Exception {
+        if (Objects.isNull(id)) return ResultFul.fail(BaseCode.DELETE_ERROR);
+        int deleteUpvote = upvoteMapper.delete(new LambdaQueryWrapper<>() {{
+            this.eq(Upvote::getAId, id);
+        }});
+        int deleteCollect = collectionMapper.delete(new LambdaQueryWrapper<>() {{
+            this.eq(Collection::getArticleId, id);
+        }});
+        int deleteComment = commentMapper.delete(new LambdaQueryWrapper<>() {{
+            this.eq(Comment::getAId, id);
+        }});
+
+        int delete = replyMapper.delete(new LambdaQueryWrapper<>() {{
+            this.eq(Reply::getArticleId, id);
+        }});
+
+        int deleteArticle = articleMapper.deleteById(id);
+        return 0 != deleteArticle ? ResultFul.success(BaseCode.DELETE) : ResultFul.fail(BaseCode.DELETE_ERROR);
     }
 }
