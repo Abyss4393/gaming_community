@@ -84,7 +84,7 @@ const data = reactive({
                     [{ color: [] }, { background: [] }],
                     [{ font: [] }],
                     [{ align: [] }],
-                    ['link', 'image', 'video'],
+                    ['link', 'image'],
                     ['clean'],
                 ]
 

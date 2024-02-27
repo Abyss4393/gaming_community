@@ -8,9 +8,11 @@
                 <div class="account-details">
                     <div class="nickname">
                         <h2>{{ data.rederUserInfo.nickname }}</h2>
-                        <el-button v-if="current_id == userInfo.id" type="primary" @click="edit()">编辑</el-button>
-                        <el-button v-else type="primary" @click="follow()">
-                            {{ data.isAttented ? '√已关注' : '关注' }}
+                        <el-button class="eidt"  v-if="current_id == userInfo.id" type="primary" @click="edit()">
+                            编辑
+                        </el-button>
+                        <el-button class="follow" v-else type="primary" @click="follow()">
+                            {{ data.isFriend ? ' √ 已关注' : '关注' }}
                         </el-button>
                     </div>
                     <div class="gender">
@@ -45,7 +47,7 @@
                         </ul>
                         <ul v-else>
                             <li class="menu-item" v-for="currnetItem, currnetIndex in data.currentMenuList"
-                                :key="currnetIndex">
+                                @click="activeFollow(currnetIndex)" :key="currnetIndex">
                                 <a :href="currnetItem.herf === '' ? null : currnetItem.herf"
                                     @mouseenter="onMouseenter(currnetItem)" @mouseleave="onMouseleave(currnetItem)">
                                     <img :src="choose(currnetItem)" alt="">
@@ -67,7 +69,7 @@ import { useStore } from 'vuex';
 import { ElCard, ElButton, ElMessage } from 'element-plus';
 import { computed, reactive, getCurrentInstance, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { UserInfo, AddFriend } from "@/utils/request/common.js";
+import { UserInfo, AddFriend, AsyncUserFriendStatus } from "@/utils/request/common.js";
 
 const store = useStore();
 const instance = getCurrentInstance();
@@ -157,7 +159,7 @@ const data = reactive({
             hover: false,
         },],
     rederUserInfo: {},
-    isAttented: false
+    isFriend: false
 })
 
 onMounted(async function init() {
@@ -168,6 +170,9 @@ onMounted(async function init() {
     const res = await UserInfo(current_id)
     if (res.meta.code === 200)
         data.rederUserInfo = res.data
+    const friendStatus = await AsyncUserFriendStatus(userInfo.id, current_id)
+    if (friendStatus.meta.code === 200)
+        data.isFriend = friendStatus.data.isFriend
 })
 
 const onMouseenter = (item) => item.hover = true
@@ -181,10 +186,13 @@ const choose = computed(() => {
 
 const follow = async () => {
     const res = await AddFriend(userInfo.id, current_id)
-    console.log(res);
-    if (res.meta.code === 271)
-        ElMessage.success(res.meta.msg)
-    else ElMessage.error(res.meta.msg)
+    if (!data.isFriend) {
+        if (res.meta.code === 271)
+            ElMessage.success(res.meta.msg)
+        else ElMessage.error(res.meta.msg)
+    } else ElMessage.warning('你已经关注对方，无需重复操作')
+
+
 }
 
 const edit = () => instance.proxy.$router.push(`/abyss/accountCenter/edit?id=${userInfo.id}`)
@@ -193,9 +201,13 @@ const active = (index) => {
     data.menuList[index].focus = true;
     if (index === data.menuList.length - 1) {
         store.commit('user/resetUserInfo');
-        location.reload();
-        instance.proxy.$router.replace('/abyss/');
+        window.location.href = instance.proxy.$router.resolve('/abyss/').href;
     }
+}
+const activeFollow = (index) => {
+    if (index === 4)
+        follow();
+    return
 }
 </script>
 <style lang="less" scoped>

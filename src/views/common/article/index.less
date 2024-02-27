@@ -1,5 +1,6 @@
 @article_ations_width: 4rem;
 @article_author_avatar: 4rem;
+@reply-cord-background-color: #f7f8fc;
 
 #abyss-article {
     width: 100%;
@@ -63,6 +64,7 @@
             height: auto;
             padding: .8rem 1.2rem;
             box-sizing: border-box;
+            margin-top: -0.8rem;
 
             .title {
                 text-align: center;
@@ -279,12 +281,241 @@
                     }
                 }
 
+                .comment-interact {
+                    display: flex;
+                    flex-direction: row;
+                    flex: 1;
+                    flex-wrap: nowrap;
+                    width: 100%;
+                    height: auto;
+                    width: inherit;
+                    padding: 1.4rem .4rem 1rem .4rem;
+                    box-sizing: border-box;
+                    color: #cdcdcd;
+
+                    .intereact-reply-time {
+                        line-height: inherit;
+                        width: 50%;
+                        margin-left: 7rem;
+
+                        span {
+                            display: inline-block;
+                            margin-top: .7rem;
+                        }
+                    }
+
+                    .intereaction-bar {
+                        width: 50%;
+                        margin-left: 9rem;
+
+                        span {
+                            margin-top: -.2rem;
+                            display: inline-block;
+                            margin-left: 2rem;
+                            padding-right: 1.8rem;
+                            cursor: pointer;
+                            vertical-align: middle;
+                            white-space: nowrap;
+
+                            &:nth-child(1) {
+                                margin-left: 0;
+                                border-right: 1px solid #cdcdcd;
+                            }
+
+                            &:nth-last-child(2) {
+                                margin-left: 0;
+                            }
+
+                            &:nth-last-child(1) {
+                                margin-left: 0;
+                            }
+                        }
+
+                        img {
+                            margin-top: .2rem;
+                            width: 1.5rem;
+                            height: auto;
+                        }
+                    }
+                }
+
                 .comments-content {
                     margin-top: 2rem;
                     width: inherit;
                     min-height: 4rem;
                     padding: 0 8rem;
                     box-sizing: border-box;
+
+                    img {
+                        max-width: 40rem;
+                    }
+                }
+
+                .opreation {
+                    width: 50%;
+                    position: relative;
+                    top: -15rem;
+                    left: 50rem;
+                    cursor: pointer;
+
+
+                }
+
+                .comment-input {
+                    width: 80%;
+                    margin-left: 7rem;
+                    display: flex;
+                    flex-direction: column;
+                    flex-wrap: nowrap;
+                    height: auto;
+                    min-height: 12rem;
+                    padding: .5rem 1rem;
+                    box-sizing: border-box;
+
+                    .el-button {
+                        position: relative;
+                        width: 3rem;
+                        top: 3rem;
+                        left: 36.8rem;
+                    }
+
+                    .emoji {
+                        display: inline;
+                        position: relative;
+                        z-index: 999;
+                        top: -12.4rem;
+                        left: -1.5rem;
+                    }
+                }
+
+                .reply-card {
+                    display: flex;
+                    flex-direction: column;
+                    width: 80%;
+                    height: auto;
+                    
+                    margin-left: 7rem;
+                    padding: .8rem;
+                    box-sizing: border-box;
+                    background-color: @reply-cord-background-color;
+
+                    .reply-item {
+                        display: flex;
+                        flex-direction: column;
+                        width: 100%;
+                        height: auto;
+
+                        .reply-user-info {
+                            display: flex;
+                            flex-direction: row;
+                            flex-wrap: nowrap;
+                            width: 100%;
+                            height: 3rem;
+                            padding: .4rem 0 0 1rem;
+                            box-sizing: border-box;
+                            white-space: nowrap;
+
+                            .reply-user-avatar {
+                                width: 2rem;
+                                height: 2rem;
+                                border-radius: 50%;
+                                overflow: hidden;
+
+                                img {
+                                    width: 100%;
+                                    height: 100%;
+                                }
+                            }
+
+                            span {
+                                color: #78c5ef;
+                                margin-left: 2rem;
+                                display: inline-block;
+                                margin-top: .2rem;
+                            }
+                        }
+
+                        .reply-intereaction-bar {
+                            width: 50%;
+                            margin-left: 26.6rem;
+                            color: #cdcdcd;
+
+                            span {
+                                margin-top: -.2rem;
+                                display: inline-block;
+                                margin-left: 2rem;
+                                padding-right: 1.8rem;
+                                font-size: .8rem;
+                                cursor: pointer;
+                                vertical-align: middle;
+                                white-space: nowrap;
+
+                                &:nth-child(1) {
+                                    margin-left: 0;
+                                    border-right: 1px solid #cdcdcd;
+                                }
+
+                                &:nth-last-child(2) {
+                                    margin-left: 0;
+                                }
+
+                                &:nth-last-child(1) {
+                                    margin-left: 0;
+                                }
+                            }
+
+                            img {
+                                margin-top: .2rem;
+                                width: 1.5rem;
+                                height: auto;
+                            }
+                        }
+
+
+                        .opreation {
+                            width: auto;
+                            position: relative;
+                            top: -6rem;
+                            left: 38rem;
+                            cursor: pointer;
+
+                            img {
+                                width: .2rem;
+                            }
+
+                        }
+
+                        .reply-input {
+                            width: 90%;
+                            margin-left: 5rem;
+                            display: flex;
+                            flex-direction: column;
+                            flex-wrap: nowrap;
+                            height: auto;
+                            min-height: 12rem;
+                            padding: .5rem 1rem;
+                            box-sizing: border-box;
+
+                            .el-button {
+                                position: relative;
+                                width: 3rem;
+                                top: 3rem;
+                                left: 31.4rem;
+                            }
+
+                            .emoji {
+                                display: inline;
+                                position: relative;
+                                z-index: 999;
+                                top: -12.4rem;
+                                left: -1.5rem;
+                            }
+
+                        }
+                    }
+
+
+
                 }
             }
         }

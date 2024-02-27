@@ -69,11 +69,9 @@
                         <el-col>
                             <span>上善若水，水善利万物而不争，处众人之所恶，故几于道</span>
                         </el-col>
-                        <el-col style="margin-bottom: 8rem;"><quill-editor theme="bubble" ref="Quill"
+                        <el-col style="margin-bottom: 8rem;"><quill-editor id="commentEditor" theme="bubble" ref="Quill"
                                 v-model:value="data.quillEditor.content" :options="data.quillEditor.editorOption"
-                                :disabled="data.quillEditor.disabled" @blur="onEditorBlur($event)"
-                                @focus="onEditorFocus($event)" @ready="onEditorReady($event)"
-                                @change="onEditorChange($event)" />
+                                :disabled="data.quillEditor.disabled" />
                         </el-col>
                     </el-row>
                     <el-button type="primary" @click="submitComment()">评论</el-button>
@@ -88,10 +86,92 @@
                             <span>
                                 <em>{{ item.user.nickname }}</em>
                             </span>
-                            <span>{{ item.comment.commentTime.slice(0, 10) }}</span>
                         </div>
                         <div class="comments-content">
                             <div v-html="item.comment.content"></div>
+                        </div>
+                        <div class="comment-interact">
+                            <div class="intereact-reply-time">
+                                <span>{{ item.comment.commentTime.slice(0, 10) }}</span>
+                            </div>
+                            <div class="intereaction-bar">
+                                <span @click="triggerActive('comment', itemIndex)">回复</span>
+                                <span>
+                                    <img :src="require('@/assets/static/icons/zan.png')" alt="reply_avatar">
+                                </span>
+                                <span>0</span>
+                                <span>
+                                    <img :src="require('@/assets/static/icons/zancopy.png')" alt="">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="opreation" v-if="item.user.id == uid">
+                            <el-tooltip effect="light" popper-class="popper" placement="bottom-end">
+                                <img :src="require('@/assets/static/icons/menu.png')" alt="del">
+                                <template #content>
+                                    <div style="width: 3rem;cursor: pointer;text-align: center;"
+                                        @click="delComment(item.user.id)">删除</div>
+                                </template>
+                            </el-tooltip>
+                        </div>
+                        <div class="comment-input" v-if="data.commentActiveIndex == itemIndex">
+                            <el-row style="height: auto;">
+                                <el-col><quill-editor id="replyEditor" theme="bubble" ref="ReplyQuill"
+                                        v-model:value="data.quillEditor.replyContent"
+                                        :options="data.quillEditor.replyEditorOption"
+                                        :disabled="data.quillEditor.disabled" />
+                                </el-col>
+                            </el-row>
+                            <el-button type="primary" @click="submitReply(item.comment.id)">评论</el-button>
+                            <div class="emoji" v-show="data.isShowReplyEmoji">
+                                <emoji-slider @addEmoji="addReplyContentEmoji" />
+                            </div>
+                        </div>
+                        <div class="reply-card" v-if="item.replies">
+                            <div class="reply-item" v-for="reply, rindex in item.replies" :key="rindex">
+                                <div class="reply-user-info">
+                                    <div class="reply-user-avatar">
+                                        <img :src="reply.user.avatar" alt="">
+                                    </div>
+                                    <span>{{ reply.user.nickname }}</span>
+                                    <span>@{{ item.user.nickname }}</span>
+                                    <span>{{ reply.replyTime.slice(0, 10) }}</span>
+                                </div>
+                                <div class="reply-content" style="padding-left: 4rem; box-sizing: border-box;"
+                                    v-html="reply.content" />
+                                <div class="reply-intereaction-bar">
+                                    <span @click="triggerActive('reply', reply.id)">回复</span>
+                                    <span>
+                                        <img :src="require('@/assets/static/icons/zan.png')" alt="reply_avatar">
+                                    </span>
+                                    <span>0</span>
+                                    <span>
+                                        <img :src="require('@/assets/static/icons/zancopy.png')" alt="">
+                                    </span>
+                                </div>
+                                <div class="opreation" v-if="reply.userId == uid">
+                                    <el-tooltip effect="light" popper-class="popper" placement="bottom-end">
+                                        <img :src="require('@/assets/static/icons/menu.png')" alt="del">
+                                        <template #content>
+                                            <div style="width: 3rem;cursor: pointer;text-align: center;"
+                                                @click="delReply(reply.userId)">删除</div>
+                                        </template>
+                                    </el-tooltip>
+                                </div>
+                                <div class="reply-input" v-if="data.replyActiveIndex == reply.id">
+                                    <el-row style="height: auto;">
+                                        <el-col><quill-editor  theme="bubble" ref="ReplyQuill"
+                                                v-model:value="data.quillEditor.replyContent"
+                                                :options="data.quillEditor.replyEditorOption"
+                                                :disabled="data.quillEditor.disabled" />
+                                        </el-col>
+                                    </el-row>
+                                    <el-button type="primary" @click="submitReply(item.comment.id)">评论</el-button>
+                                    <div class="emoji" v-show="data.isShowReplyEmoji">
+                                        <emoji-slider @addEmoji="addReplyContentEmoji" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </el-card>
                 </div>
@@ -123,7 +203,6 @@
                 <span>{{ data.articleData.collectCount }}</span>
             </div>
         </div>
-
     </div>
 </template>
 <script setup>
@@ -134,14 +213,15 @@ import EmojiSlider from '@/components/emoji-slider/index.vue';
 import {
     AsyncArticleById, AsyncArticleUpvoteStatus,
     AsyncArticleCollectStatus, PostComment,
-    AsyncArticleUpvote, AsyncArticleTrample,
-    AsyncArticleCollect
+    PostReply, AsyncArticleUpvote, AsyncAticleReplyTrees,
+    AsyncArticleTrample, AsyncArticleCollect, DelCommentByIds
 } from '@/utils/request/common.js';
 import { useStore } from 'vuex';
 
+const toolBarIcon = '<svg t="1699341670577" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5270" width="32" height="32"><path d="M512 992C247.3 992 32 776.7 32 512S247.3 32 512 32s480 215.3 480 480-215.3 480-480 480z m0-896C282.6 96 96 282.6 96 512s186.6 416 416 416 416-186.6 416-416S741.4 96 512 96z" fill="#2c2c2c" p-id="5271"></path><path d="M512 800c-78 0-151.1-30.7-205.7-86.5C253.2 659.4 224 587.8 224 512c0-17.7 14.3-32 32-32h512c17.7 0 32 14.3 32 32 0 75.8-29.2 147.4-82.3 201.5C663.1 769.3 590 800 512 800zM352 668.8c42.5 43.4 99.3 67.2 160 67.2s117.5-23.9 160-67.2c33.7-34.4 55-77.9 61.7-124.8H290.3c6.6 46.9 28 90.3 61.7 124.8zM368 416c-26.5 0-48-21.5-48-48s21.5-48 48-48 48 21.5 48 48-21.5 48-48 48zM656 416c-26.5 0-48-21.5-48-48s21.5-48 48-48 48 21.5 48 48-21.5 48-48 48z" fill="#2c2c2c" p-id="5272"></path></svg>';
 const instance = getCurrentInstance();
+const store = useStore();
 const uid = useStore().getters['user/getUserInfo'].data.id;
-
 const data = reactive({
     articleId: null,
     articleData: {
@@ -157,9 +237,11 @@ const data = reactive({
         nickname: '',
     },
     isShowEmoji: false,
+    isShowReplyEmoji: false,
     quillEditor: {
         disabled: false,
         content: '',
+        replyContent: '',
         editorOption: {
             placeholder: '~~输入你的评论!',
             modules: {
@@ -169,11 +251,33 @@ const data = reactive({
                 ]
             }
         },
+        replyEditorOption: {
+            placeholder: '请开始你的表演~',
+            modules: {
+                toolbar: [
+                    ['reply'],
+                ]
+            }
+        },
     },
     upvoted: false,
-    collected: false
+    collected: false,
+    commentActiveIndex: -1,
+    replyActiveIndex: -1
 })
+
+function changeHasMask(states) {
+    store.commit("setHasMask", states);
+}
+
+function asyncChangeHasMask(secondes) {
+    store.dispatch("updateHasMask", secondes)
+}
+
 async function init() {
+    const emojiBtn = document.querySelector('.ql-emoji');
+    emojiBtn.innerHTML = toolBarIcon;
+    emojiBtn.addEventListener('click', () => showEmoji());
     data.articleId = instance.proxy.$route.params.id;
     const res = await AsyncArticleById(data.articleId);
     if (res.meta.code === 200) {
@@ -190,50 +294,99 @@ async function init() {
             data.collected = collectStatus.data.isCollect;
         }
     }
+    for (const item of data.articleData.comments) {
+        const cid = item.comment.id;
+        const tresponse = await AsyncAticleReplyTrees(data.articleId, cid, -1);
+        if (tresponse.meta.code === 200) {
+            item.replies = tresponse.data.primary;
+        }
+    }
 }
-onMounted(() => init())
-
-
 onMounted(() => {
-    const emojiBotton = document.querySelector('.ql-emoji');
-    emojiBotton.innerHTML = '<svg t="1699341670577" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5270" width="32" height="32"><path d="M512 992C247.3 992 32 776.7 32 512S247.3 32 512 32s480 215.3 480 480-215.3 480-480 480z m0-896C282.6 96 96 282.6 96 512s186.6 416 416 416 416-186.6 416-416S741.4 96 512 96z" fill="#2c2c2c" p-id="5271"></path><path d="M512 800c-78 0-151.1-30.7-205.7-86.5C253.2 659.4 224 587.8 224 512c0-17.7 14.3-32 32-32h512c17.7 0 32 14.3 32 32 0 75.8-29.2 147.4-82.3 201.5C663.1 769.3 590 800 512 800zM352 668.8c42.5 43.4 99.3 67.2 160 67.2s117.5-23.9 160-67.2c33.7-34.4 55-77.9 61.7-124.8H290.3c6.6 46.9 28 90.3 61.7 124.8zM368 416c-26.5 0-48-21.5-48-48s21.5-48 48-48 48 21.5 48 48-21.5 48-48 48zM656 416c-26.5 0-48-21.5-48-48s21.5-48 48-48 48 21.5 48 48-21.5 48-48 48z" fill="#2c2c2c" p-id="5272"></path></svg>';
-    emojiBotton.addEventListener('click', () => showEmoji())
+    changeHasMask(true);
+    init();
+    asyncChangeHasMask(800);
 })
 
-const showEmoji = () => {
-    data.isShowEmoji = !data.isShowEmoji;
-}
+
+
+const showEmoji = () => data.isShowEmoji = !data.isShowEmoji;
+
 
 const addEmoji = (emoji) => {
+    let index = data.quillEditor.content.lastIndexOf('<');
+    data.quillEditor.content = data.quillEditor.content.slice(0, index) + emoji + data.quillEditor.content.slice(index);
     instance.proxy.$nextTick(() => {
-        let index = data.quillEditor.content.lastIndexOf('<');
-        data.quillEditor.content = data.quillEditor.content.slice(0, index) + emoji + data.quillEditor.content.slice(index);
+        const range = document.createRange();
+        const selection = window.getSelection();
+        let element = document.getElementById('commentEditor')
+        let editor = element.querySelector('.ql-editor');
+        range.selectNodeContents(editor);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
     })
     data.isShowEmoji = !data.isShowEmoji;
 }
+const showReplyEmoji = () => data.isShowReplyEmoji = !data.isShowReplyEmoji;
 
-// 点赞 
-const actionupvoted = async () => {
-
-    if (data.upvoted) data.articleData.passivenessCount -= 1;
-    else {
-        data.articleData.passivenessCount += 1;
-        const upvoted = await AsyncArticleUpvote(uid, data.articleId)
-        if (upvoted.meta.code === 241)
-            ElMessage.success(upvoted.meta.msg)
-        else ElMessage.info('已经点赞过请勿重复操作')
+const addReplyContentEmoji = (emoji) => {
+    let index = data.quillEditor.replyContent.lastIndexOf('<');
+    data.quillEditor.replyContent = data.quillEditor.replyContent.slice(0, index) + emoji + data.quillEditor.replyContent.slice(index);
+    instance.proxy.$nextTick(() => {
+        const range = document.createRange();
+        const selection = window.getSelection();
+        let element = document.getElementById('replyEditor')
+        console.log(element);
+        // let editor = element.querySelector('.ql-editor');
+        // range.selectNodeContents(editor);
+        // range.collapse(false);
+        // selection.removeAllRanges();
+        // selection.addRange(range);
+    })
+    data.isShowReplyEmoji = !data.isShowReplyEmoji
+}
+// 点赞
+var upvoteTimer;
+const actionupvoted = function () {
+    if (data.upvoted) {
+        data.articleData.positivenessCount -= 1;
+        clearTimeout(upvoteTimer)
+    } else {
+        data.articleData.positivenessCount += 1;
+        upvoteTimer = setTimeout(async () => {
+            const upvoted = await AsyncArticleUpvote(uid, data.articleId)
+            if (upvoted.meta.code === 241)
+                 ElMessage.info('已经点赞过，请勿重复操作')
+            else  ElMessage.success(upvoted.meta.msg)
+        }, 1000 * 5)
     }
     data.upvoted = !data.upvoted;
+
 }
 // 收藏
-const actionCollected = () => {
-    if (data.collected) data.articleData.collectCount -= 1;
-    else data.articleData.collectCount += 1
+var collectionTimer;
+const actionCollected = function () {
+    if (data.collected) {
+        data.articleData.collectCount -= 1;
+        clearTimeout(collectionTimer)
+    } else {
+        data.articleData.collectCount += 1;
+        collectionTimer = setTimeout(async () => {
+            const collected = await AsyncArticleCollect({
+                aid: data.articleId,
+                uid: uid
+            })
+            console.log(collected);
+            if (collected.meta.code === 247)
+                ElMessage.success(collected.meta.msg)
+            else ElMessage.info('已经收藏过，请勿重复操作')
+        }, 1000 * 5)
+    }
     data.collected = !data.collected;
 }
 
-
-//评论
+// 评论
 const submitComment = async () => {
     if (data.quillEditor.content.length === 0) {
         ElMessage.warning('评论不能为空！')
@@ -251,23 +404,68 @@ const submitComment = async () => {
     } else ElMessage.info('你已经评论过了！稍安勿躁');
 }
 
-const onEditorBlur = (quill) => {
-    console.log(data.quillEditor.content);
+// 删除
+const delComment = async (uid) => {
+    await instance.proxy.$confirm('确定删除词条评论，是否继续', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(async () => {
+        const res = await DelCommentByIds(data.articleId, uid)
+        if (res.meta.code === 223)
+            init();
+        else instance.proxy.$message.error(res.meta.msg)
+    }).catch(err => err)
 }
 
-const onEditorFocus = (quill) => {
-}
-
-function onEditorReady({ quill, html, text }) {
+// 删除回复
+const delReply = async (uid) => {
 
 }
+// 回复
+const submitReply = async (commentId = -1, replyId = -1) => {
+    if (data.quillEditor.replyContent.length === 0) {
+        ElMessage.warning('回复不能为空！')
+        return
+    }
 
-function onEditorChange(e) {
+
+    const res = await PostReply({
+        articleId: data.articleId,
+        userId: uid,
+        parentCommentId: commentId,
+        parentReplyId: replyId,
+        content: data.quillEditor.replyContent
+    })
+    if (res.meta.code === 265) {
+        init();
+    } else instance.proxy.$message.error(res.meta.msg)
+    data.quillEditor.replyContent = '';
+
 }
-window.onclose = async function AsnycArticleInfo() {
-    console.log(data.upvoted);
 
-
+const triggerActive = (type, index) => {
+    function trigger() {
+        instance.proxy.$nextTick(() => {
+            const replyEmojiBtn = document.querySelector('.ql-reply');
+            replyEmojiBtn.innerHTML = toolBarIcon;
+            replyEmojiBtn.addEventListener('click', () => showReplyEmoji());
+        })
+    }
+    if (type === 'comment') {
+        if (data.commentActiveIndex === index) data.commentActiveIndex = -1;
+        else {
+            data.commentActiveIndex = index;
+            trigger();
+        }
+    }
+    if (type === 'reply') {
+        if (data.replyActiveIndex === index) data.replyActiveIndex = -1;
+        else {
+            data.replyActiveIndex = index;
+            trigger();
+        }
+    }
 }
 </script>
 <style lang="less" scoped>

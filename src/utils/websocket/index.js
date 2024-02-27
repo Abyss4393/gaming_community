@@ -12,11 +12,6 @@ export const initws = function (url, toId) {
 }
 
 
-
-
-
-
-
 // WebSocket心跳检测
 export var ws_heartCheck = {
     timeout: 1000 * 60 * 5,			// 10秒一次心跳

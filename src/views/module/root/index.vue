@@ -5,7 +5,7 @@
         <abyssFooter />
         <el-backtop>
             <div class="abyss-top" :bottom="100">
-                <img @click="back" :src="require('@/assets/static/icons/top.png')" alt="">
+                <img :src="require('@/assets/static/icons/top.png')" alt="">
             </div>
         </el-backtop>
     </div>

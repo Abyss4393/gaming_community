@@ -10,10 +10,10 @@
             </div>
             <div class="article-list-container">
                 <div class="article-list-body">
-                    <el-card class="aticle-item-card" shadow="hover" v-for="item in data.articleList" :key="item.id">
+                    <el-card class="aticle-item-card" shadow="hover" v-for="item in  data.articleList " :key="item.id">
                         <div class="article-item-card-header">
-                            <div class="article-item-header-avatar">
-                                <img :src="item.posterData.avatar" alt="">
+                            <div class="article-item-header-avatar" @click="gocenter(item.posterId)">
+                                <img :src="item.posterData.avatar" alt="poster_avatar">
                             </div>
                             <div class="article-item-header-nickname">
                                 <span>{{ item.posterData.nickname }}</span>
@@ -36,10 +36,12 @@
                             </div>
                         </a>
                         <div class="article-item-card-preview" v-if="item.content.contentList.length != 0">
-                            <div v-for="inner, innerIndex in  item.content.contentList" :key="innerIndex">
-                                <el-image v-for="image,imageIndex in inner.imageList" :key="imageIndex" :src="image.url" :preview-src-list="filter(inner.imageList)" />
+                            <div v-for="inner, innerIndex in   item.content.contentList " :key="innerIndex">
+                                <el-image v-for="image, imageIndex in  inner.imageList " :key="imageIndex" :src="image.url"
+                                    :preview-src-list="filter(inner.imageList)" :append-to-body="true" @click="(e) =>
+                                        e.stopPropagation()" />
                                 <div v-if="inner.videoList">视频...</div>
-                            </div>     
+                            </div>
                         </div>
                         <div class="article-item-card-footer">
                         </div>
@@ -53,7 +55,7 @@
         <div class="container-sub">
             <div class="article-post">
                 <div class="post-inner">
-                    <div class="post-inner-item" @click="to(index)" v-for="fn, index in post_data">
+                    <div class="post-inner-item" @click="to(index)" v-for=" fn, index  in  post_data ">
                         <img :src="require('@/assets/static/icons/bottomarrow.png')" alt="">
                         <span>{{ fn.fnc }}</span>
                     </div>
@@ -64,15 +66,15 @@
 </template>
 <script setup>
 import { reactive, onMounted, computed, getCurrentInstance } from 'vue';
-import { useStore } from 'vuex';
 import { ElCard, ElButton, ElImage, ElCarousel, ElMessage } from 'element-plus';
-import { AsyncArticleList } from '@/utils/request/common.js'
+import { AsyncArticleList } from '@/utils/request/common.js';
 import { getUid } from '@/utils/auth';
+import { useStore } from 'vuex';
 
 const instance = getCurrentInstance();
-const uid = getUid();
 const store = useStore();
-const DATA_MAX_SIZE = 2;
+const uid = getUid();
+const DATA_MAX_SIZE = 10;
 const banners = [
     require('@/assets/static/image/mv1.jpg'),
     require('@/assets/static/image/mv2.jpg'),
@@ -88,14 +90,13 @@ const post_data = [{
     fnc: '发布视频'
 }]
 
-function changeHasMask(params) {
-    store.commit("setHasMask", params);
+function changeHasMask(states) {
+    store.commit("setHasMask", states);
 }
 
 function asyncChangeHasMask(secondes) {
     store.dispatch("updateHasMask", secondes)
 }
-
 const data = reactive({
     articleList: [],
     loadingMore: true
@@ -138,6 +139,11 @@ const to = (index) => {
         instance.proxy.$router.push(`/abyss/new_article/0/${page}`)
     } else ElMessage.info('请登录！')
 
+}
+
+const gocenter = (params) => {
+    let centerPage = window.open('', '_blank');
+    centerPage.location.href = instance.proxy.$router.resolve(`/abyss/accountCenter/postList?id=${params}`).href;
 }
 </script>
 <style lang="less" scoped>

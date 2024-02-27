@@ -8,6 +8,7 @@
                 <li v-for="item, index in data.list" :key="index">
                     <a :href="`/abyss/article/${item.id}`" target="_blank">
                         <div class="_inner">
+                            <img :src="icon" alt="time">
                             <span>发布时间 {{ item.postTime.slice(0, 10) }}</span>
                         </div>
                         <div class="_main">
@@ -29,6 +30,7 @@ import { ElEmpty } from 'element-plus';
 import { AsyncUserCollections } from '@/utils/request/common.js'
 
 const uid = useRoute().query.id;
+const icon = require('@/assets/static/icons/time.png');
 
 const data = reactive({
     list: []

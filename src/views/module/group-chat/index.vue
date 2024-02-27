@@ -86,9 +86,6 @@
                             </div>
                         </div>
 
-
-
-
                     </div>
                 </div>
             </div>
@@ -165,27 +162,32 @@ import { computed, onMounted, reactive, getCurrentInstance, ref, unref } from 'v
 import { useStore } from 'vuex';
 import { ElMessage } from 'element-plus';
 import { AbyssWS } from '@/utils/abyss/index'
+import { useRoute } from 'vue-router';
 
+
+const to = useRoute().query.to;
+const type = useRoute().query.type;
 const instanceRef = getCurrentInstance();
 const scrollView = ref(null);
 const messageList = ref(null)
 const store = useStore();
 
+
+console.log(type);
 const IMAGE_MAX_WIDTH = 200;
 const IMAGE_MAX_HEIGHT = 150;
 const IN_STANCE_GROUP = 'group';
 
-var data = reactive({
-
+const data = reactive({
     group: {
         id: 29901,
         name: '薄昼交流群',
         avatar: require('@/assets/static/resource/default.png')
     },
-
     currentUser: null,
 
-    to: {},//用于创建消息时传入
+    //用于创建消息时传入
+    to: {},
 
     history: {
         messages: [],
@@ -225,7 +227,6 @@ var data = reactive({
 
 onMounted(() => {
     let user = store.getters["user/getUserInfo"];
-
     data.currentUser = user.data;
     data.to = {
         type: IN_STANCE_GROUP,
@@ -280,7 +281,7 @@ const renderMessageDate = computed(() => {
  * 窄  (宽度<高度)或方(宽度=高度)
  *    设高=MAX height
  *
- * @param width,height
+ * @param {Number} width,height
  * @returns number
  */
 const getImageHeight = function (width, height) {

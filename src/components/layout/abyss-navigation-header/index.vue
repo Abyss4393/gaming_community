@@ -6,7 +6,7 @@
         <div class="navbar">
             <ul>
                 <li v-for="item, index in link" :key="index" :class="index === 3 ? 'nav-animation' : ''">
-                    <a :href="item.href">
+                    <a :href="item.href" target="_blank">
                         <p>{{ item.title }}</p>
                     </a>
                 </li>
@@ -26,9 +26,9 @@
                 <img :src="url" alt="默认头像">
                 <template #content>
                     <ul>
-                        <li v-for="item in router">
+                        <li v-for="item, index in router">
                             <img :src="item.url" alt="">
-                            <span @click="transfor(item.path)">{{ item.title }}</span>
+                            <span @click="transfor(item.path, index)">{{ item.title }}</span>
                         </li>
                     </ul>
                 </template>
@@ -66,11 +66,11 @@ const link = [{
 },
 {
     title: "攻略",
-    href: '/abyss/'
+    href: '/abyss/strategy'
 },
 {
-    title: "官方",
-    href: '/abyss/'
+    title: "O.o",
+    href: '/abyss/o.O'
 },
 {
     title: "Chat",
@@ -90,13 +90,21 @@ const router = [{
     title: "个人中心",
     path: `/abyss/accountCenter/postList?id=${uid}`
 }, {
-    url: require('@/assets/static/icons/more.png'),
-    title: "更多",
-    path: '/more'
+    url: require('@/assets/static/icons/exit.png'),
+    title: "退出登录",
+    path: '/abyss/'
 }];
 
-const transfor = (path) => {
-    if (uid != null) instance.proxy.$router.push(path);
+const transfor = (path, index) => {
+    if (uid != null) {
+        if (index === 1) {
+            store.commit('user/resetUserInfo');
+            window.location.href = instance.proxy.$router.resolve(path).href;
+            return;
+        }
+        let newWindow = window.open('', '_blank');
+        newWindow.location.href = instance.proxy.$router.resolve(path).href;
+    }
     else ElMessage.info('请登录');
 }
 
@@ -121,6 +129,6 @@ const previousPage = () => instance.proxy.$router.back();
 
 
 </script>
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import url('./index.less');
 </style>
