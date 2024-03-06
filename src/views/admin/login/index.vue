@@ -1,25 +1,25 @@
 <template>
-    <div class="admin-login">
-        <div class="container">
-            <el-card>
-                <h3>登录</h3>
-                <h4>输入你的账号和密码</h4>
-                <el-form :model="data" :rules="rules" ref="LoginForm">
-                    <label for="admin">管理员账号:</label>
-                    <el-form-item prop="admin">
-                        <el-input id="admin" type="text" v-model="data.admin" :disabled="data.isLoading" />
-                    </el-form-item>
-                    <label for="password">管理员密码:</label>
-                    <el-form-item prop="password">
-                        <el-input id="password" type="password" v-model="data.password" :show-password="true"
-                            @keyup.enter.native="login" :disabled="data.isLoading" />
-                    </el-form-item>
-                </el-form>
-                <el-button :type="data.isSuccess ? 'success' : 'primary'" :loading="data.isLoading" @click="login">{{
-                    data.isLoading ? 'loading' :
-                    data.isSuccess ? '√ 登录成功' : '登录' }}</el-button>
-            </el-card>
+    <div id="admin-login">
+        <div class="main">
+            <div class="container">
+                <el-card>
+                    <div class="header">账号登录</div>
+                    <el-form :model="data" :rules="rules" ref="LoginForm">
+                        <el-form-item prop="admin">
+                            <el-input type="text" v-model="data.admin" placeholder="输入账号" :disabled="data.isLoading" />
+                        </el-form-item>
+                        <el-form-item prop="password">
+                            <el-input type="password" v-model="data.password" placeholder="输入密码" :show-password="true"
+                                @keyup.enter.native="login" :disabled="data.isLoading" />
+                        </el-form-item>
+                    </el-form>
+                    <el-button :type="data.isSuccess ? 'success' : 'primary'" :loading="data.isLoading" @click="login">{{
+                        data.isLoading ? 'loading' :
+                        data.isSuccess ? '√ 登录成功' : '登录' }}</el-button>
+                </el-card>
+            </div>
         </div>
+        <div class="footer"></div>
     </div>
 </template>
 <script setup>
@@ -77,6 +77,7 @@ const login = function () {
         unref(LoginForm).validate(async vaild => {
             if (vaild) {
                 data.isSuccess = true;
+                ElMessage.success('welcome!')
                 setTimeout(() => router.push('/admin/index'), 500)
             } else {
                 ElMessage({

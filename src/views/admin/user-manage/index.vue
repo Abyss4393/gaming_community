@@ -184,7 +184,6 @@ const show = (index) => {
 
 const search = async (currentPage = 1, pageSize = 10) => {
     const searchRes = await SearchUser(keyword.value, currentPage, pageSize);
-    console.log(searchRes);
     if (searchRes.meta.code === 200) {
         instance.proxy.$nextTick(() => {
             data.list = searchRes.data.data;

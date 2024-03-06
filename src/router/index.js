@@ -91,8 +91,7 @@ const routes = [
     component: () => import("@/views/common/chat/index"),
     children: [{
       path: '/chat/group',
-      component:
-        () => import("@/views/module/group-chat/index")
+      component: () => import("@/views/module/group-chat/index")
     },
     ]
   },
@@ -108,23 +107,41 @@ const routes = [
     component: () => import('@/views/admin/login/index')
   },
   {
-    path: '/admin/index',
+    path: '/admin',
     name: 'Admin',
     meta: { title: '游戏社区后台管理系统' },
     component: () => import('@/views/admin/home/index'),
     children: [
       {
+        path: '/admin/index',
+        name: 'Index',
+        meta: { title: '首页' },
+        component: () => import('@/views/admin/index/index'),
+      },
+      {
         path: '/admin/manage/user',
-        name: 'UserManager',
+        name: 'UserManage',
         meta: { title: '用户管理' },
         component: () => import('@/views/admin/user-manage/index')
       },
       {
         path: '/admin/manage/article',
-        name: 'ArticleManager',
+        name: 'ArticleManage',
         meta: { title: '帖子管理' },
         component: () => import('@/views/admin/article-manage/index')
-      }
+      },
+      {
+        path: '/admin/manage/commnet',
+        name: 'CommentManage',
+        meta: { title: '评论管理' },
+        component: () => import('@/views/admin/comment-manage/index')
+      },
+      {
+        path: '/admin/manage/reply',
+        name: 'ReplyManage',
+        meta: { title: '回复管理' },
+        component: () => import('@/views/admin/reply-manage/index')
+      },
     ]
   },
   {
