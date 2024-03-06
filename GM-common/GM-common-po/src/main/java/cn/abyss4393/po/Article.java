@@ -26,41 +26,36 @@ import java.util.concurrent.DelayQueue;
 @NoArgsConstructor
 @Data
 public class Article implements Serializable {
+
     private Integer id;
+
     private String posterName;
+
     private Integer posterId;
+
     private String title;
+
     private String contentDes;
+
     private String content;
+
     private String type;
-    private int positivenessCount;
-    private int passivenessCount;
-    private int collectCount;
+
+    private Integer positivenessCount;
+
+    private Integer passivenessCount;
+
+    private Integer collectCount;
+
     private String postTime;
 
+    private Integer approved;
 
     public static void initDefaultAttr(Article article) {
         article.setPassivenessCount(0);
         article.setPassivenessCount(0);
         article.setCollectCount(0);
-    }
+        article.setApproved(0);
 
-    /**
-     * first params id of article
-     * second params id of user
-     */
-    @TableField(exist = false)
-    private static final Map<Integer, Deque<Integer>> recordQueue = new HashMap<>();
-
-    public static void addArtKey(int aid) {
-        recordQueue.put(aid, new ArrayDeque<>());
-    }
-
-    public static void addItemVal(int aid, int uid) {
-        recordQueue.get(aid).add(uid);
-    }
-
-    public static void removeItemVal(int aid, int uid) {
-        recordQueue.get(aid).remove(uid);
     }
 }

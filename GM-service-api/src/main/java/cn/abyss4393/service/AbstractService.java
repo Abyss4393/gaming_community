@@ -14,25 +14,11 @@ import java.util.List;
  * @description TODO
  * @date 3/9/2023
  */
-public interface AbstractService {
-    <T extends BaseObj> ResultFul<?> login(final T t);
+public interface AbstractService<E>  {
 
-    ResultFul<?> login(User user);
+    ResultFul<?> login(E entity);
 
-    ResultFul<?> login(Manager manager);
-
+    ResultFul<?> register(E entity);
     ResultFul<?> exit(Integer uid);
 
-    <T extends BaseObj> ResultFul<?> register(T t);
-
-
-    ResultFul<?> register(Manager manager);
-
-    ResultFul<?> register(User user);
-
-    boolean modify();
-
-    List<User> selectAll();
-
-    boolean logout();
 }

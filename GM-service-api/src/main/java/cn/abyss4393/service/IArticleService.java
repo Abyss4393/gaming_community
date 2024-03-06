@@ -11,16 +11,12 @@ public interface IArticleService {
 
     ResultFul<?> getArticleListByPid(Serializable pid) throws Exception;
     ResultFul<?> getArticleList() throws Exception;
-
     ResultFul<?> postArticle(Article article) throws Exception;
-
     ResultFul<?> addPositivenessCount(Integer uid, Integer aid) throws Exception;
-
     ResultFul<?> addPassivenessCount(Integer aid) throws Exception;
-
     ResultFul<?> addCollect(Integer id, Integer uid) throws Exception;
-
-
     ResultFul<?> searchArticles(String keyword,Integer currentPage,Integer pageSize);
+
+    ResultFul<?> findUnapprovedArticles(Integer currentPage,Integer pageSize);
     ResultFul<?> deleteArticleById(Serializable id) throws Exception;
 }

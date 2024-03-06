@@ -3,9 +3,10 @@ package cn.abyss4393.service.impl;
 import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.mapper.*;
-import cn.abyss4393.po.*;
 import cn.abyss4393.po.Collection;
+import cn.abyss4393.po.*;
 import cn.abyss4393.service.IArticleService;
+import cn.abyss4393.utils.file.FileUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.abyss4393.vo.CommentVo;
 import cn.hutool.json.JSONArray;
@@ -106,10 +107,30 @@ public class ArticleServiceImpl implements IArticleService {
 
     }
 
+    @Transactional
     @Override
     public ResultFul<?> postArticle(Article article) {
         if (StringUtils.checkValNull(article))
             return ResultFul.fail(BaseCode.ARGS_ERROR);
+        JSONObject frontObjData = JSONUtil.parseObj(article.getContent());
+        JSONArray frontJSONData = frontObjData.getJSONArray("contentList");
+        List<String> replaces = new ArrayList<>();
+        frontJSONData.forEach(item -> {
+            JSONObject temp = JSONUtil.parseObj(item);
+            String textContent = temp.getStr("text");
+            if ("".equals(textContent) || textContent.contains("<img")) {
+                List<String> replacePaths = FileUtils.handlerBase64Content(textContent);
+                assert replacePaths != null;
+                String replace = FileUtils.replace(textContent, replacePaths);
+                replaces.add(replace);
+            }
+        });
+        for (int i = 0; i < replaces.size(); i++) {
+            JSONObject tempObj = JSONUtil.parseObj(frontJSONData.get(i));
+            tempObj.replace("text", replaces.get(i));
+            frontJSONData.set(i, tempObj);
+        }
+        article.setContent(JSONUtil.toJsonStr(frontObjData));
         LambdaQueryWrapper<Article> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(Article::getPosterId, article.getPosterId());
         lambdaQueryWrapper.eq(Article::getTitle, article.getTitle());
@@ -217,18 +238,32 @@ public class ArticleServiceImpl implements IArticleService {
     @Override
     public ResultFul<?> searchArticles(String keyword, Integer currentPage, Integer pageSize) {
         Page<Article> pageArticle = new Page<>(currentPage, pageSize);
-        Map<String,Object> articlePageResult = new HashMap<>();
+        Map<String, Object> articlePageResult = new HashMap<>();
         LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(Article::getTitle, keyword).
                 or().like(Article::getType, keyword).
-                or().like(Article::getPosterName,keyword).
+                or().like(Article::getPosterName, keyword).
                 or().like(Article::getContentDes, keyword);
         Page<Article> articlePage = articleMapper.selectPage(pageArticle, queryWrapper);
-        articlePageResult.put("currentPage",currentPage);
-        articlePageResult.put("pageSize",pageSize);
-        articlePageResult.put("total",articlePage.getTotal());
-        articlePageResult.put("data",articlePage.getRecords());
-        return ResultFul.success(BaseCode.SUCCESS,articlePageResult);
+        articlePageResult.put("currentPage", currentPage);
+        articlePageResult.put("pageSize", pageSize);
+        articlePageResult.put("total", articlePage.getTotal());
+        articlePageResult.put("data", articlePage.getRecords());
+        return ResultFul.success(BaseCode.SUCCESS, articlePageResult);
+    }
+
+    @Override
+    public ResultFul<?> findUnapprovedArticles(Integer currentPage, Integer pageSize) {
+        Page<Article> unapprovedPage = new Page<>(currentPage, pageSize);
+        LambdaQueryWrapper<Article> lq = new LambdaQueryWrapper<>();
+        lq.eq(Article::getApproved, 0);
+        Page<Article> unapprovedList = articleMapper.selectPage(unapprovedPage, lq);
+        Map<String, Object> result = new HashMap<>();
+        result.put("currentPage", currentPage);
+        result.put("pageSize", pageSize);
+        result.put("total", unapprovedList.getTotal());
+        result.put("data", unapprovedList.getRecords());
+        return ResultFul.success(BaseCode.SUCCESS, result);
     }
 
     @Transactional
@@ -250,6 +285,7 @@ public class ArticleServiceImpl implements IArticleService {
         }});
 
         int deleteArticle = articleMapper.deleteById(id);
-        return 0 != deleteArticle ? ResultFul.success(BaseCode.DELETE) : ResultFul.fail(BaseCode.DELETE_ERROR);
+        boolean sort = articleMapper.sort();
+        return 0 != deleteArticle && sort ? ResultFul.success(BaseCode.DELETE) : ResultFul.fail(BaseCode.DELETE_ERROR);
     }
 }

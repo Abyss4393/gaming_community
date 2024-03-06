@@ -3,8 +3,6 @@ package cn.abyss4393.service.impl;
 import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
 import cn.abyss4393.mapper.UserMapper;
-import cn.abyss4393.po.BaseObj;
-import cn.abyss4393.po.Manager;
 import cn.abyss4393.po.User;
 import cn.abyss4393.service.AbstractService;
 import cn.abyss4393.service.IUserService;
@@ -17,12 +15,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.lettuce.core.RedisException;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static cn.abyss4393.utils.rabbitmq.RabbitMQConstantUtils.*;
 
 /**
  * @author abyss
@@ -33,7 +35,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class UserServiceImpl implements IUserService, AbstractService {
+public class UserServiceImpl implements IUserService, AbstractService<User> {
 
     @SuppressWarnings("all")
     @Autowired
@@ -44,27 +46,8 @@ public class UserServiceImpl implements IUserService, AbstractService {
     private RedisUtils redisUtils;
 
 
-    public ResultFul<?> update(User user){
-        Integer id = user.getId();
-        if (StringUtils.checkValNull(id))
-            return ResultFul.fail(BaseCode.ERROR);
-        int update = userMapper.update(user, new LambdaQueryWrapper<>() {{
-            this.eq(User::getId, id);
-        }});
-        return update != 0 ? ResultFul.success(BaseCode.SUCCESS) :
-                ResultFul.fail(BaseCode.ERROR_REQUEST);
-    }
-
-
-
-
     @Override
-    public <T extends BaseObj> ResultFul<?> login(T t) {
-        return null;
-    }
-
-    @Override
-    public ResultFul<?> login(final User user) {
+    public ResultFul<?> login(User user) {
         if (StringUtils.isEmpty(user.getUsername())
                 || StringUtils.isEmpty(user.getPassword()))
             return ResultFul.fail(BaseCode.MISS_PARAMS);
@@ -89,10 +72,6 @@ public class UserServiceImpl implements IUserService, AbstractService {
         return ResultFul.success(BaseCode.LOGIN_SUCCESS, userVo);
     }
 
-    @Override
-    public ResultFul<?> login(Manager manager) {
-        return null;
-    }
 
     @Override
     public ResultFul<?> exit(Integer uid) {
@@ -109,15 +88,6 @@ public class UserServiceImpl implements IUserService, AbstractService {
         return ResultFul.success(BaseCode.SUCCESS);
     }
 
-    @Override
-    public <T extends BaseObj> ResultFul<?> register(T t) {
-        return null;
-    }
-
-    @Override
-    public ResultFul<?> register(Manager manager) {
-        return null;
-    }
 
     @Override
     public ResultFul<?> register(User user) {
@@ -140,22 +110,6 @@ public class UserServiceImpl implements IUserService, AbstractService {
     }
 
 
-    @Override
-    public boolean modify() {
-        return false;
-    }
-
-    @Override
-    public List<User> selectAll() {
-        return userMapper.selectList(null);
-    }
-
-
-    @Override
-    public boolean logout() {
-        return false;
-    }
-
     public ResultFul<?> getUserInfoByUId(Integer uid) {
         if (StringUtils.checkValNull(uid)) return ResultFul.fail(BaseCode.SELECT_NULL_ARGS);
         User user = userMapper.selectOne(new LambdaQueryWrapper<>() {{
@@ -165,6 +119,16 @@ public class UserServiceImpl implements IUserService, AbstractService {
                 WrapUtils.removeAttr(user, "password"));
     }
 
+    public ResultFul<?> update(User user) {
+        Integer id = user.getId();
+        if (StringUtils.checkValNull(id))
+            return ResultFul.fail(BaseCode.ERROR);
+        int update = userMapper.update(user, new LambdaQueryWrapper<>() {{
+            this.eq(User::getId, id);
+        }});
+        return update != 0 ? ResultFul.success(BaseCode.SUCCESS) :
+                ResultFul.fail(BaseCode.ERROR_REQUEST);
+    }
 
     @Override
     public ResultFul<?> searchUser(String keyword, Integer pageNum, Integer pageSize) {
@@ -179,15 +143,20 @@ public class UserServiceImpl implements IUserService, AbstractService {
         searchPageResult.put("currentPage", pages.getCurrent());
         searchPageResult.put("pageSize", pages.getSize());
         searchPageResult.put("total", pages.getTotal());
-        return ResultFul.success(BaseCode.SUCCESS,searchPageResult);
+        return ResultFul.success(BaseCode.SUCCESS, searchPageResult);
     }
+
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
     @Transactional
     @Override
     public ResultFul<?> modifyUser(User user) {
-        if (Objects.isNull(user) || StringUtils.checkValNull(user.getId())) return ResultFul.fail(BaseCode.MODIFY_ERROR);
+        if (Objects.isNull(user) || StringUtils.checkValNull(user.getId()))
+            return ResultFul.fail(BaseCode.MODIFY_ERROR);
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(User::getId, user.getId());
+
         int update = userMapper.update(user, lambdaQueryWrapper);
         return 0 != update ? ResultFul.success(BaseCode.MODIFY) : ResultFul.fail(BaseCode.MODIFY_ERROR);
     }

@@ -28,6 +28,8 @@ public class ImageBedUtils {
     public static final String AVATAR_PATH = "avatar/";
     public static final String IMAGE_PATH = "image/";
 
+    public static final String EMOJI_IMAGE_PATH = "emoji_image/";
+
     private static final int TIME_OUT = 10000;
 
     public static class CONSTANT {
@@ -41,7 +43,8 @@ public class ImageBedUtils {
     private static String createUploadFileUrl(String originalFileName, String path) {
         String targetPath = path == null ? PATH : path;
         String suffix = FileUtils.getFileSuffix(originalFileName);
-        String fileName = TimeStampUtil.getSingleTimeStamp().replace("-", "") + UUID.randomUUID().toString().replace("-", "") + suffix;
+        String fileName = TimeStampUtil.getSingleTimeStamp().replace("-", "") +
+                UUID.randomUUID().toString().replace("-", "") + suffix;
         return String.format(API_BASIC_URL_POST,
                 NAME_SPACE,
                 REPOSITORY,

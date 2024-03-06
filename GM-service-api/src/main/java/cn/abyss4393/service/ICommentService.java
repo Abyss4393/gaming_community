@@ -18,5 +18,6 @@ public interface ICommentService {
 
     ResultFul<?> getCommentByUid(Serializable uid);
 
+    ResultFul<?> getBatchComments(Integer currentPage, Integer pageSize);
     ResultFul<?> delCommentByIds(Serializable aid,Serializable uid);
 }

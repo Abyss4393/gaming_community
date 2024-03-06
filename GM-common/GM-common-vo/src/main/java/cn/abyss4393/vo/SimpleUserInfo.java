@@ -15,7 +15,10 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class SimpleUserInfo implements Serializable {
+
     private Integer uid;
+
     private String nickname;
+
     private String avatar;
 }

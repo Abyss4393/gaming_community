@@ -19,6 +19,31 @@ spring:
     url: jdbc:mysql://47.109.22.92:3306/game_community?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowMultiQueries=true
     username: game_community
     password: 6KDLnpsTj5NmDKaB
+  rabbitmq:
+    host: 47.109.22.92
+    port: 5672
+    username: abyss
+    password: rabbitmq123456789
+    virtual-host: /
+    publisher-returns: true
+    listener:
+      # Routing 路由模型（交换机类型：direct）
+      direct:
+        #消息确认：手动签收
+        acknowledge-mode: manual
+        #当前监听容器数
+        concurrency: 1
+        #最大数
+        max-concurrency: 10
+        #是否支持重试
+        retry:
+          enabled: true
+          #重试次数5,超过5次抛出异常
+          max-attempts: 5
+          #重试间隔 3s
+          max-interval: 3000
+
+
 
 
   data:

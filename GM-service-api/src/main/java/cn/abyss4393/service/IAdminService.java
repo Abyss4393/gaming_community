@@ -1,7 +1,8 @@
 package cn.abyss4393.service;
 
 import cn.abyss4393.entity.ResultFul;
-import cn.abyss4393.po.User;
+import cn.abyss4393.po.Article;
+import cn.abyss4393.vo.ArticleVo;
 
 /**
  * @author abyss
@@ -16,4 +17,9 @@ public interface IAdminService {
     ResultFul<?> selectBatchUsers(Integer currentPage, Integer pageSize);
 
     ResultFul<?> selectBatchArticles(Integer currentPage, Integer pageSize);
+
+    ResultFul<?> confirmAuditArticle(Article article);
+
+    ResultFul<?> rejectAuditArticle(ArticleVo articleVo);
+
 }

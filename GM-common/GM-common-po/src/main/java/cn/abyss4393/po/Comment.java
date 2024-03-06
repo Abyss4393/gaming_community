@@ -1,7 +1,10 @@
 package cn.abyss4393.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -23,4 +26,10 @@ public class Comment implements Serializable {
     private Integer uId;
     private String content;
     private String commentTime;
+
+    @TableField(exist = false)
+    private String nickname;
+
+    @TableField(exist = false)
+    private String avatar;
 }

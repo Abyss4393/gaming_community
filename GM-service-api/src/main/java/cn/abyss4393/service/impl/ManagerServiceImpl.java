@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author abyss
@@ -27,7 +28,7 @@ import java.util.List;
  */
 
 @Service
-public class ManagerServiceImpl implements AbstractService {
+public class ManagerServiceImpl implements AbstractService<Manager> {
 
     @SuppressWarnings("all")
     @Autowired
@@ -38,7 +39,7 @@ public class ManagerServiceImpl implements AbstractService {
     private RedisUtils redisUtils;
     
     @Override
-    public ResultFul<?> login(final Manager manager) {
+    public ResultFul<?> login( Manager manager) {
         if (StringUtils.isEmpty(manager.getUsername())
                 || StringUtils.isEmpty(manager.getPassword()))
             return ResultFul.fail(BaseCode.MISS_PARAMS);
@@ -46,7 +47,7 @@ public class ManagerServiceImpl implements AbstractService {
         lambdaQueryWrapper.eq(Manager::getUsername, manager.getUsername())
                 .eq(Manager::getPassword, manager.getPassword());
         Manager managerData = managerMapper.selectOne(lambdaQueryWrapper);
-        if (StringUtils.checkValNull(managerData))
+        if (Objects.isNull(managerData))
             return ResultFul.fail(BaseCode.LOGIN_ERROR);
         managerData.setLastLandingTime(TimeStampUtil.getTimestamp());
         managerMapper.updateById(managerData);
@@ -64,48 +65,15 @@ public class ManagerServiceImpl implements AbstractService {
     }
 
     @Override
-    public ResultFul<?> exit(Integer mid) {
-        return null;
-    }
-
-    @Override
-    public <T extends BaseObj> ResultFul<?> register(T t) {
-        return null;
-    }
-
-    @Override
     public ResultFul<?> register(Manager manager) {
         return null;
     }
 
+
     @Override
-    public ResultFul<?> register(User user) {
+    public ResultFul<?> exit(Integer mid) {
         return null;
     }
 
 
-    @Override
-    public boolean modify() {
-        return false;
-    }
-
-    @Override
-    public List<User> selectAll() {
-        return null;
-    }
-
-    @Override
-    public boolean logout() {
-        return false;
-    }
-
-    @Override
-    public <T extends BaseObj> ResultFul<?> login(T t) {
-        return null;
-    }
-
-    @Override
-    public ResultFul<?> login(User user) {
-        return null;
-    }
 }
