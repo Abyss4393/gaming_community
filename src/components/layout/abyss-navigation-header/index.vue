@@ -21,9 +21,18 @@
             </el-autocomplete>
             <img @click="search" :src="require('@/assets/static/icons/search.png')">
         </div>
+
+        <div class="notification">
+            <el-badge :value="notifications" :max="99">
+                <a :href="`/abyss/notifications/system?id=${uid}`">
+                    <p>通知</p>
+                </a>
+            </el-badge>
+        </div>
         <div class="avator">
             <el-tooltip effect="light" popper-class="popper" placement="bottom">
                 <img :src="url" alt="默认头像">
+
                 <template #content>
                     <ul>
                         <li v-for="item, index in router">
@@ -36,6 +45,7 @@
         </div>
     </div>
 </template>
+
 <script setup>
 import { ref, getCurrentInstance, onMounted, reactive } from 'vue';
 import { useStore } from 'vuex';
@@ -43,11 +53,13 @@ import { ElAutocomplete } from 'element-plus';
 import { getUid } from '@/utils/auth';
 import { ElMessage } from 'element-plus';
 import { AsyncQueryHistory } from '@/utils/request/common.js';
+import { getNotifications } from '@/utils/request/notification.js';
 
 const canGoBack = ref(false);
 const uid = getUid();
 const store = useStore();
 const instance = getCurrentInstance();
+const notifications = ref(0);
 
 const data = reactive({
     query: '',
@@ -58,7 +70,11 @@ const previous = require('@/assets/static/icons/previous.png')
 const url = store.getters["user/getAvatar"]
 
 
-onMounted(() => canGoBack.value = window.history.state.back != null)
+onMounted(async () => {
+    canGoBack.value = window.history.state.back != null;
+    const notifi = await getNotifications(uid, true);
+    notifications.value = notifi.data.length;
+})
 
 const link = [{
     title: "首页",
@@ -129,6 +145,7 @@ const previousPage = () => instance.proxy.$router.back();
 
 
 </script>
+
 <style lang='less' scoped>
 @import url('./index.less');
 </style>

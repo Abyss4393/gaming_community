@@ -21,3 +21,23 @@ export const DeleteArticle = (id) => instance.delete(`admin/article/delete?id=${
 
 
 export const SelectBatchComment = (currentPage = 1, pageSize = 10) => instance.get(`admin/comment/page?currentPage=${currentPage}&pageSize=${pageSize}`)
+
+export const SearchComment = (keyword, currentPage = 1, pageSize = 10) => instance.post(`admin/comment/search?currentPage=${currentPage}&pageSize=${pageSize}`, { keyword: keyword })
+
+export const DeleteComment = (aid, uid) => instance.delete(`admin/comment/delete/${aid}/${uid}`)
+
+export const ConfirmComment = (comment) => instance.post('admin/audit/comment/confirm', comment)
+
+export const RejectComment = (commentVo) => instance.post('admin/audit/comment/reject', commentVo)
+
+
+export const SelectBatchReply = (currentPage = 1, pageSize = 10) => instance.get(`admin/reply/page?currentPage=${currentPage}&pageSize=${pageSize}`)
+
+export const SearchReply = (keyword, currentPage = 1, pageSize = 10) => instance.post(`admin/reply/search?currentPage=${currentPage}&pageSize=${pageSize}`, { keyword: keyword })
+
+export const ConfirmReply = (reply) => instance.post('admin/audit/reply/confirm', reply)
+
+export const RejectReply = (replyVo) => instance.post('admin/audit/reply/reject', replyVo)
+
+export const DeleteReply = (id) => instance.delete(`admin/reply/delete/${id}`)
+

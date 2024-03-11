@@ -68,6 +68,20 @@ const routes = [
           meta: { title: '编辑个人资料' },
           component: () => import('@/views/module/account-center/edit-myself/index')
         }]
+      }, {
+        path: '/abyss/notifications',
+        component: () => import('@/views/notifications/index/index'),
+        children: [{
+          path: '/abyss/notifications/system',
+          name: 'System',
+          meta: { title: '系统消息' },
+          component: () => import('@/views/notifications/system/index')
+        }, {
+          path: '/abyss/notifications/like',
+          name: 'Reply',
+          meta: { title: '收到的赞' },
+          component: () => import('@/views/notifications/like/index')
+        }]
       }]
   },
   {

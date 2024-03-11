@@ -2,7 +2,6 @@
     <div id="article-manage">
         <el-container>
             <el-main>
-
                 <el-card class="table">
                     <el-row>
                         <el-table ref="TabaleRef" :data="data.list" max-height="600"
@@ -32,8 +31,8 @@
                                 </template>
 
                             </el-table-column>
-                            <el-table-column prop="positivenessCount" sortable label="点赞数" width="100" />
-                            <el-table-column prop="passivenessCount" sortable label="拉踩数" width="100" />
+                            <el-table-column prop="articleLike" sortable label="点赞数" width="100" />
+                            <el-table-column prop="articleDislike" sortable label="拉踩数" width="100" />
                             <el-table-column prop="collectCount" sortable label="收藏数" width="100" />
                             <el-table-column prop="postTime" sortable label="发布时间" width="180" />
                             <el-table-column label="" width="200">
@@ -69,7 +68,7 @@
                             v-model:page-size="data.pageSize" layout="total, sizes, prev, pager, next, jumper"
                             :total="data.total" @size-change="handleSizeChange" @current-change="handleCurrentChange"
                             background>
-                            
+
                         </el-pagination>
                     </el-row>
                 </el-card>
@@ -105,11 +104,11 @@
                     <div class="view"></div>
                     <div class="like">
                         <img :src="require('@/assets/static/icons/zan.png')" alt="like">
-                        <span>{{ previewArticle.positivenessCount }}</span>
+                        <span>{{ previewArticle.articleLike }}</span>
                     </div>
                     <div class="dislike">
                         <img :src="require('@/assets/static/icons/zancopy.png')" alt="dislike">
-                        <span>{{ previewArticle.passivenessCount }}</span>
+                        <span>{{ previewArticle.articleDislike }}</span>
                     </div>
                     <div class="collect">
                         <img :src="require('@/assets/static/icons/collection.png')" alt="collect">
@@ -121,6 +120,7 @@
 
         <!--aduit -->
         <el-dialog v-model="auditDialogVisible" title="审核驳回" width="30%" draggable overflow>
+            <el-divider style="margin-top: -24px;" border-style="dashed" />
             <div class="message-box">
                 <el-input v-model="auditReason" type="textarea" :rows="4" placeholder="请输入驳回意见" />
             </div>
@@ -172,11 +172,12 @@ const AsyncArticle = async (currentPage = 1, pageSize = 10) => {
         data.pageSize = parseInt(res.data.pageSize);
         data.total = parseInt(res.data.total);
     }
+    localStorage.setItem("admin_temp_articles", JSON.stringify(res.data));
 }
 
 onMounted(() => {
     setTimeout(() => { loading.value = false; }, 2000);
-    let tempdata = localStorage.getItem("admin_temp_article");
+    let tempdata = localStorage.getItem("admin_temp_articles");
     if (tempdata == null) {
         AsyncArticle();
         return;
@@ -186,7 +187,7 @@ onMounted(() => {
     data.currentPage = parseInt(users.currentPage);
     data.pageSize = parseInt(users.pageSize);
     data.total = parseInt(users.total);
-    setTimeout(() => localStorage.removeItem("admin_temp_article"), 1000 * 60 * 2)
+    setTimeout(() => localStorage.removeItem("admin_temp_articles"), 1000 * 60 * 2)
 })
 
 const handleCurrentChange = (newval) => {

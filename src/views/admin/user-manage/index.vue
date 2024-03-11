@@ -66,6 +66,7 @@
         </el-container>
         <!--修改用户信息 -->
         <el-dialog class="modify-user" title="修改用户信息" v-model="modifyUserdialogVisible" align-center width="800">
+            <el-divider style="margin-top: -24px;" border-style="dashed" />
             <el-form :model="modifyUser" ref="ModifyForm">
                 <el-form-item prop="username" label="账号" required label-width="80px">
                     <el-col :span="16">
@@ -151,7 +152,7 @@ const AsyncUser = async (currentPage = 1, pageSize = 10) => {
 
 }
 onMounted(() => {
-    setTimeout(() => { loading.value = false; }, 2000);
+    setTimeout(() => { loading.value = false; }, 500);
     let tempdata = localStorage.getItem("admin_temp_users");
     if (tempdata == null) {
         AsyncUser();

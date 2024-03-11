@@ -55,6 +55,8 @@
                     border-bottom: 1px solid #EBEEF5;
                     opacity: 1;
 
+
+
                     a {
                         color: #201d1d;
 
@@ -77,6 +79,11 @@
                         box-sizing: border-box;
                         vertical-align: middle;
 
+                        .follow {
+                            display: block;
+                            position: absolute;
+                            left: 1100px;
+                        }
 
                         .article-item-header-avatar {
                             margin-top: .3rem;
@@ -159,6 +166,8 @@
                             background-color: lightskyblue;
                         }
 
+
+
                     }
 
                     .article-item-card-content {
@@ -183,6 +192,41 @@
                         :deep(.el-image-viewer__wrapper) {
                             width: 100%;
                             height: 100vh;
+                        }
+                    }
+
+                    .article-item-card-footer {
+                        display: flex;
+                        flex: 1;
+                        flex-direction: row;
+                        width: 200px;
+                        height: 40px;
+                        margin-left: 680px;
+
+                        div {
+                            width: 100;
+                            height: 40px;
+                            padding: 6px;
+                            box-sizing: border-box;
+                            vertical-align: top;
+
+                            img {
+                                display: inline-block;
+                                width: 24px;
+                                margin-left: 24px;
+                                cursor: pointer;
+
+                            }
+
+                            span {
+                                display: inline-block;
+                                position: relative;
+                                left: 16px;
+                                top: -6px;
+                                width: 80;
+                                display: inline-block;
+                                font-size: 12px;
+                            }
                         }
                     }
                 }

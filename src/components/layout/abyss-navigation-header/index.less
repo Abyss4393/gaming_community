@@ -5,7 +5,7 @@
 @layout_search_top: 1.6rem;
 @layout_search_left: 80rem;
 @layout_avator_top : 1.2rem;
-@layout_avator_left : 92rem;
+@layout_avator_left : 98rem;
 @layout_tooltip_top : 1rem;
 
 #abyss-header {
@@ -95,6 +95,29 @@
             cursor: pointer;
         }
 
+    }
+
+    .notification {
+        position: relative;
+        left: 1450px;
+        width: 6rem;
+        height: 100%;
+        padding-top: 20px;
+        padding-left: 20px;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        p {
+            display: block;
+            width: 100%;
+            text-align: center;
+            color: @font-color;
+            font-size: 18px;
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, .18);
+        }
     }
 
     .avator {

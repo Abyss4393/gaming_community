@@ -60,7 +60,7 @@
         .container-main {
             display: flex;
             flex-direction: column;
-            width: 70%;
+            width: 80%;
             height: auto;
             padding: .8rem 1.2rem;
             box-sizing: border-box;
@@ -119,6 +119,10 @@
                 }
 
                 .collect {
+                    img {
+                        width: 2rem;
+                    }
+
                     margin-left: 2rem;
                 }
             }
@@ -173,8 +177,9 @@
 
                 .left,
                 .right {
+                    display: flex;
                     width: 60%;
-                    height: inherit;
+                    height: 80px;
                     padding: 1rem 2rem;
                     justify-content: center;
                     box-sizing: border-box;
@@ -191,8 +196,10 @@
                         display: block;
                         width: auto;
                         position: relative;
-                        left: 4rem;
-                        top: -2rem;
+                        width: 40px;
+                        line-height: 10px;
+                        top: 1.5rem;
+                        left: 1.5rem;
                         color: #383838;
                         font-size: 1rem;
                     }
@@ -203,7 +210,10 @@
                 }
 
                 .right {
-                    margin-left: 2rem;
+                    img {
+                        width: 50px;
+                    }
+
                 }
             }
 
@@ -230,7 +240,7 @@
             :deep(.el-button) {
                 position: relative;
                 top: -3rem;
-                left: 46.8rem;
+                left: 790px;
             }
 
             .emoji {
@@ -305,21 +315,22 @@
                     }
 
                     .intereaction-bar {
-                        width: 50%;
-                        margin-left: 9rem;
+                        display: flex;
+                        width: 200px;
 
                         span {
-                            margin-top: -.2rem;
                             display: inline-block;
+                            width: 40px;
+                            margin-top: 12px;
                             margin-left: 2rem;
                             padding-right: 1.8rem;
-                            cursor: pointer;
                             vertical-align: middle;
                             white-space: nowrap;
 
                             &:nth-child(1) {
                                 margin-left: 0;
                                 border-right: 1px solid #cdcdcd;
+                                cursor: pointer;
                             }
 
                             &:nth-last-child(2) {
@@ -327,14 +338,19 @@
                             }
 
                             &:nth-last-child(1) {
-                                margin-left: 0;
+                                margin-left: 18px;
                             }
                         }
 
                         img {
-                            margin-top: .2rem;
+                            display: inline-block;
+                            margin-left: 18px;
                             width: 1.5rem;
                             height: auto;
+
+                            &:nth-last-child(1){
+                                margin-top: 2px;
+                            }
                         }
                     }
                 }
@@ -375,8 +391,8 @@
                     .el-button {
                         position: relative;
                         width: 3rem;
-                        top: 3rem;
-                        left: 36.8rem;
+                        top: 3.5rem;
+                        left: 625px;
                     }
 
                     .emoji {
@@ -393,7 +409,7 @@
                     flex-direction: column;
                     width: 80%;
                     height: auto;
-                    
+
                     margin-left: 7rem;
                     padding: .8rem;
                     box-sizing: border-box;
@@ -553,6 +569,10 @@
                     word-spacing: .3rem;
                     margin-left: 6rem;
                     margin-top: -4rem;
+                }
+
+                .follow{
+                    margin-left: 220px;
                 }
             }
 

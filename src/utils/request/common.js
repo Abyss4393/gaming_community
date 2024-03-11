@@ -12,7 +12,9 @@ export const GetArticleListByPid = (pid) => instance.get(`user/article/list/${pi
 export const AsyncArticleList = () => instance.get('common/article/list');
 export const AsyncArticleById = (aid) => instance.get(`common/article/${aid}`);
 // upvote
+export const AsyncArticleUpvote = (uid, aid) => instance.get(`common/article/upvote/${uid}/${aid}`)
 export const AsyncArticleUpvoteStatus = (uid, aid) => instance.get(`user/article/upvote/${uid}/${aid}`);
+export const CancelUpvote = (uid, aid) => instance.get(`common/article/upvote/cancel/${uid}/${aid}`);
 //collect
 export const AsyncArticleCollectStatus = (uid, aid) => instance.get(`user/article/collect/${uid}/${aid}`)
 export const AsyncUserCollections = (uid) => instance.get(`user/collect/${uid}`)
@@ -28,12 +30,14 @@ export const AsyncAticleReplyTrees = (aid, commentId, replyId) => instance.get(`
 //file
 export const UploadAPI = (url) => instance.post(`file/upload`, url);
 export const DelFileAPI = (rootFileUrl) => instance.delete(`file/delete`, rootFileUrl)
-// upvote
-export const AsyncArticleUpvote = (uid, aid) => instance.get(`common/article/upvote/${uid}/${aid}`)
-// trample
-export const AsyncArticleTrample = (aid) => instance.get(`common/article/trample${aid}`)
+
+// dislike
+export const AsyncArticleDislikeStatus = (uid, aid) => instance.get(`user/article/dislike/${uid}/${aid}`)
+export const AsyncArticleDislike = (uid, aid) => instance.get(`common/article/dislike/${uid}/${aid}`)
+export const CancelDislike = (uid, aid) => instance.get(`common/article/dislike/cancel/${uid}/${aid}`);
 // colloct
 export const AsyncArticleCollect = (params) => instance.post('common/article/collect', params)
+export const CancelCollect = (params) => instance.post('common/article/collect/cancel', params)
 // friend
 export const AddFriend = (uid, fid) => instance.get(`user/friend/add/${uid}/${fid}`)
 export const AsyncUserFriendStatus = (uid, fid) => instance.get(`user/friend/status/${uid}/${fid}`)
