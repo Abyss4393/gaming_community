@@ -1,6 +1,6 @@
 package cn.abyss4393.vo;
 
-import cn.abyss4393.po.Article;
+import cn.abyss4393.po.Reply;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,17 +8,15 @@ import lombok.NoArgsConstructor;
 /**
  * @author abyss
  * @version 1.0-SNAPSHOT
- * @className ArticleVo
+ * @className ReplyVo
  * @description TODO
- * @date 2024/3/5
+ * @date 2024/3/7
  * @completion false
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ArticleVo {
-    private Article article;
+public class ReplyVo {
+    private Reply reply;
     private String notificationContent;
-    private String avatar;
-    private String nickname;
 }

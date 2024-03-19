@@ -1,8 +1,6 @@
 package cn.abyss4393.utils.rabbitmq;
 
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
-import jakarta.annotation.Resource;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.Map;
 
@@ -17,9 +15,6 @@ import java.util.Map;
 
 public class RabbitMQConstantUtils {
 
-
-    @Resource
-    private RabbitTemplate rabbitTemplate;
     /**
      * 交换机名称
      */
@@ -33,18 +28,18 @@ public class RabbitMQConstantUtils {
     /**
      * 管理员队列
      */
-    public static final String MANAGE_QUEUE = "manage-queue";
+    public static final String MANAGE_QUEUE = "manager-queue";
 
-    public static Map<String, Object> createMessageBodyForUser(Integer targetId, String msg) {
+    public static Map<String, Object> createMessageBodyForUser(Integer targetId, String msg, String type) {
         String time = TimeStampUtil.getTimestamp();
-        return Map.of("target_user_id", targetId,
+        return Map.of("target_user_id", targetId, "message_type", type,
                 "message_content", msg, "operate_time", time);
 
     }
 
-    public static Map<String, Object> createMessageBodyForManager(String msg) {
+    public static Map<String, Object> createMessageBodyForManager(String msg, String type) {
         String time = TimeStampUtil.getTimestamp();
-        return Map.of("message_content", msg, "operate_time", time);
+        return Map.of("message_content", msg, "message_type", type, "operate_time", time);
     }
 
 }

@@ -7,6 +7,7 @@ import cn.abyss4393.po.Collection;
 import cn.abyss4393.po.*;
 import cn.abyss4393.service.IArticleService;
 import cn.abyss4393.utils.file.FileUtils;
+import cn.abyss4393.utils.rabbitmq.RabbitMQConstantUtils;
 import cn.abyss4393.utils.timestamp.TimeStampUtil;
 import cn.abyss4393.vo.CommentVo;
 import cn.hutool.json.JSONArray;
@@ -14,15 +15,15 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
-import lombok.NonNull;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author abyss
@@ -36,6 +37,8 @@ public class ArticleServiceImpl implements IArticleService {
 
 
     @Resource
+    private RabbitTemplate rabbitTemplate;
+    @Resource
     private ArticleMapper articleMapper;
 
     @Resource
@@ -43,6 +46,9 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Resource
     private UpvoteMapper upvoteMapper;
+
+    @Resource
+    private DisLikeMapper disLikeMapper;
 
     @Resource
     private CollectionMapper collectionMapper;
@@ -118,7 +124,7 @@ public class ArticleServiceImpl implements IArticleService {
         frontJSONData.forEach(item -> {
             JSONObject temp = JSONUtil.parseObj(item);
             String textContent = temp.getStr("text");
-            if ("".equals(textContent) || textContent.contains("<img")) {
+            if (!"".equals(textContent) && textContent.contains("<img")) {
                 List<String> replacePaths = FileUtils.handlerBase64Content(textContent);
                 assert replacePaths != null;
                 String replace = FileUtils.replace(textContent, replacePaths);
@@ -140,6 +146,11 @@ public class ArticleServiceImpl implements IArticleService {
             article.setPostTime(TimeStampUtil.getTimestamp());
             Article.initDefaultAttr(article);
             articleMapper.insert(article);
+            String msg = "有新的帖子发布，请及时处理";
+            Map<String, Object> messageBodyForManager = RabbitMQConstantUtils.createMessageBodyForManager(msg,
+                    String.valueOf(ManagerNotification.NOTIFICATION_TYPE.ARTICLE));
+            rabbitTemplate.convertAndSend(RabbitMQConstantUtils.DIRECT_EXCHANGE,
+                    RabbitMQConstantUtils.MANAGE_QUEUE, messageBodyForManager);
             return ResultFul.success(BaseCode.POST);
         }
         return ResultFul.fail(BaseCode.POST_FAIL);
@@ -147,93 +158,161 @@ public class ArticleServiceImpl implements IArticleService {
 
     @Transactional
     @Override
-    public ResultFul<?> addPositivenessCount(Integer uid, Integer aid) {
-        if (StringUtils.checkValNull(aid))
+    public ResultFul<?> like(Integer uid, Integer aid) {
+        if (StringUtils.checkValNull(uid) || StringUtils.checkValNull(aid))
             return ResultFul.fail(BaseCode.ARGS_ERROR);
-        int count = articleMapper.getPositivenessCount(aid);
-        AtomicInteger atomicInteger = new AtomicInteger(count);
-        atomicInteger.incrementAndGet();
-        final int update = articleMapper.update(new Article() {{
+        LambdaQueryWrapper<Upvote> existQuery = Wrappers.lambdaQuery();
+        existQuery.eq(Upvote::getUId, uid).eq(Upvote::getAId, aid);
+        boolean exist = upvoteMapper.exists(existQuery);
+        if (exist) {
+            return ResultFul.fail(BaseCode.UPVOTE_FAIL);
+        }
+
+        Upvote upvote = new Upvote() {{
+            this.setId(Math.toIntExact((upvoteMapper.selectCount(null) + 1)));
+            this.setUId(uid);
+            this.setAId(aid);
+        }};
+        int insert = upvoteMapper.insert(upvote);
+        Article article = new Article() {{
             this.setId(aid);
-            this.setPositivenessCount(atomicInteger.get());
-        }}, new LambdaQueryWrapper<>() {{
+            this.setArticleLike(upvoteMapper.countLike(aid));
+        }};
+        int update = articleMapper.update(article, new LambdaQueryWrapper<>() {{
             this.eq(Article::getId, aid);
         }});
-        LambdaQueryWrapper<Upvote> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Upvote::getUId, uid);
-        lambdaQueryWrapper.eq(Upvote::getAId, aid);
-        final boolean exists = upvoteMapper.exists(lambdaQueryWrapper);
-        if (!exists) {
-            Upvote upvote = new Upvote();
-            upvote.setId(Math.toIntExact((upvoteMapper.selectCount(null) + 1)));
-            upvote.setUId(uid);
-            upvote.setAId(aid);
-            final int insert = upvoteMapper.insert(upvote);
-            if (update == 0 || insert == 0) {
+        return 0 != insert && 0 != update ? ResultFul.success(BaseCode.UPVOTE) :
                 ResultFul.fail(BaseCode.UPVOTE_FAIL);
-            }
-        }
-        return ResultFul.fail(BaseCode.UPVOTE_FAIL);
     }
 
     @Transactional
     @Override
-    public ResultFul<?> addPassivenessCount(@NonNull Integer aid) {
+    public ResultFul<?> addCollect(Integer aid, Integer uid) {
+        if (StringUtils.checkValNull(aid) || StringUtils.checkValNull(uid))
+            return ResultFul.fail(BaseCode.ARGS_ERROR);
+        LambdaQueryWrapper<Collection> existQuery = Wrappers.lambdaQuery();
+        existQuery.eq(Collection::getArticleId, aid).eq(Collection::getUserId, uid);
+        boolean exist = collectionMapper.exists(existQuery);
+        if (exist) {
+            return ResultFul.fail(BaseCode.COLLECT_FAIL);
+        }
+
+        Collection collection = new Collection() {{
+            this.setId(Math.toIntExact(collectionMapper.selectCount(null)) + 1);
+            this.setUserId(uid);
+            this.setArticleId(aid);
+        }};
+        int insert = collectionMapper.insert(collection);
+
+        int countCollect = collectionMapper.countCollect(aid);
+
+        Article article = new Article() {{
+            this.setPosterId(uid);
+            this.setCollectCount(countCollect);
+        }};
+        int update = articleMapper.update(article, new LambdaQueryWrapper<>() {{
+            this.eq(Article::getId, aid);
+        }});
+        return 0 != update && 0 != insert ? ResultFul.success(BaseCode.COLLECT) :
+                ResultFul.fail(BaseCode.COLLECT_FAIL);
+    }
+
+
+    @Transactional
+    @Override
+    public ResultFul<?> dislike(Integer uid, Integer aid) {
         if (StringUtils.checkValNull(aid))
             return ResultFul.fail(BaseCode.ARGS_ERROR);
-        int count = articleMapper.getPassivenessCount(aid);
-        AtomicInteger atomicInteger = new AtomicInteger(count);
-        atomicInteger.incrementAndGet();
+        LambdaQueryWrapper<DisLike> existQuery = Wrappers.lambdaQuery();
+        existQuery.eq(DisLike::getUId, uid).eq(DisLike::getAId, aid);
+        boolean exist = disLikeMapper.exists(existQuery);
+        if (exist) {
+            return ResultFul.fail(BaseCode.DELETE_ERROR);
+        }
+
+        DisLike disLike = new DisLike() {{
+            this.setId(Math.toIntExact(collectionMapper.selectCount(null)) + 1);
+            this.setUId(uid);
+            this.setAId(aid);
+        }};
+
+        int insert = disLikeMapper.insert(disLike);
+        int count = disLikeMapper.countDislike(aid);
 
         int update = articleMapper.update(new Article() {{
             this.setId(aid);
-            this.setPassivenessCount(atomicInteger.get());
+            this.setArticleDislike(count);
         }}, new LambdaQueryWrapper<>() {{
             this.eq(Article::getId, aid);
         }});
-        if (update == 0) {
-            ResultFul.fail(BaseCode.DISLIKE_FAIL);
-        }
-        return ResultFul.success(BaseCode.DISLIKE);
+        return 0 != update && 0 != insert ? ResultFul.success(BaseCode.DISLIKE) :
+                ResultFul.fail(BaseCode.DISLIKE_FAIL);
     }
 
     @Transactional
     @Override
-    public ResultFul<?> addCollect(Integer id, Integer uid) {
-        if (StringUtils.checkValNull(id) || StringUtils.checkValNull(uid))
-            return ResultFul.fail(BaseCode.ARGS_ERROR);
-        LambdaQueryWrapper<Collection> collectionLambdaQueryWrapper =
-                new LambdaQueryWrapper<>();
-        collectionLambdaQueryWrapper.eq(Collection::getUserId, uid);
-        collectionLambdaQueryWrapper.eq(Collection::getArticleId, id);
-        boolean collectionExits = collectionMapper.exists(collectionLambdaQueryWrapper);
-        if (!collectionExits) {
-            int insert = collectionMapper.insert(new Collection() {{
-                this.setId(Math.toIntExact(collectionMapper.selectCount(null)) + 1);
-                this.setUserId(uid);
-                this.setArticleId(id);
-            }});
-            LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Article::getId, id);
-            boolean exists = articleMapper.exists(wrapper);
-            if (exists) {
-                AtomicInteger atomicInteger =
-                        new AtomicInteger(articleMapper.getCollectCount(id));
-                atomicInteger.incrementAndGet();
-                int update = articleMapper.update(new Article() {{
-                    this.setId(id);
-                    this.setPosterId(uid);
-                    this.setCollectCount(atomicInteger.get());
-                }}, new LambdaQueryWrapper<>() {{
-                    this.eq(Article::getId, id);
-                }});
-                if (0 != update && 0 != insert)
-                    return ResultFul.success(BaseCode.COLLECT);
-            }
-        }
+    public ResultFul<?> cancelLike(Integer uid, Integer aid) {
 
-        return ResultFul.fail(BaseCode.COLLECT_FAIL);
+        if (StringUtils.checkValNull(aid) || StringUtils.checkValNull(aid))
+            return ResultFul.fail(BaseCode.ERROR);
+        LambdaQueryWrapper<Upvote> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(Upvote::getUId, uid).eq(Upvote::getAId, aid);
+        int delete = upvoteMapper.delete(lambdaQueryWrapper);
+        upvoteMapper.sort();
+        int count = upvoteMapper.countLike(aid);
+        Article article = new Article() {{
+            this.setId(aid);
+            this.setArticleLike(count);
+        }};
+        int update = articleMapper.update(article, new LambdaQueryWrapper<>() {{
+            this.eq(Article::getId, aid);
+        }});
+        return 0 != delete && 0 != update ? ResultFul.success(BaseCode.SUCCESS) :
+                ResultFul.fail(BaseCode.ERROR);
     }
+
+    @Override
+    public ResultFul<?> cancelDislike(Integer uid, Integer aid) {
+        if (StringUtils.checkValNull(aid) || StringUtils.checkValNull(aid))
+            return ResultFul.fail(BaseCode.ERROR);
+        LambdaQueryWrapper<DisLike> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(DisLike::getUId, uid).eq(DisLike::getAId, aid);
+        int delete = disLikeMapper.delete(lambdaQueryWrapper);
+        disLikeMapper.sort();
+        int count = disLikeMapper.countDislike(aid);
+        Article article = new Article() {{
+            this.setId(aid);
+            this.setArticleDislike(count);
+        }};
+        int update = articleMapper.update(article, new LambdaQueryWrapper<>() {{
+            this.eq(Article::getId, aid);
+        }});
+        return 0 != delete && 0 != update ? ResultFul.success(BaseCode.SUCCESS) :
+                ResultFul.fail(BaseCode.ERROR);
+    }
+
+    @Transactional
+    @Override
+    public ResultFul<?> cancelCollect(Integer aid, Integer uid) {
+        if (StringUtils.checkValNull(aid) || StringUtils.checkValNull(aid))
+            return ResultFul.fail(BaseCode.ERROR);
+        // 删除收藏记录
+        LambdaQueryWrapper<Collection> collectionLambdaQueryWrapper = Wrappers.<Collection>lambdaQuery();
+        collectionLambdaQueryWrapper.eq(Collection::getArticleId, aid).eq(Collection::getUserId, uid);
+        int delete = collectionMapper.delete(collectionLambdaQueryWrapper);
+        boolean sort = collectionMapper.sort();
+        int countCollect = collectionMapper.countCollect(aid);
+        Article article = new Article() {{
+            this.setId(aid);
+            this.setCollectCount(countCollect);
+        }};
+        int update = articleMapper.update(article, new LambdaQueryWrapper<>() {{
+            this.eq(Article::getId, aid);
+        }});
+        return 0 != delete && sort && 0 != update ? ResultFul.success(BaseCode.SUCCESS) :
+                ResultFul.fail(BaseCode.ERROR);
+    }
+
 
     @Override
     public ResultFul<?> searchArticles(String keyword, Integer currentPage, Integer pageSize) {

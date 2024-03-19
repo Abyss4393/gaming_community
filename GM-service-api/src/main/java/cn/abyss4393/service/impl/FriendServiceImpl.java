@@ -60,15 +60,15 @@ public class FriendServiceImpl implements IFriendService {
         LambdaQueryWrapper<FriendList> existLambda = new LambdaQueryWrapper<>();
         existLambda.eq(FriendList::getRootId, uid);
         existLambda.eq(FriendList::getUserId, friendId);
-        final boolean exists = friendListMapper.exists(existLambda);
+        boolean exists = friendListMapper.exists(existLambda);
         if (!exists) {
             FriendList friendList = new FriendList();
             friendList.setId(Math.toIntExact(friendListMapper.selectCount(null) + 1));
             friendList.setRootId(uid);
             friendList.setUserId(friendId);
             int insert = friendListMapper.insert(friendList);
-            if (insert != 0)
-                ResultFul.success(BaseCode.ATTENTION_SUCCESS);
+            if (0 != insert)
+                return ResultFul.success(BaseCode.ATTENTION_SUCCESS);
         }
         return ResultFul.fail(BaseCode.ATTENTION_FAIL);
     }

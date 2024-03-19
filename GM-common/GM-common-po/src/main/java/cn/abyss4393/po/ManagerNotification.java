@@ -8,32 +8,26 @@ import lombok.NoArgsConstructor;
 /**
  * @author abyss
  * @version 1.0-SNAPSHOT
- * @className UserNotification
+ * @className ManagerNotification
  * @description TODO
- * @date 2024/3/5
+ * @date 2024/3/19
  * @completion false
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@TableName("tb_user_notification")
-public class UserNotification {
 
+@TableName("tb_manager_notification")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class ManagerNotification {
     public enum NOTIFICATION_TYPE {
-        SYSTEM,
+        ARTICLE,
         COMMENT,
         REPLY
     }
 
     private Integer id;
-
-    private Integer userId;
-
     private String info;
-
     private String type;
-
-    private String operateTime;
-
+    private String operationTime;
     private Integer isRead;
 }

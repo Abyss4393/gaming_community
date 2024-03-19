@@ -19,9 +19,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentVo {
     private Comment comment;
+
     private User user;
+    private String notificationContent;
 
     public CommentVo(Comment comment) {
         this.comment = comment;
+    }
+
+    public CommentVo(Comment comment, String notificationContent) {
+        this.comment = comment;
+        this.notificationContent = notificationContent;
     }
 }

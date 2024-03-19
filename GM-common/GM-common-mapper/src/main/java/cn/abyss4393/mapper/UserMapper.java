@@ -14,6 +14,9 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("select count(*) from tb_user")
     int getCount();
 
+    @Select("select id from tb_user")
+    List<Integer> getAllUserId();
+
     @Select("select nickname,avatar from tb_user where id = #{id}")
     User getSimpleUserInfo(@Param("id") Integer uid);
 

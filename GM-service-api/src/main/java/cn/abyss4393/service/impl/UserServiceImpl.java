@@ -22,9 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
-import static cn.abyss4393.utils.rabbitmq.RabbitMQConstantUtils.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 
 /**
  * @author abyss
@@ -57,13 +58,15 @@ public class UserServiceImpl implements IUserService, AbstractService<User> {
         User data = userMapper.selectOne(lambdaQueryWrapper);
         if (StringUtils.checkValNull(data))
             return ResultFul.fail(BaseCode.LOGIN_ERROR);
-        data.setLastLandingTime(TimeStampUtil.getTimestamp());
+        String time = TimeStampUtil.getTimestamp();
+        data.setLastLandingTime(time);
         userMapper.updateById(data);
+        Map<String, Object> userMap = new HashMap<>();
         String uid = String.valueOf(data.getId());
         String token = JwtUtils.createJWT(uid);
-        redisUtils.set("token", token);
-        redisUtils.set("用户ID:" + uid, data);
-        redisUtils.expire("token", RedisUtils.HALF_HOUR);
+        userMap.put("user", data);
+        userMap.put("token", token);
+        redisUtils.set("用户ID:" + uid, userMap);
         redisUtils.expire("用户ID:" + uid, RedisUtils.HALF_HOUR);
         ResultVo<Object> userVo = new ResultVo<>() {{
             this.setData(WrapUtils.removeAttr(data, "password"));
@@ -104,7 +107,7 @@ public class UserServiceImpl implements IUserService, AbstractService<User> {
         user.setNickname("用户" + (new Random().nextInt() * 1000));
         user.setCreateTime(TimeStampUtil.getTimestamp());
         user.setPermission(User.PERMISSION_OFFICIAL);
-        return userMapper.insert(user) != 0 ?
+        return  0 != userMapper.insert(user)  ?
                 ResultFul.success(BaseCode.REGISTER_SUCCESS) :
                 ResultFul.fail(BaseCode.REGISTER_ERROR);
     }

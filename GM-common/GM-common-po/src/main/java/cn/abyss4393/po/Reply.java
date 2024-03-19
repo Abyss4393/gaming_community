@@ -21,6 +21,8 @@ public class Reply {
 
     private Integer id;
 
+    private String replier;
+
     private Integer articleId;
 
     private Integer userId;
@@ -29,8 +31,22 @@ public class Reply {
 
     private Integer parentReplyId;
 
+    private String commenter;
+
     private String content;
 
+    private Integer replyLike;
+
+    private Integer replyDislike;
+
+    private Integer approved;
+
     private String replyTime;
+
+    public static void init(Reply reply) {
+        reply.setApproved(0);
+        reply.setReplyLike(0);
+        reply.setReplyDislike(0);
+    }
 
 }

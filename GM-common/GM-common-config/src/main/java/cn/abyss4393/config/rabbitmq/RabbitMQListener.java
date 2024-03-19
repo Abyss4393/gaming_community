@@ -1,6 +1,8 @@
 package cn.abyss4393.config.rabbitmq;
 
+import cn.abyss4393.mapper.ManagerNotificationMapper;
 import cn.abyss4393.mapper.UserNotificationMapper;
+import cn.abyss4393.po.ManagerNotification;
 import cn.abyss4393.po.UserNotification;
 import cn.abyss4393.utils.rabbitmq.RabbitMQConstantUtils;
 import cn.hutool.json.JSONObject;
@@ -30,6 +32,9 @@ public class RabbitMQListener {
 
     @Resource
     private UserNotificationMapper userNotificationMapper;
+
+    @Resource
+    private ManagerNotificationMapper managerNotificationMapper;
     private static final Logger log = LoggerFactory.getLogger(RabbitMQListener.class);
 
     @RabbitHandler
@@ -41,8 +46,9 @@ public class RabbitMQListener {
         Integer rowTotal = Math.toIntExact(userNotificationMapper.selectCount(null) + 1);
         Integer targetId = msg.getInt("target_user_id");
         String msgContent = msg.getStr("message_content");
+        String type = msg.getStr("message_type");
         String operateTime = msg.getStr("operate_time");
-        UserNotification userNotification = new UserNotification(rowTotal, targetId, msgContent, operateTime, 0);
+        UserNotification userNotification = new UserNotification(rowTotal, targetId, msgContent, type, operateTime, 0);
         try {
             userNotificationMapper.insert(userNotification);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
@@ -55,7 +61,19 @@ public class RabbitMQListener {
     @RabbitHandler
     @RabbitListener(queues = RabbitMQConstantUtils.MANAGE_QUEUE)
     public void handlerManageQueue(Channel channel, Message message) throws Exception {
-
-
+        String msgBody = new String(message.getBody());
+        JSONObject msg = JSONUtil.parseObj(msgBody);
+        Integer row = Math.toIntExact((managerNotificationMapper.selectCount(null) + 1));
+        String msgContent = msg.getStr("message_content");
+        String type = msg.getStr("message_type");
+        String operateTime = msg.getStr("operate_time");
+        ManagerNotification managerNotification = new ManagerNotification(row, msgContent, type, operateTime, 0);
+        try {
+            managerNotificationMapper.insert(managerNotification);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            log.error("消息处理出现异常：{}", e.getMessage());
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
+        }
     }
 }

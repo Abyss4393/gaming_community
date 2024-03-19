@@ -41,9 +41,9 @@ public class Article implements Serializable {
 
     private String type;
 
-    private Integer positivenessCount;
+    private Integer articleLike;
 
-    private Integer passivenessCount;
+    private Integer articleDislike;
 
     private Integer collectCount;
 
@@ -52,8 +52,8 @@ public class Article implements Serializable {
     private Integer approved;
 
     public static void initDefaultAttr(Article article) {
-        article.setPassivenessCount(0);
-        article.setPassivenessCount(0);
+        article.setArticleLike(0);
+        article.setArticleDislike(0);
         article.setCollectCount(0);
         article.setApproved(0);
 

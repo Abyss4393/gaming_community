@@ -37,7 +37,7 @@ public class User extends BaseObj {
     private String permission;
 
     @TableField(exist = false)
-    public static final String DEFAULT_IMAGE = ".......";
+    public static final String DEFAULT_IMAGE = "https://gitee.com/abyss4393/gaming_community/blob/master/avatar/default.jpg";
     @TableField(exist = false)
     public static final String PERMISSION_OFFICIAL = "正式用户";
 

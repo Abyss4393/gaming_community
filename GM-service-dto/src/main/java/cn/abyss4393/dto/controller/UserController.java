@@ -51,6 +51,9 @@ public class UserController {
     @Resource
     private UpvoteServiceImpl upvoteService;
 
+    @Resource
+    private DislikeServiceImpl dislikeService;
+
 
     @AuthAccess(desc = "用户注册")
     @PostMapping("/register")
@@ -107,6 +110,13 @@ public class UserController {
     @ResponseBody
     public ResultFul<?> upvoteStatus(@PathVariable Serializable uid, @PathVariable Serializable aid) {
         return upvoteService.isUpvote(uid, aid);
+    }
+
+    @AuthAccess(desc = "用户拉踩帖子状态")
+    @GetMapping("/article/dislike/{uid}/{aid}")
+    @ResponseBody
+    public ResultFul<?> dislikeStatus(@PathVariable Serializable uid, @PathVariable Serializable aid) {
+        return dislikeService.isDislike(uid, aid);
     }
 
     @AuthAccess(desc = "用户收藏帖子状态")

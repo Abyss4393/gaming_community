@@ -1,10 +1,11 @@
 package cn.abyss4393.interceptor;
 
 import cn.abyss4393.annotation.AuthAccess;
-import cn.abyss4393.po.User;
 import cn.abyss4393.exception.ServiceException;
+import cn.abyss4393.po.User;
 import cn.abyss4393.utils.jwt.JwtUtils;
 import cn.abyss4393.utils.redis.RedisUtils;
+import cn.hutool.json.JSONUtil;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -55,8 +56,8 @@ public class JwtInterceptor implements HandlerInterceptor {
         } catch (JWTDecodeException e) {
             throw new ServiceException("401", "请登录");
         }
-
-        User userCache = (User) redisUtils.get("用户ID:" + uid);
+        Object o = redisUtils.get("用户ID:" + uid);
+        User userCache = (User) JSONUtil.parseObj(o).get("user");
         if (StringUtils.checkValNull(userCache))
             throw new ServiceException("401", "请登录");
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(userCache.getPassword())).build();
