@@ -34,4 +34,5 @@ public interface IAdminService {
 
     ResultFul<?> rejectAuditReply(ReplyVo replyVo);
 
+    ResultFul<?> getUpRateArticles();
 }

@@ -124,17 +124,21 @@ public class ArticleServiceImpl implements IArticleService {
         frontJSONData.forEach(item -> {
             JSONObject temp = JSONUtil.parseObj(item);
             String textContent = temp.getStr("text");
-            if (!"".equals(textContent) && textContent.contains("<img")) {
-                List<String> replacePaths = FileUtils.handlerBase64Content(textContent);
-                assert replacePaths != null;
-                String replace = FileUtils.replace(textContent, replacePaths);
-                replaces.add(replace);
+            if ((null != textContent)) {
+                if (!"".equals(textContent) && textContent.contains("<img")) {
+                    List<String> replacePaths = FileUtils.handlerBase64Content(textContent);
+                    assert replacePaths != null;
+                    String replace = FileUtils.replace(textContent, replacePaths);
+                    replaces.add(replace);
+                }
             }
         });
-        for (int i = 0; i < replaces.size(); i++) {
-            JSONObject tempObj = JSONUtil.parseObj(frontJSONData.get(i));
-            tempObj.replace("text", replaces.get(i));
-            frontJSONData.set(i, tempObj);
+        if (0 != replaces.size()) {
+            for (int i = 0; i < replaces.size(); i++) {
+                JSONObject tempObj = JSONUtil.parseObj(frontJSONData.get(i));
+                tempObj.replace("text", replaces.get(i));
+                frontJSONData.set(i, tempObj);
+            }
         }
         article.setContent(JSONUtil.toJsonStr(frontObjData));
         LambdaQueryWrapper<Article> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -167,7 +171,6 @@ public class ArticleServiceImpl implements IArticleService {
         if (exist) {
             return ResultFul.fail(BaseCode.UPVOTE_FAIL);
         }
-
         Upvote upvote = new Upvote() {{
             this.setId(Math.toIntExact((upvoteMapper.selectCount(null) + 1)));
             this.setUId(uid);
@@ -184,7 +187,6 @@ public class ArticleServiceImpl implements IArticleService {
         return 0 != insert && 0 != update ? ResultFul.success(BaseCode.UPVOTE) :
                 ResultFul.fail(BaseCode.UPVOTE_FAIL);
     }
-
     @Transactional
     @Override
     public ResultFul<?> addCollect(Integer aid, Integer uid) {

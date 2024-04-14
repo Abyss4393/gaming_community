@@ -21,4 +21,13 @@ public class ArticleVo {
     private String notificationContent;
     private String avatar;
     private String nickname;
+
+    private boolean isRecommend;
+
+    public ArticleVo(Article article, String notificationContent, String avatar, String nickname) {
+        this.article = article;
+        this.notificationContent = notificationContent;
+        this.avatar = avatar;
+        this.nickname = nickname;
+    }
 }

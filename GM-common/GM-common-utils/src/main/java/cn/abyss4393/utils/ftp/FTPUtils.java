@@ -36,7 +36,6 @@ public class FTPUtils {
             ftpClient.setControlEncoding("UTF-8");
             ftpClient.makeDirectory(FTP_BASE_PATH);
             ftpClient.changeWorkingDirectory(FTP_BASE_PATH);
-            System.out.println();
             ftpClient.enterLocalPassiveMode();
             success = ftpClient.storeFile(fileName, is);
         } catch (IOException e) {

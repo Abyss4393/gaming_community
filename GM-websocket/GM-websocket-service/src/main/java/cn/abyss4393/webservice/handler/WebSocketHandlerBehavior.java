@@ -1,5 +1,7 @@
 package cn.abyss4393.webservice.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
@@ -16,6 +18,5 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface WebSocketHandlerBehavior {
-
-     void handler();
+     void handler() throws JsonProcessingException;
 }

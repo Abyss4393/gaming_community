@@ -1,6 +1,6 @@
 package cn.abyss4393.webservice.utils;
 
-import cn.hutool.core.codec.Base64Decoder;
+import java.util.Base64;
 
 /**
  * @author abyss
@@ -10,8 +10,8 @@ import cn.hutool.core.codec.Base64Decoder;
  * @date 13/10/2023
  */
 public class WebSocketMessageDecoder {
-    public static byte[] decoder(String base64){
-
-        return Base64Decoder.decode(base64);
+    public static byte[] decoder(String base64) {
+        Base64.Decoder decoder = Base64.getDecoder();
+        return decoder.decode(base64);
     }
 }

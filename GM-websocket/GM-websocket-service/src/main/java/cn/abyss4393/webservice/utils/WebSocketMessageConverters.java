@@ -16,7 +16,11 @@ public class WebSocketMessageConverters {
 
     private static final String VERSION = "1.0.SNAPSHOT";
 
-    public static Map<String, Object> getMessageMap(Integer senderId, Object senderData, Integer receiveId, Object receiverData, String type, String important, Object payloadData, String title, Object body) {
+    public static Map<String, Object> createMessageBody(Integer senderId, Object senderData,
+                                                        Integer receiveId, Object receiverData,
+                                                        String type, String important,
+                                                        Object payloadData, String title,
+                                                        Object body) {
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put("proVersion", VERSION);
         messageMap.put("timeMillis", System.currentTimeMillis());

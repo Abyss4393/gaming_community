@@ -20,7 +20,7 @@ import java.util.*;
 
 
 @Component
-public class Recommend {
+public class    Recommend {
 
     @Resource
     private SimilarityAlgorithm similarityAlgorithm;

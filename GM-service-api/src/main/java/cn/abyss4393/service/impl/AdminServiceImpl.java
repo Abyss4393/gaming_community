@@ -2,10 +2,7 @@ package cn.abyss4393.service.impl;
 
 import cn.abyss4393.entity.BaseCode;
 import cn.abyss4393.entity.ResultFul;
-import cn.abyss4393.mapper.ArticleMapper;
-import cn.abyss4393.mapper.CommentMapper;
-import cn.abyss4393.mapper.ReplyMapper;
-import cn.abyss4393.mapper.UserMapper;
+import cn.abyss4393.mapper.*;
 import cn.abyss4393.po.*;
 import cn.abyss4393.service.IAdminService;
 import cn.abyss4393.utils.common.PageUtils;
@@ -13,15 +10,18 @@ import cn.abyss4393.utils.rabbitmq.RabbitMQConstantUtils;
 import cn.abyss4393.vo.ArticleVo;
 import cn.abyss4393.vo.CommentVo;
 import cn.abyss4393.vo.ReplyVo;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author abyss
@@ -47,6 +47,9 @@ public class AdminServiceImpl implements IAdminService {
 
     @Resource
     private ReplyMapper replyMapper;
+
+    @Resource
+    private RecommendMapper recommendMapper;
 
     @Override
     public ResultFul<?> selectBatchUsers(Integer currentPage, Integer pageSize) {
@@ -150,5 +153,22 @@ public class AdminServiceImpl implements IAdminService {
         return 0 != update ? ResultFul.success(BaseCode.SUCCESS) : ResultFul.fail(BaseCode.ERROR);
     }
 
-
+    @Override
+    public ResultFul<?> getUpRateArticles() {
+        List<ArticleVo> articleVos = new ArrayList<>();
+        List<Article> articles = articleMapper.selectList(null);
+        articles.sort(Comparator.comparingDouble(a -> Math.sqrt(a.getArticleLike() * a.getCollectCount())));
+        Collections.reverse(articles);
+        LambdaQueryWrapper<EntryRecommend> elqw = Wrappers.lambdaQuery();
+        articles.forEach(item->{
+            ArticleVo articleVo  = new ArticleVo();
+            elqw.eq(EntryRecommend::getAId, item.getId());
+            boolean exists = recommendMapper.exists(elqw);
+            articleVo.setRecommend(exists);
+            articleVo.setArticle(item);
+            articleVos.add(articleVo);
+            elqw.clear();
+        });
+        return ResultFul.success(BaseCode.SUCCESS, articleVos);
+    }
 }

@@ -21,12 +21,11 @@ public class CFMatrix {
             Set<Integer> users = entry.getValue();
             // 首先统计每个用户交互的帖子个数
             for (Integer u : users) {
-                //遍历所有该博客对应的交互过的用户
+                //遍历所有该帖子对应的交互过的用户
                 // 统计每个用户与其它用户共同交互的物品个数
                 if (!CFMatrix.containsKey(u)) {
                     CFMatrix.put(u, new HashMap<>());
                 }
-
                 for (Integer v : users) {
                     //再次遍历所有用户，对不是u的其他用户进行操作
                     if (!v.equals(u)) {

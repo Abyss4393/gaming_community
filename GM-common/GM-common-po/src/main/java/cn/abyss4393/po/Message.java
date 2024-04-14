@@ -20,7 +20,6 @@ public class Message {
     private Integer id;
     private Integer senderId;
     private Integer receiverId;
-    // TODO 文本内容过大时可以Clob类型存储
     private String content;
     private String createTime;
 
@@ -30,10 +29,4 @@ public class Message {
         this.createTime = createTime;
     }
 
-    public Message(Integer senderId, Integer receiverId, String content, String createTime) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-        this.content = content;
-        this.createTime = createTime;
-    }
 }

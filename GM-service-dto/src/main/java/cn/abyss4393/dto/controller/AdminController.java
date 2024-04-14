@@ -178,4 +178,9 @@ public class AdminController {
         return replyService.deleteReply(id);
     }
 
+    @AuthAccess(desc = "获取综合评分较高的帖子")
+    @GetMapping("/recommend/uprate")
+    public ResultFul<?> getUpRateArticle() {
+        return adminService.getUpRateArticles();
+    }
 }

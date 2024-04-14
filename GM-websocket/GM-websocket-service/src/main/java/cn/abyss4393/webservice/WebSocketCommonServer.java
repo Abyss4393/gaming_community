@@ -18,6 +18,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
@@ -239,7 +240,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
         }
     }
 
-    private void daemonHandler(@NonNull String type, @NonNull JSONObject json) {
+    private void daemonHandler(@NonNull String type, @NonNull JSONObject json) throws JsonProcessingException {
         switch (type) {
             case "text":
                 this.handlerText(() -> {
@@ -261,10 +262,8 @@ public class WebSocketCommonServer extends WebSocketHandler {
                     String originName = json.getJSONObject("content").getStr("name");
                     if (!fileMaps.get("image").containsKey(originName)) {
                         String image = json.getJSONObject("content").getStr("image");
-                        String header = "data:image/";
-                        int pos = image.indexOf(";");
-                        String pure = image.substring(image.indexOf(",") + 1);
-                        byte[] imageBytes = WebSocketMessageDecoder.decoder(Objects.requireNonNull(pure));
+                        String base64Image = image.substring(image.indexOf("base64,") + 7);
+                        byte[] imageBytes = WebSocketMessageDecoder.decoder(Objects.requireNonNull(base64Image));
                         JSONObject uploadResult = JSONUtil.parseObj(ImageBedUtils.uploadFile(ImageBedUtils.IMAGE_PATH, originName, imageBytes));
                         String downloadURL = uploadResult.getJSONObject("content").getStr("download_url");
                         json.getJSONObject("content").replace("image", downloadURL);
@@ -325,7 +324,7 @@ public class WebSocketCommonServer extends WebSocketHandler {
     }
 
     private static Map<String, Object> getMessageMaps(Integer senderId, Object senderData, Integer groupId, Object groupData, Object payload, String title, Object body) {
-        return WebSocketMessageConverters.getMessageMap(
+        return WebSocketMessageConverters.createMessageBody(
                 senderId,
                 senderData,
                 groupId,
@@ -338,27 +337,27 @@ public class WebSocketCommonServer extends WebSocketHandler {
     }
 
     @Override
-    protected void handlerText(WebSocketHandlerBehavior handlerBehavior) {
+    protected void handlerText(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
     @Override
-    protected void handlerImage(WebSocketHandlerBehavior handlerBehavior) {
+    protected void handlerImage(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
     @Override
-    protected void handlerAudio(WebSocketHandlerBehavior handlerBehavior) {
+    protected void handlerAudio(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
     @Override
-    protected void handlerVideo(WebSocketHandlerBehavior handlerBehavior) {
+    protected void handlerVideo(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
     @Override
-    protected void handlerFile(WebSocketHandlerBehavior handlerBehavior) {
+    protected void handlerFile(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 

@@ -1,5 +1,6 @@
 package cn.abyss4393.webservice.model;
 
+import cn.abyss4393.po.User;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,15 +13,11 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class ChatMessages {
+public class ChatMessage {
 
-    private MessagesType type;
-    private String content;
-    private String sender;
+    private String type;
+    private Object content;
+    private String timestamp;
 
-    private enum MessagesType{
-        CHAT,
-        JOIN,
-        LEAVE
-    }
+
 }

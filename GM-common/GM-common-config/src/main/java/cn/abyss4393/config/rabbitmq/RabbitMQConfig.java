@@ -87,7 +87,7 @@ public class RabbitMQConfig {
      * @return Queue
      */
     @Bean(RabbitMQConstantUtils.USER_QUEUE)
-    public Queue cancelOrderQueue() {
+    public Queue userQueue() {
         return new Queue(RabbitMQConstantUtils.USER_QUEUE, true, false, true);
     }
 
@@ -95,7 +95,7 @@ public class RabbitMQConfig {
      * 把用户消息队列绑定到交换机上
      */
     @Bean
-    public Binding providerQueueBinding(@Qualifier(RabbitMQConstantUtils.USER_QUEUE) Queue queue,
+    public Binding userQueueBinding(@Qualifier(RabbitMQConstantUtils.USER_QUEUE) Queue queue,
                                         @Qualifier(RabbitMQConstantUtils.DIRECT_EXCHANGE) Exchange directExchange) {
         return BindingBuilder.bind(queue).to(directExchange).with(RabbitMQConstantUtils.USER_QUEUE).noargs();
     }
@@ -106,15 +106,15 @@ public class RabbitMQConfig {
      * @return Queue
      */
     @Bean(RabbitMQConstantUtils.MANAGE_QUEUE)
-    public Queue confirmOrderQueue() {
+    public Queue managerQueue() {
         return new Queue(RabbitMQConstantUtils.MANAGE_QUEUE, true, false, true);
     }
 
     /**
-     * 把管理员消息队列绑定到交换机上
+     * 消息队列绑定到交换机上
      */
     @Bean
-    public Binding consumerQueueBinding(@Qualifier(RabbitMQConstantUtils.MANAGE_QUEUE) Queue queue,
+    public Binding managerQueueBinding(@Qualifier(RabbitMQConstantUtils.MANAGE_QUEUE) Queue queue,
                                         @Qualifier(RabbitMQConstantUtils.DIRECT_EXCHANGE) Exchange directExchange) {
 
         return BindingBuilder.bind(queue).to(directExchange).with(RabbitMQConstantUtils.MANAGE_QUEUE).noargs();

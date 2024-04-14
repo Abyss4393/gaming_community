@@ -1,6 +1,7 @@
 package cn.abyss4393.service;
 
 import cn.abyss4393.entity.ResultFul;
+import cn.abyss4393.po.EntryRecommend;
 
 /**
  * @author abyss
@@ -13,4 +14,9 @@ import cn.abyss4393.entity.ResultFul;
 public interface IRecommendService {
 
     ResultFul<?> forUser(Integer id);
+
+    ResultFul<?> getRecommends();
+
+    ResultFul<?> setRecommend(EntryRecommend recommend);
+    ResultFul<?> cancelRecommend(Integer aid);
 }
