@@ -91,12 +91,16 @@ const routes = [
     component: () => import('@/views/module/login/index.vue')
   },
   {
+    path: '/register',
+    name: 'Register',
+    meta: { title: '注册' },
+    component: () => import('@/views/module/register/index')
+  },
+  {
     path: "/test",
     name: 'Test',
     component: () => import('@/test/index'),
-    meta: {
-      title: '测试'
-    }
+    meta: { title: '测试' }
   },
   {
     path: '/chat',
@@ -145,7 +149,7 @@ const routes = [
         component: () => import('@/views/admin/article-manage/index')
       },
       {
-        path: '/admin/manage/commnet',
+        path: '/admin/manage/comment',
         name: 'CommentManage',
         meta: { title: '评论管理' },
         component: () => import('@/views/admin/comment-manage/index')
@@ -156,12 +160,17 @@ const routes = [
         meta: { title: '回复管理' },
         component: () => import('@/views/admin/reply-manage/index')
       },
+      {
+        path: '/admin/manage/recommend',
+        name: 'Recommend',
+        meta: { title: '推荐管理' },
+        component: () => import('@/views/admin/recommend-manage/index')
+      }
     ]
   },
   {
     path: '/500.html',
     component: () => import('@/pages/server_exception/ServerException')
-
   },
   {
     path: '/:pathMatch(.*)',
@@ -170,9 +179,7 @@ const routes = [
   },
   {
     path: '/404.html',
-    meta: {
-      title: '404'
-    },
+    meta: {title: '404'},
     component: () => import('@/pages/not_found/NotFound')
   }
 ]

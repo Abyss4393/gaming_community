@@ -25,7 +25,7 @@ export default {
             state.userInfo.data = obj
         },
         setLoginState(state, newState) {
-            state.userInfo = newState
+            state.loginState = newState
         },
         resetUserInfo(state) {
             state.userInfo = {
@@ -48,8 +48,8 @@ export default {
         getUserInfo(state) {
             return state.userInfo
         },
-        getloginState(stete) {
-            return stete.loginState
+        getLoginState(state) {
+            return state.loginState
         }
     },
     actons: {

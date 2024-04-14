@@ -41,3 +41,4 @@ export const RejectReply = (replyVo) => instance.post('admin/audit/reply/reject'
 
 export const DeleteReply = (id) => instance.delete(`admin/reply/delete/${id}`)
 
+export const GetUpRateArticle = () => instance.get(`admin/recommend/uprate`)

@@ -39,6 +39,8 @@
         height: 100%;
         white-space: nowrap;
 
+
+
         ul {
             li {
                 display: inline-block;
@@ -69,6 +71,7 @@
         }
 
     }
+
 
     .search {
         position: absolute;
@@ -120,7 +123,7 @@
         }
     }
 
-    .avator {
+    .avatar {
         position: absolute;
         top: @layout_avator_top;
         left: @layout_avator_left;
@@ -139,6 +142,33 @@
             transform: scale(1.2);
             transition: 150ms ease;
             cursor: pointer;
+        }
+    }
+
+    .login {
+        position: relative;
+        width: 150px;
+        height: 40px;
+        left: 1680px;
+        top: -60px;
+        padding: 12px;
+        box-sizing: border-box;
+
+        .login-item {
+            color: #fffffe;
+            cursor: pointer;
+
+            a {
+                color: none;
+
+                span {
+                    color: #fffffe;
+                    cursor: pointer;
+
+                }
+            }
+
+
         }
     }
 
@@ -173,4 +203,5 @@
             }
         }
     }
+
 }

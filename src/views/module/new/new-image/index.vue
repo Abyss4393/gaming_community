@@ -121,7 +121,6 @@ const beforeUpload = (file) => {
 }
 
 const uploadSuccess = (res, file, fileList) => {
-    console.log(res);
     if (res.meta.code === 239) {
         data.image.list.push({
             name: file.name,

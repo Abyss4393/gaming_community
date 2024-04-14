@@ -145,7 +145,7 @@
                 .content-item-image {
                     display: flex;
                     flex: 1;
-                    width: 16rem;
+                    width: 100%;
                     margin: 0 auto;
                     padding: 1rem;
                     box-sizing: border-box;
@@ -260,6 +260,40 @@
             width: 100%;
             height: auto;
 
+
+            .card-header {
+                width: 100%;
+                height: 80px;
+                background-color: #fff;
+
+                .show-all {
+                    position: relative;
+                    top: 40px;
+                    left: 20px;
+                    width: 100px;
+                    line-height: 100%;
+                    border-bottom: 3px solid #78c5ef;
+
+                    span {
+                        display: block;
+                        width: 100px;
+                        line-height: 40px;
+                        font-size: 24px;
+                        font-family: "华文行楷";
+                    }
+                }
+
+                .sort {
+                    position: relative;
+                    left: 800px;
+
+                    span {
+                        cursor: pointer;
+                    }
+                }
+            }
+
+
             :deep(.el-card) {
                 display: flex;
                 flex-direction: inherit;
@@ -348,7 +382,7 @@
                             width: 1.5rem;
                             height: auto;
 
-                            &:nth-last-child(1){
+                            &:nth-last-child(1) {
                                 margin-top: 2px;
                             }
                         }
@@ -367,10 +401,10 @@
                     }
                 }
 
-                .opreation {
+                .delete {
                     width: 50%;
                     position: relative;
-                    top: -15rem;
+                    top: -400px;
                     left: 50rem;
                     cursor: pointer;
 
@@ -555,9 +589,6 @@
             a {
                 color: #201d1d;
 
-                &:hover {
-                    color: #78c5f5;
-                }
 
 
                 img {
@@ -569,9 +600,14 @@
                     word-spacing: .3rem;
                     margin-left: 6rem;
                     margin-top: -4rem;
+
+                    &:hover {
+                        color: #78c5f5;
+                    }
+
                 }
 
-                .follow{
+                .follow {
                     margin-left: 220px;
                 }
             }

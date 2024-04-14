@@ -39,6 +39,9 @@
                             <el-icon v-if="menuItem.title === '回复管理'">
                                 <ChatDotSquare />
                             </el-icon>
+                            <el-icon v-if="menuItem.title === '推荐管理'">
+                                <Star />
+                            </el-icon>
                             <el-icon v-if="menuItem.title === '反馈'">
                                 <Lightning />
                             </el-icon>
@@ -88,7 +91,7 @@
 <script setup>
 import { getCurrentInstance, ref, computed, nextTick } from 'vue';
 import { ElContainer, ElAside, ElHeader, ElMain, ElTabs, ElTabPane, ElMessageBox, ElMessage, ElNotification } from 'element-plus';
-import { User, Document, ChatLineSquare, ChatDotSquare, House, Lightning, DataLine } from '@element-plus/icons-vue'
+import { User, Document, ChatLineSquare, ChatDotSquare, House, Lightning, DataLine, Star } from '@element-plus/icons-vue'
 
 const instance = getCurrentInstance();
 const route = instance.proxy.$route;
@@ -112,12 +115,17 @@ const menu = ref([
     }, {
         isGroup: false,
         title: '评论管理',
-        path: '/admin/manage/commnet'
+        path: '/admin/manage/comment'
     },
     {
         isGroup: false,
         title: '回复管理',
         path: '/admin/manage/reply'
+    },
+    {
+        isGroup: false,
+        title: '推荐管理',
+        path: '/admin/manage/recommend'
     },
     {
         isGroup: false,

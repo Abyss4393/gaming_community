@@ -156,13 +156,13 @@ onMounted(() => {
 const handleCurrentChange = (newval) => {
     data.currentPage = newval;
     if (keyword.value != '') search();
-    AsyncArticle(newval, data.pageSize);
+    AsyncComment(newval, data.pageSize);
 }
 
 const handleSizeChange = (newval) => {
     data.pageSize = newval;
     if (keyword.value != '') search();
-    AsyncArticle(data.currentPage, newval);
+    AsyncComment(data.currentPage, newval);
 }
 
 const showPreview = (row) => {

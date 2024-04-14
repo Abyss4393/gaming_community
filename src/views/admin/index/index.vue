@@ -5,17 +5,36 @@
                 <div class="header">
                     <el-breadcrumb :separator-icon="ArrowRight">
                         <el-breadcrumb-item>
-                            <el-badge :value="6"><el-button>待处理事项</el-button>
+                            <el-badge :value="unread"><el-button @click="show = !show">待处理事项</el-button>
                             </el-badge>
                         </el-breadcrumb-item>
                         <el-breadcrumb-item><el-button>首页</el-button></el-breadcrumb-item>
                     </el-breadcrumb>
+                    <div class="notification-box" v-show="show">
+
+                        <el-card v-for="notification, index in notificationList" :key="index">
+                            <div class="notification-item">
+                                <div class="delete" @click="remove(notification.id)">
+                                    <el-icon>
+                                        <CloseBold />
+                                    </el-icon>
+                                </div>
+                                <el-tag type="info">事件：{{ notification.type }}</el-tag>
+                                <el-alert v-if="0 === notification.isRead" title="待处理事件" type="warning" />
+                                <span>--{{ notification.info }}--</span>
+                                <el-button v-if="0 === notification.isRead" plain type="primary"
+                                    @click="cope(notification.id, notification.type)">去处理</el-button>
+                                <el-button v-else plain type="success" disabled>
+                                    <el-icon><Select />已处理</el-icon>
+                                </el-button>
+                            </div>
+
+                        </el-card>
+                    </div>
                 </div>
             </el-header>
             <el-main>
-                <div ref="chartsRef" id="charts">
-
-                </div>
+                <div ref="chartsRef" id="charts" />
             </el-main>
         </el-container>
     </div>
@@ -23,9 +42,29 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import * as echarts from 'echarts';
-import { ElContainer, ElHeader, ElMain, ElBreadcrumb, ElBreadcrumbItem, ElBadge, ElButton } from 'element-plus';
-import { ArrowRight } from '@element-plus/icons-vue';
+import { ElContainer, ElHeader, ElCard, ElTag, ElAlert, ElIcon, ElMain, ElBreadcrumb, ElBreadcrumbItem, ElBadge, ElButton } from 'element-plus';
+import { ArrowRight, Select, CloseBold } from '@element-plus/icons-vue';
+import { GetManageNotifications, Cope, DeleteManagerNotification } from '@/utils/request/notification';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 const chartsRef = ref(null);
+const show = ref(false);
+const notificationList = ref([]);
+const unread = ref(0);
+
+const asyncNotification = async () => {
+    const res = await GetManageNotifications();
+    if (res.meta.code === 200) {
+        notificationList.value = res.data;
+        notificationList.value.forEach(item => {
+            if (item.isRead === 0) {
+                unread.value++;
+            }
+        })
+    }
+
+}
 
 onMounted(() => {
     // 初始化echarts实例
@@ -63,7 +102,24 @@ onMounted(() => {
     };
     // 设置实例参数
     charts.setOption(option);
+
+    asyncNotification();
 });
+
+const cope = async (id, type) => {
+    let _type = type.toLowerCase();
+    let path = `/admin/manage/${_type}`;
+    const res = await Cope(id);
+    console.log(res);
+    router.push(path)
+}
+
+const remove = async (id) => {
+    const del = await DeleteManagerNotification(id)
+    if (del.meta.code === 223) {
+        asyncNotification();
+    }
+}
 
 </script>
 <style lang='less' scoped>

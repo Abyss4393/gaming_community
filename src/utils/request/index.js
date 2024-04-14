@@ -13,7 +13,6 @@ instance.interceptors.request.use(config => {
     config.headers['token'] = getToken()
     return config
 }, error => {
-    console.log(error);
     return Promise.reject(error);
 })
 

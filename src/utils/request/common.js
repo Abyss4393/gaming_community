@@ -3,6 +3,7 @@ import instance from "./index";
 
 //user
 export const LoginAPI = (params) => instance.post('user/login', params);
+export const RegisterAPI = (params) => instance.post('user/register', params);
 export const UserInfo = (params) => instance.get(`user/info?uid=${params}`)
 export const ObtainFriendList = (uid) => instance.get(`user/friends/${uid}`)
 export const PostArticle = (params) => instance.post("user/article/post", params);
@@ -21,6 +22,7 @@ export const AsyncUserCollections = (uid) => instance.get(`user/collect/${uid}`)
 // comment 
 export const PostComment = (params) => instance.post('user/comment', params);
 export const AsyncUserComments = (uid) => instance.get(`user/comment/${uid}`)
+export const SortComment = (aid, type) => instance.get(`common/comment/sort/${aid}/${type}`)
 
 export const DelCommentByIds = (aid, uid) => instance.delete(`user/comment/delete/${aid}/${uid}`)
 // reply

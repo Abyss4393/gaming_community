@@ -1,7 +1,7 @@
 <template>
     <div id="abyss-group-chat">
         <div class="chat-container">
-            <div class="chat-title">
+            <div class="chat-title" v-if="type === 'group'">
                 <img :src="data.group.avatar" class="chat-avatar" />
                 <div class="chat-name">{{ data.group.name }}</div>
             </div>
@@ -16,20 +16,18 @@
                     </div>
                     <div v-for="(message, index) in data.history.messages" :key="index">
                         <div class="time-tips">{{ renderMessageDate({
-                            timeMillis: message.timeMillis, timestamp:
-                                message.payload.timestamp
-                        }, index) }}</div>
+                timeMillis: message.timeMillis, timestamp:
+                    message.payload.timestamp
+            }, index) }}</div>
                         <div class="message-recalled" v-if="message.recalled">
                             <div v-if="message.recaller.id === data.currentUser.id" class="message-recalled-self">
                                 <div>你撤回了一条消息</div>
-                                <span v-if="message.payload.type === 'text' && Date.now() - message.timeMillis < 60 * 1000"
+                                <span
+                                    v-if="message.payload.type === 'text' && Date.now() - message.timeMillis < 60 * 1000"
                                     @click="editRecalledMessage(message.payload.text)">重新编辑</span>
                             </div>
                             <div v-else>{{ message.recaller.data.name }}撤回了一条消息</div>
                         </div>
-
-
-
                         <div class="message-item" v-else>
 
                             <!-- <div class="message-item-checkbox"
@@ -38,7 +36,8 @@
                                     v-model="messageSelector.ids" @click="selectMessages">
                             </div> -->
 
-                            <div class="message-item-content" :class="{ self: message.senderId === data.currentUser.id }">
+                            <div class="message-item-content"
+                                :class="{ self: message.senderId === data.currentUser.id }">
                                 <div class="sender-info">
                                     <img v-if="data.currentUser.id === message.senderId" :src="data.currentUser.avatar"
                                         class="sender-avatar" />
@@ -51,23 +50,21 @@
                                         <div v-if="message.payload.type === 'text'" class="content-text"
                                             v-html="message.payload.content.text"></div>
                                         <div v-if="message.payload.type === 'image'" class="content-image"
-                                            @click="showImagePreviewPopup(message.payload.url)">
-                                            <img :src="require(message.payload.image)" />
+                                            @click="showImagePreviewPopup(message.payload.content.image)">
+                                            <img :src="message.payload.content.image" />
                                         </div>
                                         <a v-if="message.payload.type === 'file'" :href="message.payload.url"
                                             target="_blank" download="download">
                                             <div class="content-file" title="点击下载">
                                                 <div class="file-info">
                                                     <span class="file-name">{{ data.message.payload.name }}</span>
-                                                    <span class="file-size">{{ (data.message.payload.size / 1024).toFixed(2)
-                                                    }}KB</span>
+                                                    <span class="file-size">{{ (data.message.payload.size
+                / 1024).toFixed(2) }}KB</span>
                                                 </div>
                                                 <img class="file-img"
                                                     :src="require('@/assets/static/icons/file-icon.png')" />
                                             </div>
                                         </a>
-
-
                                         <div v-if="message.payload.type === 'audio'" class="content-audio"
                                             @click="playAudio(message)">
                                             <div class="audio-facade"
@@ -100,8 +97,8 @@
                         <!-- 表情 -->
                         <div class="action-item">
                             <div v-if="data.emoji.visible" class="emoji-box">
-                                <img v-for="(emojiItem, emojiKey, index) in data.emoji.map" class="emoji-item" :key="index"
-                                    :src="emoji.url + emojiItem" @click="chooseEmoji(emojiKey)" />
+                                <img v-for="(emojiItem, emojiKey, index) in data.emoji.map" class="emoji-item"
+                                    :key="index" :src="emoji.url + emojiItem" @click="chooseEmoji(emojiKey)" />
                             </div>
                             <i class="iconfont icon-smile" title="表情" @click="showEmojiBox"></i>
                         </div>
@@ -163,6 +160,7 @@ import { useStore } from 'vuex';
 import { ElMessage } from 'element-plus';
 import { AbyssWS } from '@/utils/abyss/index'
 import { useRoute } from 'vue-router';
+import { quillEditor } from 'vue3-quill';
 
 
 const to = useRoute().query.to;
@@ -172,8 +170,6 @@ const scrollView = ref(null);
 const messageList = ref(null)
 const store = useStore();
 
-
-console.log(type);
 const IMAGE_MAX_WIDTH = 200;
 const IMAGE_MAX_HEIGHT = 150;
 const IN_STANCE_GROUP = 'group';
@@ -194,8 +190,20 @@ const data = reactive({
         allLoaded: false,
         loading: true
     },
-
     text: '',
+    quillEditor: {
+        disabled: false,
+        content: '',
+        editorOption: {
+            placeholder: '',
+            modules: {
+                toolbar: [
+                    ['image'],
+                ]
+            }
+        },
+
+    },
 
     //定义表情列表
     emoji: {
@@ -242,7 +250,7 @@ const onReceivedGroupMessage = function (message) {
 
     let receivedMessage = JSON.parse(message.data)
     data.history.messages.push(receivedMessage);
-    console.log(data.history.allLoaded);
+    console.log(receivedMessage);
     // console.log(data.history);
     // markGroupMessageAsRead();
     // scrollToBottom();
@@ -251,7 +259,7 @@ const onReceivedGroupMessage = function (message) {
 
 
 
-const abyssws = new AbyssWS({ type: IN_STANCE_GROUP, to: data.group.id });
+const abyssws = new AbyssWS({ type: type, to: to });
 
 abyssws.open(onReceivedGroupMessage);
 
@@ -351,12 +359,13 @@ const sendTextMessage = async function () {
 const sendImageMessage = function (e) {
     const imageList = [...e.target.files];
     let imr = new FileReader();
-    imr.readAsBinaryString(imageList[0]);
+    imr.readAsDataURL(imageList[0]);
     imr.onload = async function (e) {
         const base64Code = e.target.result
         const res = await abyssws.createImageMessage({
             type: 'image',
             content: {
+                name: imageList[0].name,
                 image: base64Code
             },
             success: () => {
@@ -366,8 +375,6 @@ const sendImageMessage = function (e) {
                 console.log("发送失败");
             }
         })
-
-        console.log(res);
     }
 
 };

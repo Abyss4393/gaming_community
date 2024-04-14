@@ -8,13 +8,13 @@
                 <div class="account-details">
                     <div class="nickname">
                         <h2>{{ data.rederUserInfo.nickname }}</h2>
-                        <el-button class="eidt"  v-if="current_id == userInfo.id" type="primary" @click="edit()">
-                            编辑
-                        </el-button>
-                        <el-button class="follow" v-else type="primary" @click="follow()">
-                            {{ data.isFriend ? ' √ 已关注' : '关注' }}
-                        </el-button>
                     </div>
+                    <el-button class="eidt" v-if="current_id == userInfo.id" type="primary" @click="edit()">
+                        编辑
+                    </el-button>
+                    <el-button class="follow" v-else type="primary" @click="follow()">
+                        {{ data.isFriend ? ' √ 已关注' : '关注' }}
+                    </el-button>
                     <div class="gender">
                         {{ data.rederUserInfo.gender }}
                     </div>
@@ -37,7 +37,8 @@
                     </div>
                     <div class="menu">
                         <ul v-if="current_id == userInfo.id">
-                            <li class="menu-item" v-for="item, index in data.menuList" :key="index" @click="active(index)">
+                            <li class="menu-item" v-for="item, index in data.menuList" :key="index"
+                                @click="active(index)">
                                 <a :href="item.herf === '' ? null : item.herf" @mouseenter="onMouseenter(item)"
                                     @mouseleave="onMouseleave(item)">
                                     <img :src="choose(item)" alt="">
@@ -66,13 +67,16 @@
 </template>
 <script setup>
 import { useStore } from 'vuex';
-import { ElCard, ElButton, ElMessage } from 'element-plus';
+import { ElCard, ElButton, ElMessage, ElMessageBox } from 'element-plus';
 import { computed, reactive, getCurrentInstance, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { UserInfo, AddFriend, AsyncUserFriendStatus } from "@/utils/request/common.js";
+import { getUid } from '@/utils/auth';
 
 const store = useStore();
 const instance = getCurrentInstance();
+const id = getUid();
+const loginState = useStore().getters['user/getLoginState'];
 const current_id = useRoute().query.id;
 const userInfo = useStore().getters['user/getUserInfo'].data;
 
@@ -163,16 +167,19 @@ const data = reactive({
 })
 
 onMounted(async function init() {
-    if (current_id == userInfo.id) {
-        data.rederUserInfo = userInfo;
-        return
+    if (loginState) {
+        const friendStatus = await AsyncUserFriendStatus(id, current_id)
+        if (friendStatus.meta.code === 200)
+            data.isFriend = friendStatus.data.isFriend
+        if (current_id == userInfo.id) {
+            data.rederUserInfo = userInfo;
+            return
+        }
     }
     const res = await UserInfo(current_id)
     if (res.meta.code === 200)
         data.rederUserInfo = res.data
-    const friendStatus = await AsyncUserFriendStatus(userInfo.id, current_id)
-    if (friendStatus.meta.code === 200)
-        data.isFriend = friendStatus.data.isFriend
+
 })
 
 const onMouseenter = (item) => item.hover = true
@@ -185,13 +192,14 @@ const choose = computed(() => {
 })
 
 const follow = async () => {
-    const res = await AddFriend(userInfo.id, current_id)
-    if (!data.isFriend) {
-        if (res.meta.code === 271)
-            ElMessage.success(res.meta.msg)
-        else ElMessage.error(res.meta.msg)
-    } else ElMessage.warning('你已经关注对方，无需重复操作')
-
+    if (loginState) {
+        const res = await AddFriend(userInfo.id, current_id)
+        if (!data.isFriend) {
+            if (res.meta.code === 271)
+                ElMessage.success(res.meta.msg)
+            else ElMessage.error(res.meta.msg)
+        } else ElMessage.warning('你已经关注对方，无需重复操作')
+    } else ElMessage.warning('请先登录')
 
 }
 
@@ -200,8 +208,23 @@ const edit = () => instance.proxy.$router.push(`/abyss/accountCenter/edit?id=${u
 const active = (index) => {
     data.menuList[index].focus = true;
     if (index === data.menuList.length - 1) {
-        store.commit('user/resetUserInfo');
-        window.location.href = instance.proxy.$router.resolve('/abyss/').href;
+        ElMessageBox.confirm(
+            '确定要退出当前账号',
+            '提示',
+            {
+                confirmButtonText: '确认',
+                cancelButtonText: '取消',
+                type: 'warning',
+            }
+        )
+            .then(() => {
+                store.commit('user/resetUserInfo');
+                store.commit("user/setLoginState", false);
+                window.location.href = instance.proxy.$router.resolve('/abyss').href;
+                ElMessage.success('已退出');
+
+            })
+            .catch(error => error)
     }
 }
 const activeFollow = (index) => {

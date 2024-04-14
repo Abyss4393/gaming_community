@@ -26,6 +26,7 @@
             flex-direction: column;
             height: auto;
 
+
             :deep(.el-carousel__item) {
                 height: inherit;
 
@@ -34,6 +35,14 @@
                     width: 100%;
                     height: auto;
 
+                }
+
+                .hot {
+                    position: absolute;
+
+                    img {
+                        width: 40px;
+                    }
                 }
             }
         }
@@ -289,6 +298,74 @@
                     }
                 }
 
+            }
+        }
+
+        .recommend {
+            width: 100%;
+            height: 400px;
+
+            .card-header {
+                .el-icon {
+                    margin-top: 6px;
+                    margin-left: 12px;
+                }
+            }
+
+            .recommend-item {
+                width: 100%;
+                height: 100px;
+                cursor: pointer;
+                display: flex;
+                padding: 12px;
+                box-sizing: border-box;
+
+                &:hover {
+                    background-color: #f0f1f5;
+                    color: #1296db;
+                }
+
+                .rank {
+                    margin-top: 16px;
+                    width: 160px;
+
+                    span {
+                        display: inline-block;
+                        position: relative;
+                        left: 20px;
+                        top: -2px;
+                        font-size: 24px;
+                    }
+                }
+
+                .recommend-article {
+                    margin-top: 18px;
+                    display: flex;
+                    flex: 1;
+
+                    .avatar {
+
+                        img {
+                            width: 32px;
+                            border-radius: 50%;
+                        }
+                    }
+
+                    .type {
+                        margin-top: 6px;
+                        margin-left: 12px;
+                    }
+
+
+                    .title {
+                        margin-left: 12px;
+                        margin-top: 6px;
+                        width: 50px;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
+                    }
+                }
             }
         }
     }

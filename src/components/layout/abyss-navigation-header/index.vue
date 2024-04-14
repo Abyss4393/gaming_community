@@ -6,7 +6,7 @@
         <div class="navbar">
             <ul>
                 <li v-for="item, index in link" :key="index" :class="index === 3 ? 'nav-animation' : ''">
-                    <a :href="item.href" target="_blank">
+                    <a :href="item.href">
                         <p>{{ item.title }}</p>
                     </a>
                 </li>
@@ -23,13 +23,11 @@
         </div>
 
         <div class="notification">
-            <el-badge :value="notifications" :max="99">
-                <a :href="`/abyss/notifications/system?id=${uid}`">
-                    <p>通知</p>
-                </a>
+            <el-badge :value="notifications" :hidden="0 === notifications" :max="99" @click="toNotification">
+                <p>通知</p>
             </el-badge>
         </div>
-        <div class="avator">
+        <div class="avatar">
             <el-tooltip effect="light" popper-class="popper" placement="bottom">
                 <img :src="url" alt="默认头像">
 
@@ -43,20 +41,32 @@
                 </template>
             </el-tooltip>
         </div>
+        <div class="login">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item :to="{ path: '/login' }">
+                    <span class="login-item">登录</span>
+                </el-breadcrumb-item>
+                <el-breadcrumb-item class="login-item">
+                    <a href="/register">
+                        <span>注册</span>
+                    </a>
+                </el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, getCurrentInstance, onMounted, reactive } from 'vue';
 import { useStore } from 'vuex';
-import { ElAutocomplete } from 'element-plus';
+import { ElAutocomplete, ElMessageBox, ElMessage } from 'element-plus';
 import { getUid } from '@/utils/auth';
-import { ElMessage } from 'element-plus';
 import { AsyncQueryHistory } from '@/utils/request/common.js';
-import { getNotifications } from '@/utils/request/notification.js';
+import { GetNotifications } from '@/utils/request/notification.js';
 
 const canGoBack = ref(false);
 const uid = getUid();
+const loginState = useStore().getters["user/getLoginState"];
 const store = useStore();
 const instance = getCurrentInstance();
 const notifications = ref(0);
@@ -71,9 +81,11 @@ const url = store.getters["user/getAvatar"]
 
 
 onMounted(async () => {
-    canGoBack.value = window.history.state.back != null;
-    const notifi = await getNotifications(uid, true);
-    notifications.value = notifi.data.length;
+    if (loginState) {
+        canGoBack.value = window.history.state.back != null;
+        const notifi = await GetNotifications(uid, true);
+        notifications.value = notifi.data.length;
+    }
 })
 
 const link = [{
@@ -92,14 +104,7 @@ const link = [{
     title: "Chat",
     href: '/chat'
 },
-{
-    title: "观测区",
-    href: '/abyss/'
-},
-{
-    title: "更多",
-    href: '/abyss/'
-}];
+];
 
 const router = [{
     url: require('@/assets/static/icons/center.png'),
@@ -112,10 +117,25 @@ const router = [{
 }];
 
 const transfor = (path, index) => {
-    if (uid != null) {
+    if (uid != 0) {
         if (index === 1) {
-            store.commit('user/resetUserInfo');
-            window.location.href = instance.proxy.$router.resolve(path).href;
+            ElMessageBox.confirm(
+                '确定要退出当前账号',
+                '提示',
+                {
+                    confirmButtonText: '确认',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }
+            )
+                .then(() => {
+                    store.commit('user/resetUserInfo');
+                    store.commit("user/setLoginState", false);
+                    window.location.href = instance.proxy.$router.resolve(path).href;
+                    ElMessage.success('已退出');
+
+                })
+                .catch(error => error)
             return;
         }
         let newWindow = window.open('', '_blank');
@@ -143,6 +163,13 @@ const search = () => {
 
 const previousPage = () => instance.proxy.$router.back();
 
+const toNotification = () => {
+    if (0 == uid) {
+        ElMessage.info('请先登录');
+        return;
+    }
+    instance.proxy.$router.push(`/abyss/notifications/system?id=${uid}`);
+}
 
 </script>
 

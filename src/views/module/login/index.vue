@@ -83,7 +83,6 @@ const intance = getCurrentInstance();
 const store = useStore();
 
 // hasMask
-
 function changeHasMask(params) {
     store.commit("setHasMask", params);
 }
@@ -97,11 +96,16 @@ function setUserInfo(info) {
     store.commit("user/setUserInfo", info);
 }
 
+function updataLoginState() {
+    store.commit("user/setLoginState", true);
+
+}
+
 function asyncUpdateUserInfo(params) {
     store.dispatch("user/asyncUpdateUserInfo", params);
 };
 
-//
+// token
 function setToken(token) {
     store.commit("setToken", token)
 }
@@ -121,10 +125,12 @@ const login = function () {
             if (vaild) {
                 const res = await LoginAPI(loginInfo);
                 if (res.meta.code === 222) {
+                    updataLoginState();
                     setUserInfo(res.data);
                     setToken(res.data.token);
                     ElMessage.success(res.meta.msg);
                     asyncChangeHasMask(100);
+
                     intance.proxy.$router.push('/abyss/')
                 } else {
                     ElMessage.error(res.meta.msg);

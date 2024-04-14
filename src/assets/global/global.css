@@ -53,4 +53,8 @@ li {
     100% {
         background-position: 100% 100%;
     }
-}   
+} 
+
+.text-active{
+    color: #78c5ef;
+}
