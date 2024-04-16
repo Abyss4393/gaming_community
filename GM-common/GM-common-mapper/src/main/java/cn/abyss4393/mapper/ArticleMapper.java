@@ -28,4 +28,5 @@ public interface ArticleMapper extends BaseMapper<Article> {
             "ALTER TABLE tb_article ADD id int NOT NULL FIRST;"+
             "ALTER TABLE tb_article MODIFY COLUMN id int NOT NULL AUTO_INCREMENT,ADD PRIMARY KEY(id);")
     boolean sort();
+
 }

@@ -14,6 +14,7 @@ import cn.abyss4393.webservice.model.ChatMessage;
 import cn.abyss4393.webservice.model.ComplexChatMessage;
 import cn.abyss4393.webservice.states.WebSocketStates;
 import cn.abyss4393.webservice.utils.WebSocketMessageDecoder;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -52,7 +53,6 @@ public class WebSocketPersonalServer extends WebSocketHandler {
 
     /**
      * 注入spring容器的userMapper bean
-     *
      * @param userMapper 用户数据库操作类
      */
     @Autowired(required = false)
@@ -62,7 +62,6 @@ public class WebSocketPersonalServer extends WebSocketHandler {
 
     /**
      * 注入spring容器的messageMapper bean
-     *
      * @param messageMapper 消息数据库操作类
      */
     @Autowired(required = false)
@@ -72,7 +71,6 @@ public class WebSocketPersonalServer extends WebSocketHandler {
 
     /**
      * 注入redis模版类的bean
-     *
      * @param redisUtils redis模版类
      */
     @Autowired(required = false)
@@ -85,6 +83,7 @@ public class WebSocketPersonalServer extends WebSocketHandler {
     private static final Map<Integer, Session> sessionMaps = new ConcurrentHashMap<>();
     private static final Map<Integer, Object> userMaps = new ConcurrentHashMap<>();
     private static final Map<String, Set<String>> fileMaps = new ConcurrentHashMap<>();
+    private static final Map<String, String> filePathMaps = new ConcurrentHashMap<>();
     private static final String IN_SHORT = "信言不美，美言不信。善者不辩，辩者不善。知者不博，博者不知";
     /**
      * 记录历史记录
@@ -135,7 +134,7 @@ public class WebSocketPersonalServer extends WebSocketHandler {
         log.info("websocket has been connected !\t发送id:{}\t接收id:{})", senderId, receiverId);
     }
 
-    @OnMessage
+    @OnMessage(maxMessageSize = 22428800)
     public void onMessage(Session session, @NonNull String message) throws IOException, EncodeException {
         if (WebSocketStates.WAITING.states.equalsIgnoreCase(message)) {
             session.getAsyncRemote().sendText(WebSocketStates.WAITING.states);
@@ -153,6 +152,7 @@ public class WebSocketPersonalServer extends WebSocketHandler {
     @OnClose
     public void onClose() {
         sessionMaps.remove(senderId);
+
         webSocketSet.remove(this);
         log.info("websocket已关闭");
     }
@@ -179,11 +179,13 @@ public class WebSocketPersonalServer extends WebSocketHandler {
                     byte[] imageBytes = WebSocketMessageDecoder.decoder(Objects.requireNonNull(base64Image));
                     JSONObject uploadResult = JSONUtil.parseObj(ImageBedUtils.uploadFile(ImageBedUtils.IMAGE_PATH, originName, imageBytes));
                     String downloadURL = uploadResult.getJSONObject("content").getStr("download_url");
-                    content.replace("image", downloadURL);
-                    chatMessage.setContent(content);
                     fileMaps.get("image").add(originName);
+                    filePathMaps.put(originName, downloadURL);
+                    content.replace("image", downloadURL);
+                } else {
+                    String url = filePathMaps.get(originName);
+                    content.replace("image", url);
                 }
-                content.replace("image", fileMaps.get("image").stream().map(item -> Objects.equals(item, originName)));
                 chatMessage.setContent(content);
                 Map<String, Object> imageMsgMaps = createMessageBody(chatMessage, type, "这是一个图片消息");
                 sendMessage(imageMsgMaps);
@@ -232,17 +234,22 @@ public class WebSocketPersonalServer extends WebSocketHandler {
     private void store() {
         Thread thread = new Thread(() -> {
             synchronized (this) {
+                List<Object> messageList = new ArrayList<>();
                 String key = "senderId:" + senderId + "receiverId:" + receiverId;
                 Optional<List<?>> optionalChatMessages = Optional.ofNullable(redisUtils.lGet(key, 0, -1));
                 optionalChatMessages.orElseGet(ArrayList::new);
-                List<ComplexChatMessage> messageList = (List<ComplexChatMessage>) optionalChatMessages.get();
+                if (optionalChatMessages.isPresent()) {
+                    JSONArray innerJSONArray = JSONUtil.parseArray(JSONUtil.toJsonStr(optionalChatMessages.get()));
+                    if (0 < innerJSONArray.size()) {
+                        messageList.addAll(innerJSONArray);
+                    }
+                }
                 List<ComplexChatMessage> messages = historyContainer.get(key);
                 messageList.addAll(messages);
                 redisUtils.lSet(key, messageList);
                 redisUtils.expire(key, 60 * 24 * 24);
                 long interval = (System.currentTimeMillis() - systemTime) / 1000;
                 if (60 * 5 < interval) {
-                    List<Object> list = redisUtils.lGet(key, 0, -1);
                     LambdaQueryWrapper<Message> lambdaQueryWrapper = Wrappers.lambdaQuery();
                     lambdaQueryWrapper.eq(Message::getSenderId, senderId);
                     lambdaQueryWrapper.eq(Message::getReceiverId, receiverId);
@@ -250,7 +257,7 @@ public class WebSocketPersonalServer extends WebSocketHandler {
                     Message message = new Message();
                     message.setSenderId(senderId);
                     message.setReceiverId(receiverId);
-                    message.setContent(JSONUtil.toJsonStr(list));
+                    message.setContent(JSONUtil.toJsonStr(messageList));
                     message.setCreateTime(TimeStampUtil.getTimestamp());
                     if (exists) {
                         messageMapper.update(message, lambdaQueryWrapper);
@@ -291,26 +298,51 @@ public class WebSocketPersonalServer extends WebSocketHandler {
         return map;
     }
 
+    /**
+     * 处理文本消息
+     * @param handlerBehavior function handlerText
+     * @throws JsonProcessingException 异常
+     */
     @Override
     protected void handlerText(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
+    /**
+     * 处理文本消息
+     * @param handlerBehavior function handlerImag
+     * @throws JsonProcessingException 异常
+     */
     @Override
     protected void handlerImage(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
+    /**
+     * 处理文本消息
+     * @param handlerBehavior function handlerAudio
+     * @throws JsonProcessingException 异常
+     */
     @Override
     protected void handlerAudio(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
+    /**
+     * 处理文本消息
+     * @param handlerBehavior function handlerVideo
+     * @throws JsonProcessingException 异常
+     */
     @Override
     protected void handlerVideo(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();
     }
 
+    /**
+     * 处理文本消息
+     * @param handlerBehavior function handlerFile
+     * @throws JsonProcessingException 异常
+     */
     @Override
     protected void handlerFile(WebSocketHandlerBehavior handlerBehavior) throws JsonProcessingException {
         handlerBehavior.handler();

@@ -18,15 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
  * @completion false
  */
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/api/private/v1/community/chat")
 public class ChatController {
 
     @Resource
     private IMessageService messageService;
     @AuthAccess(desc = "获取聊天记录")
-    @GetMapping("/record/{from}/{to}")
-    public ResultFul<?> getChatRecord(@PathVariable Integer from, @PathVariable Integer to) {
-        return messageService.getChatRecord(from, to);
+    @GetMapping("/record/{senderId}/{receiverId}")
+    public ResultFul<?> getChatRecord(@PathVariable Integer senderId, @PathVariable Integer receiverId) {
+        return messageService.getChatRecord(senderId, receiverId);
     }
 
 }
